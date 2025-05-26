@@ -1,0 +1,20 @@
+
+.bar.data-v-6fbc5706{
+		position: fixed;
+		top: 0rpx;
+		padding-top: 110rpx;
+		left: 0;
+		width: 100%;
+		background-color: white;
+		z-index: 100;
+		padding-bottom: 20rpx;
+}
+.icon.data-v-6fbc5706{
+		position: absolute;
+		left: 20rpx;
+		top: 4rpx;
+}
+.title.data-v-6fbc5706{
+		color: #212121;
+		font-size: 32rpx;
+}

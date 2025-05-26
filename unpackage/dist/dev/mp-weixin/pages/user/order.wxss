@@ -1,0 +1,77 @@
+
+.container.data-v-506ae539{
+		background: linear-gradient(255deg, #FFEEED, #F3F3F3, #E7ECFF);
+		min-height: calc(100vh - 80rpx);
+		padding: 160rpx 20rpx 20rpx 20rpx;
+}
+.tabs.data-v-506ae539{
+		padding-top: 30rpx;
+}
+.line.data-v-506ae539{
+		background: linear-gradient(270deg, #FDEFEE, #5F70F4, #374EF7);
+}
+.unline.data-v-506ae539{
+		background: rgba(255, 255, 255, 0);
+}
+.line.data-v-506ae539,.unline.data-v-506ae539{
+		width: 80rpx;
+		height: 6rpx;
+		margin: 0 auto;
+}
+.title-normal.data-v-506ae539{
+		color: #888;
+}
+.order.data-v-506ae539{
+		background-color: white;
+		margin-top: 20rpx;
+		border-radius: 25rpx;
+		padding: 20rpx;
+}
+.order-header.data-v-506ae539{
+		display: flex;
+		border-bottom: #ddd solid 2rpx;
+		padding-bottom: 20rpx;
+}
+.order-num.data-v-506ae539{
+		flex: 1;
+		color: #17141B;
+		line-height: 50rpx;
+		font-size: 24rpx;
+}
+.finish.data-v-506ae539{
+		background: linear-gradient(270deg, #5086F9, #5569FF);
+}
+.ing.data-v-506ae539{
+		background: linear-gradient(270deg, #70CAF3, #44E590);
+}
+.finish.data-v-506ae539,.ing.data-v-506ae539{
+		color: white;
+		width: 100rpx;
+		height: 50rpx;
+		line-height: 50rpx;
+		border-radius: 10rpx;
+		font-size: 24rpx;
+}
+.order-body.data-v-506ae539{
+		padding-top: 20rpx;
+		padding-bottom: 30rpx;
+}
+.order-info.data-v-506ae539{
+		display: flex;
+		line-height: 48rpx;
+}
+.order-label.data-v-506ae539{
+		width: 140rpx;
+		color: #999;
+}
+.order-value.data-v-506ae539{
+		flex: 1;
+		color: #333;
+}
+.money-value.data-v-506ae539{
+		color: #4369F8;
+}
+.more.data-v-506ae539{
+		margin-top: 10rpx;
+		color: #999;
+}

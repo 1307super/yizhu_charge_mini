@@ -1,0 +1,99 @@
+
+.container.data-v-9788b60e{
+		background-color: #f5f5f5;
+		padding-bottom: 200rpx;
+		padding-top: 120rpx;
+}
+.header.data-v-9788b60e{
+		background: url('https://pic.abdl.eu.org/file/fd0527a5bf376971459e5.png') no-repeat;
+		background-size: cover;
+		padding: 50rpx 0rpx;
+}
+.header-content.data-v-9788b60e{
+		padding-left: 40rpx;
+		padding-right: 40rpx;
+}
+.fast.data-v-9788b60e{
+		width: 44rpx;
+		height: 44rpx;
+		line-height: 44rpx;
+		background: linear-gradient(96deg, #569AFF, #4A6EF3);
+		border-radius: 10rpx;
+		margin-right: 14rpx;
+}
+.fast image.data-v-9788b60e{
+		width: 28rpx;
+}
+.port-title.data-v-9788b60e{
+		font-size: 32rpx;
+		margin-top: 30rpx;
+		margin-bottom: 20rpx;
+}
+.device.data-v-9788b60e{
+		color: #666;
+}
+.power.data-v-9788b60e{
+		font-size: 68rpx;
+		margin-top: 50rpx;
+		margin-bottom: 20rpx;
+}
+.power-per.data-v-9788b60e{
+		font-size: 120rpx;
+}
+.time.data-v-9788b60e{
+		font-size: 32rpx;
+}
+.time.data-v-9788b60e .van-count-down{
+		font-size: 32rpx
+}
+.car.data-v-9788b60e{
+		width: 100%;
+}
+.park.data-v-9788b60e{
+		background-color: #E2E9F7;
+		height: 76rpx;
+		line-height: 76rpx;
+		border-radius: 38rpx;
+		width: calc(90% - 40rpx);
+		margin: 0 auto 60rpx auto;
+		padding-left: 20rpx;
+		padding-right: 20rpx;
+}
+.park-sign.data-v-9788b60e{
+		height: 46rpx;
+		width: 46rpx;
+		line-height: 36rpx;
+		color: white;
+		background-color: #337CEE;
+		border-radius: 10rpx;
+		margin-right: 20rpx;
+		position: relative;
+		top: -4rpx;
+}
+.park-label.data-v-9788b60e{
+		color: #444;
+}
+.power-item.data-v-9788b60e{
+		line-height: 48rpx;
+}
+.power-value.data-v-9788b60e{
+		font-size: 40rpx;
+}
+.power-label.data-v-9788b60e{
+		margin-bottom: 40rpx;
+}
+.footer.data-v-9788b60e{
+		position: fixed;
+		left: 0;
+		bottom: 0;
+		width: 100%;
+		background-color: white;
+		padding: 20rpx;
+}
+.footer.data-v-9788b60e .van-button--primary {
+		border: 2rpx solid #5F7DF9;
+		color: white;
+		background: linear-gradient(96deg, #569AFF, #4A6EF3);
+		width: calc(100% - 40rpx);
+		border-radius: 80rpx;
+}
