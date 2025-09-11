@@ -1,6 +1,6 @@
 "use strict";
-const common_vendor = require("../../common/vendor.js");
-const components_js_request = require("../../components/js/request.js");
+var common_vendor = require("../../common/vendor.js");
+var components_js_request = require("../../components/js/request.js");
 if (!Array) {
   const _component_van_tag = common_vendor.resolveComponent("van-tag");
   const _component_van_button = common_vendor.resolveComponent("van-button");
@@ -37,7 +37,7 @@ const _sfc_main = {
       });
     };
     const times = common_vendor.ref([
-      "智能充满",
+      "\u667A\u80FD\u5145\u6EE1",
       "1",
       "2",
       "3"
@@ -52,7 +52,7 @@ const _sfc_main = {
       if (customtime.value) {
         if (isNaN(customtime.value)) {
           common_vendor.index.showToast({
-            title: "请输入数字",
+            title: "\u8BF7\u8F93\u5165\u6570\u5B57",
             icon: "none"
           });
         } else {
@@ -70,7 +70,7 @@ const _sfc_main = {
         }
       } else {
         common_vendor.index.showToast({
-          title: "请输入自定义时间",
+          title: "\u8BF7\u8F93\u5165\u81EA\u5B9A\u4E49\u65F6\u95F4",
           icon: "none"
         });
       }
@@ -79,7 +79,7 @@ const _sfc_main = {
       if (token) {
         if (selected.value === "") {
           common_vendor.index.showToast({
-            title: "请选择设备端口",
+            title: "\u8BF7\u9009\u62E9\u8BBE\u5907\u7AEF\u53E3",
             icon: "none"
           });
         } else {
@@ -87,21 +87,21 @@ const _sfc_main = {
             url: "/order/saveOrder",
             data: {
               amount: 50,
-              hour: times.value[activetime.value] == "智能充满" ? 12 : times.value[activetime.value],
+              hour: times.value[activetime.value] == "\u667A\u80FD\u5145\u6EE1" ? 12 : times.value[activetime.value],
               portId: form.list[selected.value].portId,
               userId: user.memberId
             },
             success: (res) => {
               if (res.data.code == 200) {
                 common_vendor.index.showToast({
-                  title: "成功开启充电"
+                  title: "\u6210\u529F\u5F00\u542F\u5145\u7535"
                 });
                 setTimeout(() => {
                   go(`/pages/station/powering?stationName=${form.stationName}&port=${res.data.data.portId}&pileId=${res.data.data.pileId}&portname=${form.list[selected.value].name}&orderNumber=${res.data.data.orderNumber}&hour=${res.data.data.hour}&delta=3`);
                 }, 1500);
               } else {
                 common_vendor.index.showToast({
-                  title: "开始充电失败",
+                  title: "\u5F00\u59CB\u5145\u7535\u5931\u8D25",
                   icon: "none"
                 });
               }
@@ -125,12 +125,12 @@ const _sfc_main = {
     return (_ctx, _cache) => {
       return {
         a: common_vendor.p({
-          title: "选择充电"
+          title: "\u9009\u62E9\u5145\u7535"
         }),
         b: common_vendor.t(form.stationName),
-        c: common_vendor.t(form.address || "暂无"),
+        c: common_vendor.t(form.address || "\u6682\u65E0"),
         d: common_vendor.t(form.pileId),
-        e: common_vendor.t(form.pileType == 1 ? "快充" : "慢充"),
+        e: common_vendor.t(form.pileType == 1 ? "\u5FEB\u5145" : "\u6162\u5145"),
         f: common_vendor.p({
           color: "#E3E8FF",
           textColor: "#5F7DF9"
@@ -138,11 +138,11 @@ const _sfc_main = {
         g: common_vendor.f(form.list, (item, index, i0) => {
           return {
             a: common_vendor.t(item.name),
-            b: common_vendor.t(item.state == "N" ? "空闲" : item.state == "Y" ? "使用中" : "故障"),
+            b: common_vendor.t(item.state == "N" ? "\u7A7A\u95F2" : item.state == "Y" ? "\u4F7F\u7528\u4E2D" : "\u6545\u969C"),
             c: common_vendor.n(item.state == "Y" ? "busy" : ""),
             d: common_vendor.n(selected.value === index ? "selected" : ""),
-            e: common_vendor.o(($event) => setport(index), index),
-            f: "b7ae42e0-4-" + i0 + "," + ("b7ae42e0-3-" + i0),
+            e: common_vendor.o(($event) => setport(index)),
+            f: "3e528b70-4-" + i0 + "," + ("3e528b70-3-" + i0),
             g: common_vendor.p({
               plain: selected.value === index ? false : true,
               round: true,
@@ -150,7 +150,7 @@ const _sfc_main = {
               disabled: item.state == "Y" || item.state == "F"
             }),
             h: index,
-            i: "b7ae42e0-3-" + i0 + ",b7ae42e0-2"
+            i: "3e528b70-3-" + i0 + ",3e528b70-2"
           };
         }),
         h: common_vendor.p({
@@ -162,16 +162,16 @@ const _sfc_main = {
         j: common_vendor.f(times.value, (item, index, i0) => {
           return {
             a: common_vendor.t(item),
-            b: common_vendor.t(item == "智能充满" ? "" : "小时"),
+            b: common_vendor.t(item == "\u667A\u80FD\u5145\u6EE1" ? "" : "\u5C0F\u65F6"),
             c: common_vendor.n(activetime.value === index ? "active" : "default"),
-            d: "b7ae42e0-7-" + i0 + "," + ("b7ae42e0-6-" + i0),
+            d: "3e528b70-7-" + i0 + "," + ("3e528b70-6-" + i0),
             e: common_vendor.p({
               color: activetime.value === index ? "#EEF1FF" : "white",
               textColor: activetime.value === index ? "#5F7DF9" : "#666"
             }),
-            f: common_vendor.o(($event) => setime(index), index),
+            f: common_vendor.o(($event) => setime(index)),
             g: index,
-            h: "b7ae42e0-6-" + i0 + ",b7ae42e0-5"
+            h: "3e528b70-6-" + i0 + ",3e528b70-5"
           };
         }),
         k: common_vendor.p({
@@ -222,6 +222,5 @@ const _sfc_main = {
     };
   }
 };
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-b7ae42e0"]]);
+var MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-3e528b70"], ["__file", "/Users/a1307/project/javaworkspace/hxhh/HUIZHI-ChargeOS-mini/pages/station/create.vue"]]);
 wx.createPage(MiniProgramPage);
-//# sourceMappingURL=../../../.sourcemap/mp-weixin/pages/station/create.js.map

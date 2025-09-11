@@ -1,14 +1,14 @@
 
-.container.data-v-806b15dc{
+.container.data-v-52e26b05{
 		padding-top: 160rpx;
 }
-.cells.data-v-806b15dc{
+.cells.data-v-52e26b05{
 		margin-top: 20rpx;
 }
-.logout.data-v-806b15dc{
+.logout.data-v-52e26b05{
 		width: calc(100% - 60rpx);
 		margin: 40rpx auto 0 auto;
 }
-.logout.data-v-806b15dc .van-button{
+.logout.data-v-52e26b05 .van-button{
 		width: 100%;
 }

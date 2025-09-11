@@ -57,10 +57,14 @@
 		height: 106rpx;
 		background-size: 100%;
 		margin: 30rpx auto 0 auto;
+		position: relative;
 	}
 	.scan-pic{
 		width: 40rpx;
-		margin-top: 16rpx;
+		position: absolute;
+		top: 20rpx;
+		left: 50%;
+		transform: translateX(-50%);
 	}
 </style>
 

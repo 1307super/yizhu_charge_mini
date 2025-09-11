@@ -9,8 +9,8 @@
 	export default {
 		globalData: {
 			appid: 'wxe36b893427127efd6c',
-			serverUrl: 'http://127.0.0.1:38080/hcp-mp/',
-			wsurl: 'ws://127.0.0.1/hcp-mp/websocket/charge/'
+			serverUrl: 'http://127.0.0.1:38080/yzev-mp/',
+			wsurl: 'ws://127.0.0.1/yzev-mp/websocket/charge/'
 		},
 		onLaunch: function() {
 			console.log('App Launch')

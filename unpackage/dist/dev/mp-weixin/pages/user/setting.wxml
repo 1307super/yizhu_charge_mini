@@ -1,0 +1,1 @@
+<view class="container data-v-52e26b05"><navbar wx:if="{{a}}" class="data-v-52e26b05" u-i="52e26b05-0" bind:__l="__l" u-p="{{a}}"></navbar><van-button wx:if="{{c}}" class="logout f-db data-v-52e26b05" bindclick="{{b}}" u-t="m" u-i="52e26b05-1" bind:__l="__l" u-p="{{c}}">退出登录</van-button></view>

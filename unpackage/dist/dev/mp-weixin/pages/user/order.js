@@ -1,6 +1,6 @@
 "use strict";
-const common_vendor = require("../../common/vendor.js");
-const components_js_request = require("../../components/js/request.js");
+var common_vendor = require("../../common/vendor.js");
+var components_js_request = require("../../components/js/request.js");
 if (!Array) {
   const _component_van_col = common_vendor.resolveComponent("van-col");
   const _component_van_row = common_vendor.resolveComponent("van-row");
@@ -39,17 +39,17 @@ const _sfc_main = {
     };
     const orders = common_vendor.ref([]);
     const loadall = common_vendor.ref(false);
-    const moreText = common_vendor.ref("上滑加载更多~");
+    const moreText = common_vendor.ref("\u4E0A\u6ED1\u52A0\u8F7D\u66F4\u591A~");
     const index = (page) => {
       query.pageNo = page;
-      moreText.value = "加载中...";
+      moreText.value = "\u52A0\u8F7D\u4E2D...";
       components_js_request.request({
         url: "/order/queryOrderList",
         data: query,
         success: (res) => {
           orders.value = orders.value.concat(res.data.data.records);
           loadall.value == res.data.data.records.length == 0;
-          moreText.value = loadall.value ? "没有更多了~" : "上滑加载更多~";
+          moreText.value = loadall.value ? "\u6CA1\u6709\u66F4\u591A\u4E86~" : "\u4E0A\u6ED1\u52A0\u8F7D\u66F4\u591A~";
         }
       });
     };
@@ -71,7 +71,7 @@ const _sfc_main = {
     return (_ctx, _cache) => {
       return {
         a: common_vendor.p({
-          title: "我的订单"
+          title: "\u6211\u7684\u8BA2\u5355"
         }),
         b: common_vendor.n(query.orderStatus === "" ? "f-fwb" : "title-normal"),
         c: common_vendor.o(($event) => setactive("")),
@@ -113,6 +113,5 @@ const _sfc_main = {
     };
   }
 };
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-506ae539"]]);
+var MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-0f0c1843"], ["__file", "/Users/a1307/project/javaworkspace/hxhh/HUIZHI-ChargeOS-mini/pages/user/order.vue"]]);
 wx.createPage(MiniProgramPage);
-//# sourceMappingURL=../../../.sourcemap/mp-weixin/pages/user/order.js.map

@@ -1,5 +1,5 @@
 "use strict";
-const common_vendor = require("../../common/vendor.js");
+var common_vendor = require("../../common/vendor.js");
 function request(options) {
   common_vendor.index.getStorageSync("token") || "";
   const defaultOptions = {
@@ -15,4 +15,3 @@ function request(options) {
   common_vendor.index.request(defaultOptions);
 }
 exports.request = request;
-//# sourceMappingURL=../../../.sourcemap/mp-weixin/components/js/request.js.map

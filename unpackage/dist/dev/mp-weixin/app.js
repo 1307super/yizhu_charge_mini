@@ -1,6 +1,7 @@
 "use strict";
-Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
-const common_vendor = require("./common/vendor.js");
+Object.defineProperty(exports, "__esModule", { value: true });
+exports[Symbol.toStringTag] = "Module";
+var common_vendor = require("./common/vendor.js");
 if (!Math) {
   "./pages/index/index.js";
   "./pages/user/index.js";
@@ -15,25 +16,25 @@ if (!Math) {
 const _sfc_main = {
   globalData: {
     appid: "wxe36b893427127efd6c",
-    serverUrl: "http://127.0.0.1:38080/hcp-mp/",
-    wsurl: "ws://127.0.0.1/hcp-mp/websocket/charge/"
+    serverUrl: "http://127.0.0.1:38080/yzev-mp/",
+    wsurl: "ws://127.0.0.1/yzev-mp/websocket/charge/"
   },
   onLaunch: function() {
-    common_vendor.index.__f__("log", "at App.vue:16", "App Launch");
+    console.log("App Launch");
   },
   onShow: function() {
-    common_vendor.index.__f__("log", "at App.vue:19", "App Show");
+    console.log("App Show");
   },
   onHide: function() {
-    common_vendor.index.__f__("log", "at App.vue:22", "App Hide");
+    console.log("App Hide");
   }
 };
+var App = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "/Users/a1307/project/javaworkspace/hxhh/HUIZHI-ChargeOS-mini/App.vue"]]);
 function createApp() {
-  const app = common_vendor.createSSRApp(_sfc_main);
+  const app = common_vendor.createSSRApp(App);
   return {
     app
   };
 }
 createApp().app.mount("#app");
 exports.createApp = createApp;
-//# sourceMappingURL=../.sourcemap/mp-weixin/app.js.map

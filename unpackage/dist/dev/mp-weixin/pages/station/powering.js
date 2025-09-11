@@ -1,13 +1,10 @@
 "use strict";
-const common_vendor = require("../../common/vendor.js");
-const common_assets = require("../../common/assets.js");
-const components_js_request = require("../../components/js/request.js");
+var common_vendor = require("../../common/vendor.js");
+var components_js_request = require("../../components/js/request.js");
 if (!Array) {
   const _component_van_count_down = common_vendor.resolveComponent("van-count-down");
-  const _component_van_col = common_vendor.resolveComponent("van-col");
-  const _component_van_row = common_vendor.resolveComponent("van-row");
   const _component_van_button = common_vendor.resolveComponent("van-button");
-  (_component_van_count_down + _component_van_col + _component_van_row + _component_van_button)();
+  (_component_van_count_down + _component_van_button)();
 }
 if (!Math) {
   navbar();
@@ -31,7 +28,7 @@ const _sfc_main = {
         }
       });
       common_vendor.index.onSocketOpen(function(res) {
-        common_vendor.index.__f__("log", "at pages/station/powering.vue:197", "WebSocket连接已打开！", res);
+        console.log("WebSocket\u8FDE\u63A5\u5DF2\u6253\u5F00\uFF01", res);
       });
       common_vendor.index.onSocketMessage(function(res) {
         const result = JSON.parse(res.data);
@@ -46,7 +43,7 @@ const _sfc_main = {
     };
     const finish = () => {
       common_vendor.index.showModal({
-        title: "确定结束充电?",
+        title: "\u786E\u5B9A\u7ED3\u675F\u5145\u7535?",
         showCancel: true,
         success: (res) => {
           if (res.confirm) {
@@ -56,7 +53,7 @@ const _sfc_main = {
               success: (res2) => {
                 if (res2.data.code == 200) {
                   common_vendor.index.showToast({
-                    title: "结束成功"
+                    title: "\u7ED3\u675F\u6210\u529F"
                   });
                   setTimeout(() => {
                     common_vendor.index.redirectTo({
@@ -65,7 +62,7 @@ const _sfc_main = {
                   }, 1500);
                 } else {
                   common_vendor.index.showToast({
-                    title: "结束失败",
+                    title: "\u7ED3\u675F\u5931\u8D25",
                     icon: "none"
                   });
                 }
@@ -85,57 +82,31 @@ const _sfc_main = {
     common_vendor.onUnload(() => {
       socketTask.value.close({
         success: () => {
-          common_vendor.index.__f__("log", "at pages/station/powering.vue:253", "关闭成功");
+          console.log("\u5173\u95ED\u6210\u529F");
         }
       });
     });
     return (_ctx, _cache) => {
       return {
         a: common_vendor.p({
-          title: "正在充电",
+          title: "\u6B63\u5728\u5145\u7535",
           delta: form.delta
         }),
         b: common_vendor.t(form.portname),
         c: common_vendor.t(form.stationName),
-        d: common_assets._imports_0$1,
-        e: common_vendor.t(form.pileId),
-        f: common_vendor.t(wsform.soc),
-        g: common_vendor.p({
+        d: common_vendor.t(form.pileId),
+        e: common_vendor.t(wsform.soc),
+        f: common_vendor.p({
           time: time.value
         }),
-        h: common_vendor.t(wsform.hasChargePower ? parseFloat(wsform.totalFee).toFixed(2) : 0),
+        g: common_vendor.t(wsform.hasChargePower ? parseFloat(wsform.totalFee).toFixed(2) : 0),
+        h: common_vendor.o(finish),
         i: common_vendor.p({
-          span: 8
-        }),
-        j: common_vendor.t(wsform.totalFee ? parseFloat(wsform.totalFee).toFixed(2) : 0),
-        k: common_vendor.p({
-          span: 8
-        }),
-        l: common_vendor.t(hours.value),
-        m: common_vendor.t(minutes.value),
-        n: common_vendor.p({
-          span: 8
-        }),
-        o: common_vendor.t(wsform.voltage),
-        p: common_vendor.p({
-          span: 8
-        }),
-        q: common_vendor.t(wsform.electricity),
-        r: common_vendor.p({
-          span: 8
-        }),
-        s: common_vendor.t(wsform.voltage ? (wsform.voltage / wsform.electricity).toFixed(2) : 0),
-        t: common_vendor.p({
-          span: 8
-        }),
-        v: common_vendor.o(finish),
-        w: common_vendor.p({
           type: "primary"
         })
       };
     };
   }
 };
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-9788b60e"]]);
+var MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-f0ec609e"], ["__file", "/Users/a1307/project/javaworkspace/hxhh/HUIZHI-ChargeOS-mini/pages/station/powering.vue"]]);
 wx.createPage(MiniProgramPage);
-//# sourceMappingURL=../../../.sourcemap/mp-weixin/pages/station/powering.js.map

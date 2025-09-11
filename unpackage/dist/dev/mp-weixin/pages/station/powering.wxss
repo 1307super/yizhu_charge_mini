@@ -1,19 +1,19 @@
 
-.container.data-v-9788b60e{
-		background-color: #f5f5f5;
+.container.data-v-f0ec609e{
+		background-color: #ffffff;
 		padding-bottom: 200rpx;
 		padding-top: 120rpx;
 }
-.header.data-v-9788b60e{
+.header.data-v-f0ec609e{
 		background: url('https://pic.abdl.eu.org/file/fd0527a5bf376971459e5.png') no-repeat;
 		background-size: cover;
 		padding: 50rpx 0rpx;
 }
-.header-content.data-v-9788b60e{
+.header-content.data-v-f0ec609e{
 		padding-left: 40rpx;
 		padding-right: 40rpx;
 }
-.fast.data-v-9788b60e{
+.fast.data-v-f0ec609e{
 		width: 44rpx;
 		height: 44rpx;
 		line-height: 44rpx;
@@ -21,35 +21,35 @@
 		border-radius: 10rpx;
 		margin-right: 14rpx;
 }
-.fast image.data-v-9788b60e{
+.fast image.data-v-f0ec609e{
 		width: 28rpx;
 }
-.port-title.data-v-9788b60e{
+.port-title.data-v-f0ec609e{
 		font-size: 32rpx;
 		margin-top: 30rpx;
 		margin-bottom: 20rpx;
 }
-.device.data-v-9788b60e{
+.device.data-v-f0ec609e{
 		color: #666;
 }
-.power.data-v-9788b60e{
+.power.data-v-f0ec609e{
 		font-size: 68rpx;
 		margin-top: 50rpx;
 		margin-bottom: 20rpx;
 }
-.power-per.data-v-9788b60e{
+.power-per.data-v-f0ec609e{
 		font-size: 120rpx;
 }
-.time.data-v-9788b60e{
+.time.data-v-f0ec609e{
 		font-size: 32rpx;
 }
-.time.data-v-9788b60e .van-count-down{
+.time.data-v-f0ec609e .van-count-down{
 		font-size: 32rpx
 }
-.car.data-v-9788b60e{
+.car.data-v-f0ec609e{
 		width: 100%;
 }
-.park.data-v-9788b60e{
+.park.data-v-f0ec609e{
 		background-color: #E2E9F7;
 		height: 76rpx;
 		line-height: 76rpx;
@@ -59,7 +59,7 @@
 		padding-left: 20rpx;
 		padding-right: 20rpx;
 }
-.park-sign.data-v-9788b60e{
+.park-sign.data-v-f0ec609e{
 		height: 46rpx;
 		width: 46rpx;
 		line-height: 36rpx;
@@ -70,19 +70,19 @@
 		position: relative;
 		top: -4rpx;
 }
-.park-label.data-v-9788b60e{
+.park-label.data-v-f0ec609e{
 		color: #444;
 }
-.power-item.data-v-9788b60e{
+.power-item.data-v-f0ec609e{
 		line-height: 48rpx;
 }
-.power-value.data-v-9788b60e{
+.power-value.data-v-f0ec609e{
 		font-size: 40rpx;
 }
-.power-label.data-v-9788b60e{
+.power-label.data-v-f0ec609e{
 		margin-bottom: 40rpx;
 }
-.footer.data-v-9788b60e{
+.footer.data-v-f0ec609e{
 		position: fixed;
 		left: 0;
 		bottom: 0;
@@ -90,7 +90,7 @@
 		background-color: white;
 		padding: 20rpx;
 }
-.footer.data-v-9788b60e .van-button--primary {
+.footer.data-v-f0ec609e .van-button--primary {
 		border: 2rpx solid #5F7DF9;
 		color: white;
 		background: linear-gradient(96deg, #569AFF, #4A6EF3);

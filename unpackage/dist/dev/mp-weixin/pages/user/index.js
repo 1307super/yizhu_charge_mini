@@ -1,7 +1,6 @@
 "use strict";
-const common_vendor = require("../../common/vendor.js");
-const common_assets = require("../../common/assets.js");
-const components_js_request = require("../../components/js/request.js");
+var common_vendor = require("../../common/vendor.js");
+var components_js_request = require("../../components/js/request.js");
 if (!Array) {
   const _component_van_col = common_vendor.resolveComponent("van-col");
   const _component_van_row = common_vendor.resolveComponent("van-row");
@@ -67,7 +66,7 @@ const _sfc_main = {
         go(url);
       } else {
         common_vendor.index.showToast({
-          title: "您还未登录，请先登录",
+          title: "\u60A8\u8FD8\u672A\u767B\u5F55\uFF0C\u8BF7\u5148\u767B\u5F55",
           icon: "none"
         });
       }
@@ -82,50 +81,46 @@ const _sfc_main = {
     return (_ctx, _cache) => {
       return common_vendor.e({
         a: common_vendor.p({
-          title: "我的",
+          title: "\u6211\u7684",
           showarrow: false
         }),
-        b: common_assets._imports_0$2,
-        c: common_vendor.unref(token)
+        b: common_vendor.unref(token)
       }, common_vendor.unref(token) ? {
-        d: common_vendor.t(common_vendor.unref(phone))
+        c: common_vendor.t(common_vendor.unref(phone))
       } : {
-        e: common_vendor.o(($event) => go("/pages/user/login"))
+        d: common_vendor.o(($event) => go("/pages/user/login"))
       }, {
-        f: common_vendor.o(($event) => goabort("/pages/user/setting")),
-        g: common_assets._imports_1$1,
-        h: common_vendor.t(balance.value),
-        i: common_vendor.p({
+        e: common_vendor.o(($event) => goabort("/pages/user/setting")),
+        f: common_vendor.t(balance.value),
+        g: common_vendor.p({
           span: 8
         }),
+        h: common_vendor.p({
+          span: 8
+        }),
+        i: common_vendor.t(score.value),
         j: common_vendor.p({
           span: 8
         }),
-        k: common_vendor.t(score.value),
-        l: common_vendor.p({
+        k: common_vendor.o(($event) => goabort("/pages/user/order")),
+        l: common_vendor.t(month.chargeDegree || 0),
+        m: common_vendor.p({
           span: 8
         }),
-        m: common_assets._imports_2,
-        n: common_vendor.o(($event) => goabort("/pages/user/order")),
-        o: common_vendor.t(month.chargeDegree || 0),
-        p: common_vendor.p({
+        n: common_vendor.t(month.chargeAmount || 0),
+        o: common_vendor.p({
           span: 8
         }),
-        q: common_vendor.t(month.chargeAmount || 0),
+        p: common_vendor.t(month.chargeTime || 0),
+        q: common_vendor.p({
+          span: 8
+        }),
         r: common_vendor.p({
-          span: 8
-        }),
-        s: common_vendor.t(month.chargeTime || 0),
-        t: common_vendor.p({
-          span: 8
-        }),
-        v: common_vendor.p({
           active: 1
         })
       });
     };
   }
 };
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-79e6a490"]]);
+var MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-137d5072"], ["__file", "/Users/a1307/project/javaworkspace/hxhh/HUIZHI-ChargeOS-mini/pages/user/index.vue"]]);
 wx.createPage(MiniProgramPage);
-//# sourceMappingURL=../../../.sourcemap/mp-weixin/pages/user/index.js.map

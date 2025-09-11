@@ -1,6 +1,5 @@
 "use strict";
-const common_vendor = require("../../common/vendor.js");
-const common_assets = require("../../common/assets.js");
+var common_vendor = require("../../common/vendor.js");
 if (!Array) {
   const _component_van_col = common_vendor.resolveComponent("van-col");
   const _component_van_row = common_vendor.resolveComponent("van-row");
@@ -43,24 +42,22 @@ const _sfc_main = {
         e: common_vendor.p({
           span: 7
         }),
-        f: common_assets._imports_0$4,
-        g: common_vendor.o(scan),
-        h: common_vendor.p({
+        f: common_vendor.o(scan),
+        g: common_vendor.p({
           span: 8
         }),
-        i: __props.active == 1 ? user.active : user.default,
-        j: common_vendor.n(__props.active == 1 ? "text-active" : "text-default"),
-        k: common_vendor.o(($event) => go("/pages/user/index")),
-        l: common_vendor.p({
+        h: __props.active == 1 ? user.active : user.default,
+        i: common_vendor.n(__props.active == 1 ? "text-active" : "text-default"),
+        j: common_vendor.o(($event) => go("/pages/user/index")),
+        k: common_vendor.p({
           span: 7
         }),
-        m: common_vendor.p({
+        l: common_vendor.p({
           span: 1
         })
       };
     };
   }
 };
-const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-0e399a7b"]]);
+var Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-44ce5a1c"], ["__file", "/Users/a1307/project/javaworkspace/hxhh/HUIZHI-ChargeOS-mini/components/tabbar/index.vue"]]);
 wx.createComponent(Component);
-//# sourceMappingURL=../../../.sourcemap/mp-weixin/components/tabbar/index.js.map

@@ -1,19 +1,19 @@
 
-.container.data-v-6163e5ce{
+.container.data-v-802e0a44{
 		background-color: #f6f6f6;
 		padding-top: 150rpx;
 		height: 100vh;
 }
-.title.data-v-6163e5ce{
+.title.data-v-802e0a44{
 		font-size: 36rpx;
 		margin-top: 100rpx;
 }
-.swiper.data-v-6163e5ce{
+.swiper.data-v-802e0a44{
 		color: #999;
 		margin-top: 40rpx;
 		height: 120rpx;
 }
-.button.data-v-6163e5ce{
+.button.data-v-802e0a44{
 		width: 90%;
 		margin: 60rpx auto;
 }

@@ -1,32 +1,32 @@
 
-.container.data-v-79e6a490{
+.container.data-v-137d5072{
 		background-color: #f6f6f6;
 		min-height: 100vh;
 }
-.header.data-v-79e6a490{
+.header.data-v-137d5072{
 		background: linear-gradient(-36deg, #E3E8FF, #FFF7F7);
 		padding-left: 30rpx;
 		padding-right: 30rpx;
 		padding-top: 180rpx;
 }
-.user.data-v-79e6a490{
+.user.data-v-137d5072{
 		display: flex;
 }
-.user-main.data-v-79e6a490{
+.user-main.data-v-137d5072{
 		flex: 1;
 }
-.avatar.data-v-79e6a490{
+.avatar.data-v-137d5072{
 		width: 120rpx;
 		margin-right: 30rpx;
 }
-.phone.data-v-79e6a490{
+.phone.data-v-137d5072{
 		line-height: 120rpx;
 }
-.setting.data-v-79e6a490{
+.setting.data-v-137d5072{
 		width: 40rpx;
 		margin-top: 40rpx;
 }
-.charge.data-v-79e6a490{
+.charge.data-v-137d5072{
 		background: linear-gradient(264deg, #5086F9, #5278FC, #5470FE, #5569FF);
 		border-radius: 20rpx 20rpx 0px 0px;
 		color: white;
@@ -34,34 +34,34 @@
 		padding-top: 40rpx;
 		padding-bottom: 30rpx;
 }
-.charge-value.data-v-79e6a490{
+.charge-value.data-v-137d5072{
 		font-size: 36rpx;
 		margin-bottom: 10rpx;
 }
-.cash-wrapper.data-v-79e6a490{
+.cash-wrapper.data-v-137d5072{
 		display: flex;
 }
-.cash.data-v-79e6a490{
+.cash.data-v-137d5072{
 		flex: 1;
 }
-.line.data-v-79e6a490{
+.line.data-v-137d5072{
 		background-color: #ddd;
 		height: 40rpx;
 		width: 2rpx;
 		margin-top: 40rpx;
 }
-.content.data-v-79e6a490{
+.content.data-v-137d5072{
 		padding-left: 30rpx;
 		padding-right: 30rpx;
 }
-.order.data-v-79e6a490{
+.order.data-v-137d5072{
 		background-color: white;
 		border-radius: 25rpx;
 		display: flex;
 		padding: 30rpx;
 		margin-top: 30rpx;
 }
-.order-label.data-v-79e6a490{
+.order-label.data-v-137d5072{
 		flex: 1;
 		background: url('https://pic.abdl.eu.org/file/45323f1e74c9eccb77e37.png') left no-repeat;
 		background-size: 45rpx 50rpx;
@@ -69,23 +69,23 @@
 		height: 50rpx;
 		line-height: 50rpx;
 }
-.arrow.data-v-79e6a490{
+.arrow.data-v-137d5072{
 		width: 20rpx;
 		margin-top: 4rpx;
 }
-.power.data-v-79e6a490{
+.power.data-v-137d5072{
 		background-color: white;
 		padding: 30rpx;
 		border-radius: 25rpx;
 		margin-top: 30rpx;
 }
-.power-title.data-v-79e6a490{
+.power-title.data-v-137d5072{
 		margin-bottom: 30rpx;
 }
-.power-value.data-v-79e6a490{
+.power-value.data-v-137d5072{
 		font-size: 36rpx;
 }
-.power-label.data-v-79e6a490{
+.power-label.data-v-137d5072{
 		color: #888;
 		margin-top: 20rpx;
 }

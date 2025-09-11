@@ -1,6 +1,6 @@
 "use strict";
-const common_vendor = require("../../common/vendor.js");
-const components_js_request = require("../../components/js/request.js");
+var common_vendor = require("../../common/vendor.js");
+var components_js_request = require("../../components/js/request.js");
 if (!Math) {
   navbar();
 }
@@ -27,12 +27,12 @@ const _sfc_main = {
     return (_ctx, _cache) => {
       return {
         a: common_vendor.p({
-          title: "订单详情"
+          title: "\u8BA2\u5355\u8BE6\u60C5"
         }),
-        b: common_vendor.t(form.orderState == 1 ? "进行中" : "已完成"),
+        b: common_vendor.t(form.orderState == 1 ? "\u8FDB\u884C\u4E2D" : "\u5DF2\u5B8C\u6210"),
         c: common_vendor.t(form.address),
         d: common_vendor.t(form.pileId),
-        e: common_vendor.t(form.pileType == 1 ? "快充" : "慢充"),
+        e: common_vendor.t(form.pileType == 1 ? "\u5FEB\u5145" : "\u6162\u5145"),
         f: common_vendor.t(form.portName),
         g: common_vendor.t(form.electricity),
         h: common_vendor.t(form.voltage),
@@ -44,7 +44,7 @@ const _sfc_main = {
         n: common_vendor.t(form.chargeFee || 0),
         o: common_vendor.t(form.serviceFee || 0),
         p: common_vendor.t(form.ordergold || 0),
-        q: common_vendor.t(form.payType || "账户余额扣款"),
+        q: common_vendor.t(form.payType || "\u8D26\u6237\u4F59\u989D\u6263\u6B3E"),
         r: common_vendor.f(form.logList, (item, index, i0) => {
           return {
             a: common_vendor.t(item.createTime),
@@ -56,6 +56,5 @@ const _sfc_main = {
     };
   }
 };
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-eaf61ac2"]]);
+var MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-308973d4"], ["__file", "/Users/a1307/project/javaworkspace/hxhh/HUIZHI-ChargeOS-mini/pages/user/orderdetail.vue"]]);
 wx.createPage(MiniProgramPage);
-//# sourceMappingURL=../../../.sourcemap/mp-weixin/pages/user/orderdetail.js.map

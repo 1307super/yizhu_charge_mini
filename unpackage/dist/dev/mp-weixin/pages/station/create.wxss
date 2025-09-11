@@ -1,20 +1,20 @@
 
-.container.data-v-b7ae42e0{
+.container.data-v-3e528b70{
 		background: linear-gradient(-42deg, #E7FFFA, #EFF5FF, #FCFDEF);
 		padding-top: 160rpx;
 		min-height: calc(100vh - 80rpx);
 		padding-bottom: 80rpx;
 }
-.main.data-v-b7ae42e0{
+.main.data-v-3e528b70{
 		margin-left: 20rpx;
 		margin-right: 20rpx;
 }
-.header.data-v-b7ae42e0{
+.header.data-v-3e528b70{
 		margin-left: 20rpx;
 		margin-right: 20rpx;
 		padding: 20rpx;
 }
-.staion-name.data-v-b7ae42e0{
+.staion-name.data-v-3e528b70{
 		font-family: Microsoft YaHei;
 		font-weight: bold;
 		font-size: 36rpx;
@@ -22,59 +22,59 @@
 		line-height: 60rpx;
 		margin-bottom: 20rpx;
 }
-.address.data-v-b7ae42e0{
+.address.data-v-3e528b70{
 		color: #666;
 }
-.charge.data-v-b7ae42e0{
+.charge.data-v-3e528b70{
 		background-color: white;
 		padding: 20rpx;
 		border-radius: 20rpx;
 		margin-top: 20rpx;
 }
-.code-wrapper.data-v-b7ae42e0{
+.code-wrapper.data-v-3e528b70{
 		display: flex;
 }
-.code.data-v-b7ae42e0{
+.code.data-v-3e528b70{
 		flex: 1;
 		font-size: 32rpx;
 		margin-top: 6rpx;
 }
-.type-label.data-v-b7ae42e0{
+.type-label.data-v-3e528b70{
 		height: 52rpx;
 		line-height: 52rpx;
 		padding-left: 20rpx;
 		padding-right: 20rpx;
 }
-.port-title.data-v-b7ae42e0{
+.port-title.data-v-3e528b70{
 		font-size: 32rpx;
 		margin-bottom: 20rpx;
 }
-.port.data-v-b7ae42e0 .van-button--primary, .port.data-v-b7ae42e0 .van-button--default{
+.port.data-v-3e528b70 .van-button--primary, .port.data-v-3e528b70 .van-button--default{
 		width: 100%;
 		height: 80rpx;
 }
-.port-num.data-v-b7ae42e0{
+.port-num.data-v-3e528b70{
 		font-size: 32rpx;
 		margin-right: 4rpx;
 }
-.busy.data-v-b7ae42e0{
+.busy.data-v-3e528b70{
 		color: #F16A19;
 }
-.selected.data-v-b7ae42e0 .van-button--primary {
+.selected.data-v-3e528b70 .van-button--primary {
 		background: linear-gradient(96deg, #569AFF, #5A8CFF);
 }
-.port.data-v-b7ae42e0 .van-button--primary {
+.port.data-v-3e528b70 .van-button--primary {
 		border: 2rpx solid #5F7DF9;
 		color: white;
 }
-.port.data-v-b7ae42e0 .van-button--default {
+.port.data-v-3e528b70 .van-button--default {
 		border: 2rpx solid #999;
 }
-.port.data-v-b7ae42e0 .van-button--plain.van-button--primary {
+.port.data-v-3e528b70 .van-button--plain.van-button--primary {
 		background-color: white;
 		color: #569AFF;
 }
-.time.data-v-b7ae42e0 .van-tag{
+.time.data-v-3e528b70 .van-tag{
 		width: calc(100% - 20rpx);
 		height: 80rpx;
 		line-height: 80rpx;
@@ -83,32 +83,32 @@
 		display: inline-block;
 		border-radius: 10rpx;
 }
-.active.data-v-b7ae42e0 .van-tag{
+.active.data-v-3e528b70 .van-tag{
 		border: #5F7DF9 solid 2rpx;
 }
-.default.data-v-b7ae42e0 .van-tag{
+.default.data-v-3e528b70 .van-tag{
 		border: #D8DCE0 solid 2rpx;
 }
-.popup.data-v-b7ae42e0{
+.popup.data-v-3e528b70{
 		padding: 20rpx;
 }
-.time-footer.data-v-b7ae42e0{
+.time-footer.data-v-3e528b70{
 		margin-top: 20rpx;
 }
-.time-footer.data-v-b7ae42e0 .van-button--small{
+.time-footer.data-v-3e528b70 .van-button--small{
 		width: 80%;
 }
-.input.data-v-b7ae42e0{
+.input.data-v-3e528b70{
 		width: calc(100% - 80rpx);
 		margin: 20rpx auto;
 		height: 60rpx;
 		line-height: 60rpx;
 }
-.price-label.data-v-b7ae42e0{
+.price-label.data-v-3e528b70{
 		color: #888;
 		line-height: 48rpx;
 }
-.footer.data-v-b7ae42e0{
+.footer.data-v-3e528b70{
 		position: fixed;
 		left: 0;
 		bottom: 0;
@@ -116,7 +116,7 @@
 		background-color: white;
 		padding: 20rpx;
 }
-.footer.data-v-b7ae42e0 .van-button--primary {
+.footer.data-v-3e528b70 .van-button--primary {
 		border: 2rpx solid #5F7DF9;
 		color: white;
 		background: linear-gradient(96deg, #569AFF, #4A6EF3);

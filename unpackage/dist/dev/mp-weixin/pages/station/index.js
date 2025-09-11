@@ -1,7 +1,6 @@
 "use strict";
-const common_vendor = require("../../common/vendor.js");
-const common_assets = require("../../common/assets.js");
-const components_js_request = require("../../components/js/request.js");
+var common_vendor = require("../../common/vendor.js");
+var components_js_request = require("../../components/js/request.js");
 if (!Array) {
   const _component_van_button = common_vendor.resolveComponent("van-button");
   _component_van_button();
@@ -45,12 +44,11 @@ const _sfc_main = {
     return (_ctx, _cache) => {
       return {
         a: common_vendor.p({
-          title: "电站主页"
+          title: "\u7535\u7AD9\u4E3B\u9875"
         }),
-        b: common_assets._imports_0$3,
-        c: common_vendor.f(form.fastPileList, (item, index, i0) => {
+        b: common_vendor.f(form.fastPileList, (item, index, i0) => {
           return common_vendor.e({
-            a: common_vendor.t(item.notBusyNum > 0 ? "空闲" : "忙碌"),
+            a: common_vendor.t(item.notBusyNum > 0 ? "\u7A7A\u95F2" : "\u5FD9\u788C"),
             b: common_vendor.n(item.notBusyNum > 0 ? "device-free" : "device-busy"),
             c: common_vendor.t(item.pileNo),
             d: common_vendor.t(item.electricity),
@@ -58,7 +56,7 @@ const _sfc_main = {
             f: common_vendor.t(item.maxPower),
             g: item.notBusyNum > 0
           }, item.notBusyNum > 0 ? {
-            h: "78114d96-1-" + i0,
+            h: "e5c43de4-1-" + i0,
             i: common_vendor.p({
               type: "primary",
               size: "mini"
@@ -68,9 +66,9 @@ const _sfc_main = {
             k: common_vendor.o(($event) => item.notBusyNum > 0 ? go("/pages/station/create?key=" + item.pileNo) : "", index)
           });
         }),
-        d: common_vendor.f(form.slowPileList, (item, index, i0) => {
+        c: common_vendor.f(form.slowPileList, (item, index, i0) => {
           return common_vendor.e({
-            a: common_vendor.t(item.notBusyNum > 0 ? "空闲" : "忙碌"),
+            a: common_vendor.t(item.notBusyNum > 0 ? "\u7A7A\u95F2" : "\u5FD9\u788C"),
             b: common_vendor.n(item.notBusyNum > 0 ? "device-free" : "device-busy"),
             c: common_vendor.t(item.pileNo),
             d: common_vendor.t(item.electricity),
@@ -78,7 +76,7 @@ const _sfc_main = {
             f: common_vendor.t(item.maxPower),
             g: item.notBusyNum > 0
           }, item.notBusyNum > 0 ? {
-            h: "78114d96-2-" + i0,
+            h: "e5c43de4-2-" + i0,
             i: common_vendor.p({
               type: "primary",
               size: "mini"
@@ -88,9 +86,9 @@ const _sfc_main = {
             k: common_vendor.o(($event) => go("/pages/station/create?key=" + item.pileNo), index)
           });
         }),
-        e: common_vendor.t(form.price),
-        f: common_vendor.o(scan),
-        g: common_vendor.p({
+        d: common_vendor.t(form.price),
+        e: common_vendor.o(scan),
+        f: common_vendor.p({
           round: true,
           color: "linear-gradient(to right, #569AFF, #4A6EF3)"
         })
@@ -98,6 +96,5 @@ const _sfc_main = {
     };
   }
 };
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-78114d96"]]);
+var MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-e5c43de4"], ["__file", "/Users/a1307/project/javaworkspace/hxhh/HUIZHI-ChargeOS-mini/pages/station/index.vue"]]);
 wx.createPage(MiniProgramPage);
-//# sourceMappingURL=../../../.sourcemap/mp-weixin/pages/station/index.js.map

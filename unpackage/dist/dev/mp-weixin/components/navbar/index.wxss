@@ -1,5 +1,5 @@
 
-.bar.data-v-6fbc5706{
+.bar.data-v-be923164{
 		position: fixed;
 		top: 0rpx;
 		padding-top: 110rpx;
@@ -9,12 +9,12 @@
 		z-index: 100;
 		padding-bottom: 20rpx;
 }
-.icon.data-v-6fbc5706{
+.icon.data-v-be923164{
 		position: absolute;
 		left: 20rpx;
 		top: 4rpx;
 }
-.title.data-v-6fbc5706{
+.title.data-v-be923164{
 		color: #212121;
 		font-size: 32rpx;
 }

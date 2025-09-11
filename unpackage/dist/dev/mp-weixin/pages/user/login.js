@@ -1,5 +1,5 @@
 "use strict";
-const common_vendor = require("../../common/vendor.js");
+var common_vendor = require("../../common/vendor.js");
 if (!Math) {
   navbar();
 }
@@ -58,7 +58,7 @@ const _sfc_main = {
               success: (res1) => {
                 common_vendor.index.setStorageSync("phone", res1.data.data.mobile);
                 common_vendor.index.showToast({
-                  title: "登录成功"
+                  title: "\u767B\u5F55\u6210\u529F"
                 });
                 setTimeout(() => {
                   if (redirecturl) {
@@ -83,13 +83,12 @@ const _sfc_main = {
     return (_ctx, _cache) => {
       return {
         a: common_vendor.p({
-          title: "登录"
+          title: "\u767B\u5F55"
         }),
         b: common_vendor.o(getPhoneNumber)
       };
     };
   }
 };
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-6163e5ce"]]);
+var MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-802e0a44"], ["__file", "/Users/a1307/project/javaworkspace/hxhh/HUIZHI-ChargeOS-mini/pages/user/login.vue"]]);
 wx.createPage(MiniProgramPage);
-//# sourceMappingURL=../../../.sourcemap/mp-weixin/pages/user/login.js.map
