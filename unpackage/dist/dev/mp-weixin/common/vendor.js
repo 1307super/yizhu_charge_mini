@@ -6029,6 +6029,8 @@ const createSubpackageApp = initCreateSubpackageApp();
 const createHook = (lifecycle) => (hook, target = getCurrentInstance()) => {
   !isInSSRComponentSetup && injectHook(lifecycle, hook, target);
 };
+const onShow = /* @__PURE__ */ createHook(ON_SHOW);
+const onHide = /* @__PURE__ */ createHook(ON_HIDE);
 const onLoad = /* @__PURE__ */ createHook(ON_LOAD);
 const onUnload = /* @__PURE__ */ createHook(ON_UNLOAD);
 const onReachBottom = /* @__PURE__ */ createHook(ON_REACH_BOTTOM);
@@ -9791,17 +9793,21 @@ hooks.HTML5_FMT = {
   MONTH: "YYYY-MM"
 };
 exports._export_sfc = _export_sfc;
+exports.computed$1 = computed$1;
 exports.createSSRApp = createSSRApp;
 exports.e = e;
 exports.f = f;
 exports.hooks = hooks;
 exports.index = index;
 exports.n = n;
+exports.nextTick = nextTick;
 exports.o = o;
+exports.onHide = onHide;
 exports.onLoad = onLoad;
 exports.onMounted = onMounted;
 exports.onPullDownRefresh = onPullDownRefresh;
 exports.onReachBottom = onReachBottom;
+exports.onShow = onShow;
 exports.onUnload = onUnload;
 exports.p = p;
 exports.reactive = reactive;
@@ -9809,3 +9815,4 @@ exports.ref = ref;
 exports.resolveComponent = resolveComponent;
 exports.t = t;
 exports.unref = unref;
+exports.watch = watch;
