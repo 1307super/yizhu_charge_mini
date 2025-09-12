@@ -15,7 +15,7 @@ if (!Math) {
 }
 const _sfc_main = {
   globalData: {
-    appid: "wxe36b893427127efd6c",
+    appid: "wxbe36fe76127d185a",
     serverUrl: "http://127.0.0.1:38080/yzev-mp/",
     wsurl: "ws://127.0.0.1/yzev-mp/websocket/charge/"
   },

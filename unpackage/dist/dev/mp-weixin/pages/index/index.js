@@ -1,9 +1,46 @@
 "use strict";
 var common_vendor = require("../../common/vendor.js");
 var components_js_request = require("../../components/js/request.js");
+var cityData = [
+  "\u5317\u4EAC\u5E02",
+  "\u5929\u6D25\u5E02",
+  "\u6CB3\u5317\u7701",
+  "\u5C71\u897F\u7701",
+  "\u5185\u8499\u53E4\u81EA\u6CBB\u533A",
+  "\u8FBD\u5B81\u7701",
+  "\u5409\u6797\u7701",
+  "\u9ED1\u9F99\u6C5F\u7701",
+  "\u4E0A\u6D77\u5E02",
+  "\u6C5F\u82CF\u7701",
+  "\u6D59\u6C5F\u7701",
+  "\u5B89\u5FBD\u7701",
+  "\u798F\u5EFA\u7701",
+  "\u6C5F\u897F\u7701",
+  "\u5C71\u4E1C\u7701",
+  "\u6CB3\u5357\u7701",
+  "\u6E56\u5317\u7701",
+  "\u6E56\u5357\u7701",
+  "\u5E7F\u4E1C\u7701",
+  "\u5E7F\u897F\u58EE\u65CF\u81EA\u6CBB\u533A",
+  "\u6D77\u5357\u7701",
+  "\u91CD\u5E86\u5E02",
+  "\u56DB\u5DDD\u7701",
+  "\u8D35\u5DDE\u7701",
+  "\u4E91\u5357\u7701",
+  "\u897F\u85CF\u81EA\u6CBB\u533A",
+  "\u9655\u897F\u7701",
+  "\u7518\u8083\u7701",
+  "\u9752\u6D77\u7701",
+  "\u5B81\u590F\u56DE\u65CF\u81EA\u6CBB\u533A",
+  "\u65B0\u7586\u7EF4\u543E\u5C14\u81EA\u6CBB\u533A",
+  "\u53F0\u6E7E\u7701",
+  "\u9999\u6E2F\u7279\u522B\u884C\u653F\u533A",
+  "\u6FB3\u95E8\u7279\u522B\u884C\u653F\u533A"
+];
 if (!Array) {
   const _component_van_icon = common_vendor.resolveComponent("van-icon");
-  _component_van_icon();
+  const _component_van_popup = common_vendor.resolveComponent("van-popup");
+  (_component_van_icon + _component_van_popup)();
 }
 if (!Math) {
   (navbar + tabbar)();
@@ -27,18 +64,60 @@ const _sfc_main = {
       index(1);
     };
     const currentLocation = common_vendor.ref("\u5317\u4EAC\u5E02");
+    const searchKeyword = common_vendor.ref("");
+    const provinces = common_vendor.ref(cityData);
+    const showProvincePopup = common_vendor.ref(false);
+    common_vendor.ref(true);
     const selectLocation = () => {
-      common_vendor.index.showActionSheet({
-        itemList: ["\u5317\u4EAC\u5E02", "\u4E0A\u6D77\u5E02", "\u5E7F\u5DDE\u5E02", "\u6DF1\u5733\u5E02", "\u676D\u5DDE\u5E02", "\u5357\u4EAC\u5E02"],
-        success: (res) => {
-          const cities = ["\u5317\u4EAC\u5E02", "\u4E0A\u6D77\u5E02", "\u5E7F\u5DDE\u5E02", "\u6DF1\u5733\u5E02", "\u676D\u5DDE\u5E02", "\u5357\u4EAC\u5E02"];
-          currentLocation.value = cities[res.tapIndex];
-        }
-      });
+      console.log("selectLocation clicked");
+      showProvincePopup.value = true;
+    };
+    const onProvinceSelect = (province) => {
+      console.log("selected province:", province);
+      currentLocation.value = province;
+      query.city = province;
+      showProvincePopup.value = false;
+      pager.pageNo = 1;
+      loadall.value = false;
+      stations.value = [];
+      index(1);
     };
     const searchStation = () => {
-      common_vendor.index.navigateTo({
-        url: "/pages/search/index"
+      pager.pageNo = 1;
+      loadall.value = false;
+      index(1);
+    };
+    const onSearchConfirm = () => {
+      searchStation();
+    };
+    const getCurrentLocation = () => {
+      common_vendor.index.showLoading({
+        title: "\u5B9A\u4F4D\u4E2D..."
+      });
+      common_vendor.index.getLocation({
+        type: "gcj02",
+        success: (res) => {
+          query.lat = res.latitude;
+          query.lng = res.longitude;
+          reverseGeocoding(res.latitude, res.longitude);
+          pager.pageNo = 1;
+          loadall.value = false;
+          stations.value = [];
+          index(1);
+          common_vendor.index.hideLoading();
+          common_vendor.index.showToast({
+            title: "\u5B9A\u4F4D\u6210\u529F",
+            icon: "success"
+          });
+        },
+        fail: (error) => {
+          common_vendor.index.hideLoading();
+          common_vendor.index.showToast({
+            title: "\u5B9A\u4F4D\u5931\u8D25",
+            icon: "none"
+          });
+          console.error("\u5B9A\u4F4D\u5931\u8D25:", error);
+        }
       });
     };
     const contactService = () => {
@@ -64,12 +143,44 @@ const _sfc_main = {
         address: station.address || ""
       });
     };
+    const reverseGeocoding = (lat, lng, callback = null) => {
+      components_js_request.request({
+        url: "charging/reverseGeocoding",
+        method: "GET",
+        data: {
+          lat,
+          lng
+        },
+        success: (result) => {
+          console.log(result);
+          if (result && result.data && result.data.code === 200) {
+            const locationName = result.data.data;
+            if (locationName && provinces.value.includes(locationName)) {
+              currentLocation.value = locationName;
+              query.city = locationName;
+            }
+          } else {
+            console.warn("\u9006\u5730\u7406\u7F16\u7801\u5931\u8D25:", result);
+          }
+          if (callback && typeof callback === "function") {
+            callback();
+          }
+        },
+        fail: (error) => {
+          console.error("\u9006\u5730\u7406\u7F16\u7801\u8BF7\u6C42\u5931\u8D25:", error);
+          if (callback && typeof callback === "function") {
+            callback();
+          }
+        }
+      });
+    };
     const query = common_vendor.reactive({
       deviceType: 4,
       lat: 39.9045035,
       lng: 116.408788,
       sortType: 1,
-      distance: 1e8
+      distance: 1e8,
+      city: "\u5317\u4EAC\u5E02"
     });
     const pager = common_vendor.reactive({
       pageNo: 1,
@@ -79,58 +190,75 @@ const _sfc_main = {
     const stations = common_vendor.ref([]);
     const loadall = common_vendor.ref(false);
     const moreText = common_vendor.ref("\u4E0A\u6ED1\u52A0\u8F7D\u66F4\u591A~");
+    const initLocationAndData = () => {
+      console.log("\u5F00\u59CB\u521D\u59CB\u5316\u5B9A\u4F4D\u548C\u6570\u636E\u52A0\u8F7D");
+      common_vendor.index.getLocation({
+        type: "gcj02",
+        success: (res) => {
+          console.log("\u5B9A\u4F4D\u6210\u529F:", res);
+          query.lat = res.latitude;
+          query.lng = res.longitude;
+          reverseGeocoding(res.latitude, res.longitude, () => {
+            console.log("\u9006\u5730\u7406\u7F16\u7801\u5B8C\u6210\uFF0C\u5F00\u59CB\u52A0\u8F7D\u6570\u636E, city:", query.city);
+            index(1);
+          });
+        },
+        fail: (error) => {
+          console.warn("\u5B9A\u4F4D\u5931\u8D25\uFF0C\u4F7F\u7528\u9ED8\u8BA4\u4F4D\u7F6E(\u5317\u4EAC):", error);
+          query.city = "\u5317\u4EAC\u5E02";
+          currentLocation.value = "\u5317\u4EAC\u5E02";
+          index(1);
+        }
+      });
+    };
     const index = (page) => {
       pager.pageNo = page;
       if (page === 1) {
         moreText.value = "\u52A0\u8F7D\u4E2D...";
         loadall.value = false;
       }
-      common_vendor.index.getLocation({
-        type: "gcj02",
-        success: async (res) => {
-          query.lat = res.latitude;
-          query.lng = res.longitude;
-        },
-        complete: (res) => {
-          components_js_request.request({
-            url: "charging/getPlotInfoPage",
-            method: "POST",
-            data: Object.assign(pager, query),
-            success: (res2) => {
-              if (res2 && res2.data && res2.data.data) {
-                const newData = res2.data.data.filter((item) => item && item.stationName);
-                if (page === 1) {
-                  stations.value = newData;
-                } else {
-                  stations.value = stations.value.concat(newData);
-                }
-                if (newData.length === 0 || newData.length < pager.pageSize) {
-                  loadall.value = true;
-                  moreText.value = stations.value.length === 0 ? "\u6682\u65E0\u6570\u636E" : "\u6CA1\u6709\u66F4\u591A\u6570\u636E\u4E86";
-                } else {
-                  moreText.value = "\u4E0A\u6ED1\u52A0\u8F7D\u66F4\u591A~";
-                }
-              } else {
-                if (page === 1) {
-                  stations.value = [];
-                  moreText.value = "\u6682\u65E0\u6570\u636E";
-                } else {
-                  moreText.value = "\u52A0\u8F7D\u5931\u8D25\uFF0C\u8BF7\u91CD\u8BD5";
-                }
-                loadall.value = true;
-              }
-            },
-            fail: (err) => {
-              console.error("\u52A0\u8F7D\u5931\u8D25:", err);
-              if (page === 1) {
-                stations.value = [];
-                moreText.value = "\u52A0\u8F7D\u5931\u8D25\uFF0C\u8BF7\u91CD\u8BD5";
-              } else {
-                moreText.value = "\u52A0\u8F7D\u5931\u8D25\uFF0C\u8BF7\u91CD\u8BD5";
-              }
-              loadall.value = true;
+      const requestData = Object.assign({}, pager, query);
+      if (searchKeyword.value && searchKeyword.value.trim()) {
+        requestData.keyword = searchKeyword.value.trim();
+      }
+      console.log("\u53D1\u9001\u8BF7\u6C42\u53C2\u6570:", requestData);
+      components_js_request.request({
+        url: "charging/getPlotInfoPage",
+        method: "POST",
+        data: requestData,
+        success: (res) => {
+          if (res && res.data && res.data.data) {
+            const newData = res.data.data.filter((item) => item && item.stationName);
+            if (page === 1) {
+              stations.value = newData;
+            } else {
+              stations.value = stations.value.concat(newData);
             }
-          });
+            if (newData.length === 0 || newData.length < pager.pageSize) {
+              loadall.value = true;
+              moreText.value = stations.value.length === 0 ? "\u6682\u65E0\u6570\u636E" : "\u6CA1\u6709\u66F4\u591A\u6570\u636E\u4E86";
+            } else {
+              moreText.value = "\u4E0A\u6ED1\u52A0\u8F7D\u66F4\u591A~";
+            }
+          } else {
+            if (page === 1) {
+              stations.value = [];
+              moreText.value = "\u6682\u65E0\u6570\u636E";
+            } else {
+              moreText.value = "\u52A0\u8F7D\u5931\u8D25\uFF0C\u8BF7\u91CD\u8BD5";
+            }
+            loadall.value = true;
+          }
+        },
+        fail: (err) => {
+          console.error("\u52A0\u8F7D\u5931\u8D25:", err);
+          if (page === 1) {
+            stations.value = [];
+            moreText.value = "\u52A0\u8F7D\u5931\u8D25\uFF0C\u8BF7\u91CD\u8BD5";
+          } else {
+            moreText.value = "\u52A0\u8F7D\u5931\u8D25\uFF0C\u8BF7\u91CD\u8BD5";
+          }
+          loadall.value = true;
         }
       });
     };
@@ -155,7 +283,9 @@ const _sfc_main = {
       }
     });
     common_vendor.onLoad(() => {
-      index(1);
+      console.log("onLoad - cityData:", cityData);
+      console.log("onLoad - provinces.value:", provinces.value);
+      initLocationAndData();
     });
     return (_ctx, _cache) => {
       return {
@@ -170,49 +300,69 @@ const _sfc_main = {
         }),
         d: common_vendor.o(selectLocation),
         e: common_vendor.p({
+          name: "location-o",
+          size: "16px"
+        }),
+        f: common_vendor.o(getCurrentLocation),
+        g: common_vendor.p({
           name: "search",
           size: "16px"
         }),
-        f: common_vendor.o(searchStation),
-        g: common_vendor.p({
-          name: "orders-o",
-          size: "20px",
-          color: "#2D55E8"
-        }),
-        h: common_vendor.o(($event) => go("/pages/user/order")),
-        i: common_vendor.p({
-          name: "bill-o",
-          size: "20px",
-          color: "#2D55E8"
-        }),
-        j: common_vendor.o(($event) => go("/pages/user/invoice")),
-        k: common_vendor.p({
-          name: "service-o",
-          size: "20px",
-          color: "#2D55E8"
-        }),
-        l: common_vendor.o(contactService),
-        m: common_vendor.n(query.sortType == 1 ? "active" : ""),
-        n: common_vendor.o(($event) => setActive(1)),
-        o: common_vendor.n(query.sortType == 2 ? "active" : ""),
-        p: common_vendor.o(($event) => setActive(2)),
-        q: common_vendor.f(stations.value, (item, index2, i0) => {
-          return {
+        h: common_vendor.o(onSearchConfirm),
+        i: searchKeyword.value,
+        j: common_vendor.o(($event) => searchKeyword.value = $event.detail.value),
+        k: common_vendor.o(($event) => go("/pages/user/order")),
+        l: common_vendor.o(($event) => go("/pages/user/invoice")),
+        m: common_vendor.o(contactService),
+        n: common_vendor.n(query.sortType == 1 ? "active" : ""),
+        o: common_vendor.o(($event) => setActive(1)),
+        p: common_vendor.n(query.sortType == 2 ? "active" : ""),
+        q: common_vendor.o(($event) => setActive(2)),
+        r: common_vendor.f(stations.value, (item, index2, i0) => {
+          return common_vendor.e({
             a: common_vendor.t(item.stationName),
-            b: common_vendor.t(item.superToNoBusy),
-            c: common_vendor.t(item.superNum),
-            d: common_vendor.t(item.fastToNoBusy),
-            e: common_vendor.t(item.fastNum),
-            f: common_vendor.t((item.distance / 1e3).toFixed(1)),
-            g: common_vendor.o(($event) => openMap(item)),
-            h: common_vendor.t(item.parkCarInfo),
-            i: common_vendor.t(item.price),
-            j: index2,
-            k: common_vendor.o(($event) => go("/pages/station/index?plotId=" + item.stationId + "&deviceType=" + item.deviceType + "&distance=" + item.distance), index2)
+            b: item.tags && item.tags.length
+          }, item.tags && item.tags.length ? {
+            c: common_vendor.f(item.tags, (tag, tIdx, i1) => {
+              return {
+                a: common_vendor.t(tag),
+                b: tIdx
+              };
+            })
+          } : {}, {
+            d: common_vendor.t(item.superToNoBusy),
+            e: common_vendor.t(item.superNum),
+            f: common_vendor.t(item.fastToNoBusy),
+            g: common_vendor.t(item.fastNum),
+            h: common_vendor.t((item.distance / 1e3).toFixed(1)),
+            i: common_vendor.o(($event) => openMap(item)),
+            j: common_vendor.t(item.parkCarInfo),
+            k: common_vendor.t(item.price),
+            l: index2,
+            m: common_vendor.o(($event) => go("/pages/station/index?plotId=" + item.stationId + "&deviceType=" + item.deviceType + "&distance=" + item.distance), index2)
+          });
+        }),
+        s: common_vendor.t(moreText.value),
+        t: common_vendor.o(($event) => showProvincePopup.value = false),
+        v: common_vendor.p({
+          name: "cross",
+          size: "18px"
+        }),
+        w: common_vendor.f(provinces.value, (province, index2, i0) => {
+          return {
+            a: common_vendor.t(province),
+            b: index2,
+            c: currentLocation.value === province ? 1 : "",
+            d: common_vendor.o(($event) => onProvinceSelect(province), index2)
           };
         }),
-        r: common_vendor.t(moreText.value),
-        s: common_vendor.p({
+        x: common_vendor.o(($event) => showProvincePopup.value = $event),
+        y: common_vendor.p({
+          position: "bottom",
+          round: true,
+          show: showProvincePopup.value
+        }),
+        z: common_vendor.p({
           active: 0
         })
       };

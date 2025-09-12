@@ -501,6 +501,7 @@
 			padding 24rpx
 			margin-bottom 20rpx
 			position relative
+			margin-top: 10rpx
 			
 			&.current
 				background linear-gradient(135deg, #e8f0ff, #f0f4ff)

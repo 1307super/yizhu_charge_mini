@@ -1,7 +1,19 @@
 {
   "libVersion": "3.8.12",
   "projectname": "opensource",
-  "condition": {},
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "pages/station/create",
+          "pathName": "pages/station/create",
+          "query": "",
+          "scene": null,
+          "launchMode": "default"
+        }
+      ]
+    }
+  },
   "setting": {
     "urlCheck": false,
     "coverView": false,

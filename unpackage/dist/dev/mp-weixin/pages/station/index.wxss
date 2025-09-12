@@ -248,6 +248,7 @@
   padding: 24rpx;
   margin-bottom: 20rpx;
   position: relative;
+  margin-top: 10rpx;
 }
 .price-periods .period-card.current.data-v-e5c43de4 {
   background: linear-gradient(135deg, #e8f0ff, #f0f4ff);

@@ -50,7 +50,7 @@
     "quickapp" : {},
     /* 小程序特有相关 */
     "mp-weixin" : {
-        "appid" : "",
+        "appid" : "wxbe36fe76127d185a",
         "setting" : {
             "urlCheck" : false,
             "minified" : true
@@ -60,7 +60,8 @@
             "scope.userLocation" : {
                 "desc" : "获取当前位置来获取附近的充电站"
             }
-        }
+        },
+        "requiredPrivateInfos" : [ "getLocation" ]
     },
     "mp-alipay" : {
         "usingComponents" : true

@@ -44,5 +44,8 @@
     "scope.userLocation": {
       "desc": "获取当前位置来获取附近的充电站"
     }
-  }
+  },
+  "requiredPrivateInfos": [
+    "getLocation"
+  ]
 }
