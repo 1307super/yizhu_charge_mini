@@ -5,11 +5,18 @@
     "miniprogram": {
       "list": [
         {
-          "name": "pages/station/create",
+          "name": "扫码充电",
           "pathName": "pages/station/create",
-          "query": "",
-          "scene": null,
+          "query": "stationId=279&gunNumber=1",
+          "scene": 1011,
           "launchMode": "default"
+        },
+        {
+          "name": "充电详情页",
+          "pathName": "pages/station/powering",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
         }
       ]
     }

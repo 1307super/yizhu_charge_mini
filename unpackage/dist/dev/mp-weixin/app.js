@@ -8,6 +8,7 @@ if (!Math) {
   "./pages/station/index.js";
   "./pages/station/create.js";
   "./pages/station/powering.js";
+  "./pages/station/confirm.js";
   "./pages/user/order.js";
   "./pages/user/orderdetail.js";
   "./pages/user/setting.js";

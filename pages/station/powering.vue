@@ -210,8 +210,8 @@
 		for(let key in option) {
 			form[key] = option[key]
 		}
-		form.delta = parseInt(form.delta)
-		initsocket(form.orderNumber)
+		form.delta = 1
+		// initsocket(form.orderNumber)
 	})
 	onUnload(() => {
 		socketTask.value.close({

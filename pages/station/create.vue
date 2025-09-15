@@ -1,311 +1,908 @@
 <template>
 	<view class='container'>
-		<navbar class='navbar' title='选择充电'></navbar>
-		<view class='header'>
-			<text class='staion-name f-db'>{{form.stationName}}</text>
-			<text class='address'>{{form.address || '暂无'}}</text>
+		<navbar class='navbar' title='费用确认'></navbar>
+		
+
+		<!-- 顶部视觉区（背景图 + 渐变 + 站点信息融合） -->
+		<view class='hero'>
+			<image src='../../static/image/create-bg.png' mode='aspectFill' class='banner' />
+			<view class='banner-mask'></view>
+			<!-- 顶部站点信息（叠加在背景上） -->
+			<view class='header'>
+				<text class='station-name f-db'>{{stationInfo.stationName}}</text>
+				<view class='gun-info'>
+					<view class='gun-tag'>
+						<text class='gun-text'>{{stationInfo.gunNo}}号枪</text>
+					</view>
+					<view v-if='gunStatusText' class='gun-status' :class='getStatusClass()'>{{gunStatusText}}</view>
+				</view>
+			</view>
 		</view>
+
 		<view class='main'>
-			<view class="charge code-wrapper">
-				<view class='code'>桩编码：<text class='f-fwb'>{{form.pileId}}</text></view>
-				<van-tag color="#E3E8FF" text-color="#5F7DF9" class='type'>
-					<text class='type-label'>{{form.pileType == 1 ? '快充' : '慢充'}}</text>
-				</van-tag>
+			<!-- 充电价格卡片 -->
+			<view class='price-card'>
+				<text class='price-main'>{{stationInfo.price}} 元/度</text>
+				<text class='price-period'>{{stationInfo.pricePeriod}}</text>
 			</view>
-			<view class='charge'>
-				<text class='port-title f-fwb f-db'>选择设备端口</text>
-				<van-row class='f-tac' gutter="20">
-					<van-col :span='12' v-for='(item, index) in form.list' v-bind:key='index'>
-						<van-button v-bind:plain='selected === index ? false : true' round v-bind:type="item.state == 'Y' ? 'default' : 'primary'" v-bind:disabled='item.state == "Y" || item.state == "F"' v-bind:class='selected === index ? "selected" : ""' class='port f-fwb' v-on:click='setport(index)'>
-							<text class='port-num f-ib'>{{item.name}} </text> 
-							<text v-bind:class='item.state == "Y" ? "busy" : ""'>{{item.state == 'N' ? '空闲' : item.state == 'Y' ? '使用中' : '故障'}}</text>
+
+			<!-- 企业钱包卡片 (条件渲染) -->
+			<view v-if='enterpriseWallet.walletBalance !== null' class='enterprise-wallet-card'>
+				<view class='card-header'>
+					<text class='card-title'>企业钱包</text>
+				</view>
+				<view class='wallet-content'>
+					<view class='enterprise-name'>企业名称: {{enterpriseWallet.enterpriseName || '暂无'}}</view>
+					<view class='wallet-info'>
+						<view class='wallet-item'>
+							<text class='wallet-label'>可用余额</text>
+							<text class='wallet-value primary'>¥{{enterpriseWallet.walletBalance.toFixed(2)}}</text>
+						</view>
+						<view class='wallet-item'>
+							<text class='wallet-label'>可用记账金额</text>
+							<text class='wallet-value'>¥{{((enterpriseWallet.accountingAmount || 0) - (enterpriseWallet.consumedAmount || 0)).toFixed(2)}}</text>
+						</view>
+					</view>
+				</view>
+			</view>
+
+			<!-- 付款方式选择卡片 -->
+			<view class='payment-card'>
+				<view class='card-header'>
+					<text class='card-title'>选择付款方式</text>
+				</view>
+				
+				<!-- 企业卡选项 (条件渲染) -->
+				<view v-if='enterpriseWallet.walletBalance !== null' class='payment-option' :class='{"selected": paymentMethod === "enterprise"}' @click='selectPaymentMethod("enterprise")'>
+					<view class='option-content'>
+						<image class='option-icon' src='../../static/image/manage_accounts.png' mode='aspectFit' />
+						<text class='option-text'>企业卡</text>
+					</view>
+					<van-radio :checked='paymentMethod === "enterprise"' checked-color="#2D55E8"></van-radio>
+				</view>
+				
+				<!-- 预付费选项 -->
+				<view class='payment-option' :class='{"selected": paymentMethod === "prepay"}' @click='selectPaymentMethod("prepay")'>
+					<view class='option-content'>
+						<image class='option-icon' src='../../static/image/invoices.png' mode='aspectFit' />
+						<text class='option-text'>预付费</text>
+						<text class='option-tip'>余额原路退回</text>
+					</view>
+					<van-radio :checked='paymentMethod === "prepay"' checked-color="#2D55E8"></van-radio>
+				</view>
+
+				<!-- 预付费关联操作 - 金额选择 -->
+				<view v-if='paymentMethod === "prepay"' class='payment-detail'>
+					<!-- 预设金额 -->
+					<view class='preset-amounts'>
+						<van-button 
+							v-for='amount in presetAmounts' 
+							:key='amount'
+							size='small'
+							:type='selectedAmount === amount ? "primary" : "default"'
+							:color='selectedAmount === amount ? "#2D55E8" : ""'
+							@click='selectAmount(amount)'
+							class='amount-btn'
+							round
+						>
+							{{amount}}元
 						</van-button>
-					</van-col>
-				</van-row>
+					</view>
+					
+					<!-- 自定义金额 -->
+					<view class='custom-amount'>
+						<input 
+							class='amount-input' 
+							v-model="customAmount" 
+							type="digit" 
+							placeholder='自定义金额(最低10元)' 
+							@input='onCustomAmountInput'
+						/>
+					</view>
+				</view>
 			</view>
-			<view class='charge'>
-				<text class='f-fwb f-db'>选择充电时长</text>
-				<van-row gutter='20' class='f-tac'>
-					<van-col :span='8' v-for='(item, index) in times' v-bind:key='index'>
-						<view v-on:click='setime(index)'>
-							<van-tag class='time' v-bind:class='activetime === index ? "active" : "default"' v-bind:color="activetime === index ? '#EEF1FF' : 'white'" v-bind:text-color="activetime === index ? '#5F7DF9' : '#666'">{{item}}{{item == '智能充满' ? '' : '小时'}}</van-tag>
-						</view>
-					</van-col>
-					<van-col :span='8'>
-						<view v-on:click='customtimeshow = true'>
-							<van-tag class='time default' color="white" text-color="#666">自定义时间</van-tag>
-						</view>
-					</van-col>
-				</van-row>
-			</view>
-			<view class='charge'>
-				<text class='port-title f-fwb f-db'>计费标准</text>
-				<text class='price-label f-db'>[尖] 13:00-24:00 电费:1.0044元/度，服务费:0.1元/度</text>
-				<text class='price-label f-db'>[峰] 10:00-13:00 电费:1.0044元/度，服务费:0.1元/度</text>
-				<text class='price-label f-db'>[平] 08:00-10:00 电费:0.695元/度，服务费:0.1元/度</text>
-				<text class='price-label f-db'>[谷] 00:00-08:00 电费:0.3946元/度，服务费:0.1元/度</text>
+
+			<!-- 充电管理卡片 (企业卡时显示) -->
+			<view v-if='paymentMethod === "enterprise"' class='charge-management-card'>
+				<view class='card-header'>
+					<text class='card-title'>充电管理</text>
+				</view>
+				<view class='charge-content'>
+					<view class='charge-label'>充电量达到电池电量</view>
+					<view class='percentage-display'>{{chargePercentage}}%</view>
+					<view class='progress-container'>
+						<van-slider 
+							:value="chargePercentage" 
+							@change="onChargePercentageChange"
+							@drag="onChargePercentageChange"
+							:min="0" 
+							:max="100" 
+							active-color="#2D55E8"
+							inactive-color="#f0f2f5"
+							:bar-height="8"
+							:button-size="20"
+						/>
+					</view>
+					<view class='charge-tip'>充电不超过90%, 更利于电池健康,将有效缩短充电时长。</view>
+				</view>
 			</view>
 		</view>
+
+		<!-- 底部悬浮按钮 -->
 		<view class='footer'>
-			<van-button type='primary' v-on:click='start'>开始充电</van-button>
+			<view v-if='buttonInfo.tip && buttonInfo.disabled' class='status-tip'>
+				<text class='tip-text'>{{buttonInfo.tip}}</text>
+			</view>
+			<van-button 
+				round
+				block
+				:color='buttonInfo.disabled ? "#d9d9d9" : "#2D55E8"'
+				:disabled='buttonInfo.disabled'
+				@click='startCharging'
+				class='footer-button'
+			>
+				{{buttonInfo.text}}
+			</van-button>
 		</view>
-		<van-popup v-model:show="customtimeshow" position='bottom' class='popup'>
-			<input class='input' v-model="customtime" type="digit" placeholder='请输入时间(单位小时)' />
-			<van-row gutter='20' class='time-footer f-db f-tac'>
-				<van-col :span='12'>
-					<van-button type='primary' size='small' v-on:click='subtime'>确定</van-button>
-				</van-col>
-				<van-col :span='12'>
-					<van-button type='default' size='small' v-on:click='customtimeshow = false'>取消</van-button>
-				</van-col>
-			</van-row>
-		</van-popup>
 	</view>
 </template>
 
+
 <style scoped>
-	.container{
-		background: linear-gradient(-42deg, #E7FFFA, #EFF5FF, #FCFDEF);
-		padding-top: 160rpx;
-		min-height: calc(100vh - 80rpx);
-		padding-bottom: 80rpx;
+.container{
+    background-color: #F6F7F9;
+    padding-top: 60rpx;
+    min-height: 100vh;
+    padding-bottom: 240rpx;
+}
+
+	/* 顶部视觉区 */
+	.hero{
+		position: relative;
+		height: 360rpx;
+		overflow: hidden;
 	}
+	.banner{
+		width: 100%;
+		height: 100%;
+		display: block;
+		object-fit: cover;
+		transform: scale(1.01);
+	}
+	/* 底部向内容区的柔和过渡 */
+	.banner-mask{
+		position: absolute;
+		left: 0; right: 0; bottom: 0;
+		height: 60rpx;
+		background: linear-gradient(to bottom, rgba(246,247,249,0) 0%, rgba(246,247,249,0.8) 60%, #F6F7F9 100%);
+		pointer-events: none;
+	}
+
+	/* 叠加的站点信息卡，半透明扁平化 */
+.header{
+	position: absolute;
+	left: 24rpx;
+	right: 24rpx;
+	bottom: 25rpx;
+	padding: 28rpx;
+	background: rgba(255,255,255,0.72);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	border-radius: 16rpx;
+	border: 1rpx solid rgba(255,255,255,0.6);
+	text-align: left;
+	box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.03);
+}
+
 	.main{
-		margin-left: 20rpx;
-		margin-right: 20rpx;
+		margin: 20rpx;
 	}
-	.header{
-		margin-left: 20rpx;
-		margin-right: 20rpx;
-		padding: 20rpx;
-	}
-	.staion-name{
+	.station-name{
 		font-family: Microsoft YaHei;
-		font-weight: bold;
+		font-weight: 700;
 		font-size: 36rpx;
-		color: #17141B;
+		color: #1a1a1a;
 		line-height: 60rpx;
 		margin-bottom: 20rpx;
 	}
-	.address{
+	.gun-info{
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		gap: 12rpx;
+		flex-wrap: wrap;
+	}
+	.gun-tag{
+		display: flex;
+		align-items: center;
+		gap: 8rpx;
+		background-color: #F3F4F6;
+		padding: 8rpx 12rpx;
+		border-radius: 16rpx;
+		border: 1rpx solid #E5E7EB;
+	}
+	.gun-icon{
+		width: 32rpx;
+		height: 32rpx;
+		flex-shrink: 0;
+	}
+	.gun-text{
+		font-size: 26rpx;
+		color: #6B7280;
+		font-weight: 500;
+		line-height: 1;
+	}
+	.gun-status{
+		font-size: 24rpx;
+		padding: 6rpx 12rpx;
+		border-radius: 12rpx;
+		font-weight: 500;
+	}
+	.gun-status.status-free{
+		background-color: #e8f5e8;
+		color: #52c41a;
+	}
+	.gun-status.status-occupied{
+		background-color: #fff7e6;
+		color: #fa8c16;
+	}
+	.gun-status.status-charging{
+		background-color: #e6f7ff;
+		color: #1890ff;
+	}
+	.gun-status.status-fault{
+		background-color: #fff2f0;
+		color: #f5222d;
+	}
+	.gun-status.status-offline{
+		background-color: #f5f5f5;
+		color: #8c8c8c;
+	}
+
+	/* 价格卡片 */
+	.price-card{
+		background-color: #fff;
+		padding: 28rpx;
+		border-radius: 16rpx;
+		margin-bottom: 20rpx;
+		text-align: center;
+		border: 1rpx solid #EEF0F3;
+		box-shadow: none;
+	}
+.price-main{
+    display: block;
+    font-size: 36rpx;
+    font-weight: 600;
+    color: #FF8C00;
+    margin-bottom: 8rpx;
+}
+.price-period{
+    font-size: 24rpx;
+    color: #666;
+    font-weight: 400;
+}
+
+	/* 企业钱包卡片 */
+	.enterprise-wallet-card{
+		background-color: #fff;
+		padding: 28rpx;
+		border-radius: 16rpx;
+		margin-bottom: 20rpx;
+		border: 1rpx solid #EEF0F3;
+		box-shadow: none;
+	}
+	.card-header{
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 24rpx;
+	}
+	.card-title{
+		font-size: 32rpx;
+		font-weight: 600;
+		color: #1a1a1a;
+	}
+	.wallet-content .enterprise-name{
+		font-size: 28rpx;
+		color: #666;
+		margin-bottom: 20rpx;
+	}
+	.wallet-info{
+		display: flex;
+		flex-direction: column;
+		gap: 16rpx;
+	}
+	.wallet-item{
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+	.wallet-label{
+		font-size: 28rpx;
 		color: #666;
 	}
-	.charge{
-		background-color: white;
-		padding: 20rpx;
-		border-radius: 20rpx;
-		margin-top: 20rpx;
+	.wallet-value{
+		font-size: 28rpx;
+		font-weight: 600;
+		color: #1a1a1a;
 	}
-	.code-wrapper{
+	.wallet-value.primary{
+		color: #2D55E8;
+		font-size: 32rpx;
+		font-weight: 700;
+	}
+
+	/* 付款方式卡片 */
+	.payment-card{
+		background-color: #fff;
+		padding: 28rpx;
+		border-radius: 16rpx;
+		margin-bottom: 20rpx;
+		border: 1rpx solid #EEF0F3;
+		box-shadow: none;
+	}
+	.payment-option{
 		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 24rpx 0;
+		transition: all 0.2s ease;
 	}
-	.code{
-		flex: 1;
-		font-size: 32rpx;
-		margin-top: 6rpx;
+	.payment-option:not(:last-child){
+		border-bottom: 1rpx solid #f0f2f5;
 	}
-	.type-label{
-		height: 52rpx;
-		line-height: 52rpx;
+	.payment-option.selected{
+		background-color: #F0F4FF;
+		border-radius: 12rpx;
+		padding: 24rpx 16rpx;
+		margin: 0 -16rpx;
+		border-left: 4rpx solid #2D55E8;
 		padding-left: 20rpx;
-		padding-right: 20rpx;
 	}
-	.port-title{
-		font-size: 32rpx;
+	.payment-option.selected .option-text{
+		color: #2D55E8;
+		font-weight: 600;
+	}
+	.option-content{
+		display: flex;
+		align-items: center;
+		flex: 1;
+		gap: 16rpx;
+	}
+.option-icon{
+    width: 40rpx;
+    height: 40rpx;
+    flex-shrink: 0;
+    display: block;
+    border-radius: 8rpx;
+}
+	.option-text{
+		font-size: 28rpx;
+		color: #1a1a1a;
+		font-weight: 500;
+	}
+	.option-tip{
+		font-size: 22rpx;
+		color: #999;
+		margin-left: 8rpx;
+	}
+	
+	/* 充电管理卡片 */
+	.charge-management-card{
+		background-color: #fff;
+		padding: 28rpx;
+		border-radius: 16rpx;
+		margin-bottom: 20rpx;
+		border: 1rpx solid #EEF0F3;
+		box-shadow: none;
+	}
+.charge-content{
+    text-align: left;
+}
+	.charge-label{
+		font-size: 28rpx;
+		color: #666;
+		margin-bottom: 16rpx;
+	}
+.percentage-display{
+    font-size: 36rpx;
+    font-weight: 600;
+    color: #2D55E8;
+    margin-bottom: 16rpx;
+    text-align: left;
+}
+	.progress-container{
+		margin: 0 20rpx 24rpx;
+	}
+	.charge-tip{
+		font-size: 24rpx;
+		color: #9A6B00;
+		line-height: 1.5;
+		background-color: #FFF8E8;
+		padding: 12rpx 16rpx;
+		border-radius: 10rpx;
+		border: 1rpx solid #F5E2BD;
+	}
+	
+	/* 支付详情 */
+	.payment-detail{
+		margin-top: 24rpx;
+		padding-top: 24rpx;
+		border-top: 1rpx solid #f0f2f5;
+	}
+	.detail-header{
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
 		margin-bottom: 20rpx;
 	}
-	.port /deep/ .van-button--primary, .port /deep/ .van-button--default{
-		width: 100%;
-		height: 80rpx;
-	}
-	.port-num{
-		font-size: 32rpx;
-		margin-right: 4rpx;
-	}
-	.busy{
-		color: #F16A19;
-	}
-	.selected /deep/ .van-button--primary {
-		background: linear-gradient(96deg, #569AFF, #5A8CFF);
-	}
-	.port /deep/ .van-button--primary {
-		border: 2rpx solid #5F7DF9;
-		color: white;
-	}
-	.port /deep/ .van-button--default {
-		border: 2rpx solid #999;
-	}
-	.port /deep/ .van-button--plain.van-button--primary {
-		background-color: white;
-		color: #569AFF;
-	}
-	.time /deep/ .van-tag{
-		width: calc(100% - 20rpx);
-		height: 80rpx;
-		line-height: 80rpx;
-		margin-top: 20rpx;
+	.detail-title{
 		font-size: 28rpx;
-		display: inline-block;
-		border-radius: 10rpx;
+		color: #1a1a1a;
+		font-weight: 500;
 	}
-	.active /deep/ .van-tag{
-		border: #5F7DF9 solid 2rpx;
+	.percentage-text{
+		font-size: 28rpx;
+		color: #2D55E8;
+		font-weight: 600;
 	}
-	.default /deep/ .van-tag{
-		border: #D8DCE0 solid 2rpx;
+
+	/* 预设金额 */
+	.preset-amounts{
+		display: flex;
+		gap: 16rpx;
+		margin-bottom: 20rpx;
+		flex-wrap: wrap;
 	}
-	.popup{
-		padding: 20rpx;
+	.amount-btn{
+		flex: 1;
+		min-width: 140rpx;
+		height: 64rpx;
 	}
-	.time-footer{
+
+	/* 自定义金额 */
+	.custom-amount{
 		margin-top: 20rpx;
 	}
-	.time-footer /deep/ .van-button--small{
-		width: 80%;
-	}
-	.input{
-		width: calc(100% - 80rpx);
-		margin: 20rpx auto;
-		height: 60rpx;
-		line-height: 60rpx;
-	}
-	.price-label{
-		color: #888;
-		line-height: 48rpx;
-	}
-	.footer{
-		position: fixed;
-		left: 0;
-		bottom: 0;
+	.amount-input{
 		width: 100%;
-		background-color: white;
-		padding: 20rpx;
+		height: 88rpx;
+		padding: 0 24rpx;
+		border: 1rpx solid #E5E7EB;
+		border-radius: 14rpx;
+		font-size: 28rpx;
+		box-sizing: border-box;
+		background-color: #F7F9FC;
+		transition: border-color 0.18s ease;
 	}
-	.footer /deep/ .van-button--primary {
-		border: 2rpx solid #5F7DF9;
-		color: white;
-		background: linear-gradient(96deg, #569AFF, #4A6EF3);
-		width: calc(100% - 40rpx);
-		border-radius: 80rpx;
+	.amount-input:focus{
+		border-color: #2D55E8;
+		background-color: #fff;
+		box-shadow: none;
 	}
+
+	/* 底部按钮 */
+.footer{
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #fff;
+    padding: 10rpx 0rpx calc(20rpx + env(safe-area-inset-bottom));
+    border-top: 1rpx solid #EEF0F3;
+    box-shadow: none;
+}
+	.status-tip{
+		text-align: center;
+		margin-bottom: 16rpx;
+	}
+	.tip-text{
+		font-size: 26rpx;
+		color: #A8071A;
+		background-color: #FFF1F0;
+		padding: 8rpx 16rpx;
+		border-radius: 12rpx;
+		display: inline-block;
+		border: 1rpx solid #FFD7D7;
+	}
+.footer-button{
+    width: 60%;
+    max-width: 690rpx;
+    box-sizing: border-box;
+    height: 88rpx;
+    line-height: 88rpx;
+    font-size: 32rpx;
+    font-weight: 600;
+    margin: 0 auto;
+    display: block;
+    border: none;
+		z-idnex: 100;
+}
 </style>
 
 <script setup>
-	import { ref, reactive } from 'vue'
-	import { onLoad } from '@dcloudio/uni-app'
+	import { ref, reactive, computed, onUnmounted } from 'vue'
+	import { onLoad, onShow, onHide } from '@dcloudio/uni-app'
 	import navbar from '../../components/navbar/index.vue'
 	import request from '../../components/js/request.js'
+	import { getStatusText, getStatusClass as getStationStatusClass } from '../../components/js/stationUtils.js'
 	
 	const app = getApp()
-	
-	const selected = ref('')
-	const setport = (index) => {
-		selected.value = index
-	}
-	const form = reactive({})
 	const user = uni.getStorageSync('user')
 	const token = uni.getStorageSync('token')
-	const key = ref('')
 	
-	const show = (params) => {
+	// 页面参数
+	const stationId = ref('')
+	const gunNumber = ref('')
+	
+	// 定时器
+	const refreshTimer = ref(null)
+	
+	// 站点信息
+	const stationInfo = reactive({
+		stationName: '',
+		gunNo: '',
+		price: 0,
+		pricePeriod: '',
+		status: null
+	})
+	
+	// 企业钱包信息
+	const enterpriseWallet = reactive({
+		enterpriseName: null,
+		walletBalance: null,
+		accountingAmount: null,
+		consumedAmount: null,
+		minLimit: null
+	})
+	
+	// 付款方式相关
+	const paymentMethod = ref('prepay') // 'enterprise' | 'prepay'
+	
+	// 企业卡相关 - 充电百分比
+	const chargePercentage = ref(80)
+	
+	// 预付费相关
+	const presetAmounts = ref([50, 100, 300, 500])
+	const selectedAmount = ref(50)
+	const customAmount = ref('')
+	
+	// 获取最终支付金额
+	const finalAmount = computed(() => {
+		if (customAmount.value) {
+			return parseFloat(customAmount.value)
+		}
+		return selectedAmount.value
+	})
+	
+	// 获取充电枪状态文字
+	const gunStatusText = computed(() => {
+		if (stationInfo.status === null) return ''
+		return getStatusText(stationInfo.status)
+	})
+	
+	// 判断是否可以充电
+	const canCharge = computed(() => {
+		// 只有状态为2（占用未充电）时才可以充电
+		return stationInfo.status === 2
+	})
+	
+	// 计算企业钱包可用余额
+	const availableBalance = computed(() => {
+		if (enterpriseWallet.walletBalance === null || enterpriseWallet.accountingAmount === null || enterpriseWallet.consumedAmount === null) {
+			return 0
+		}
+		return enterpriseWallet.walletBalance + enterpriseWallet.accountingAmount - enterpriseWallet.consumedAmount
+	})
+	
+	// 检查企业钱包余额是否充足
+	const isEnterpriseBalanceSufficient = computed(() => {
+		if (enterpriseWallet.minLimit === null) return true
+		return availableBalance.value >= enterpriseWallet.minLimit
+	})
+	
+	// 获取按钮文字和提示信息
+	const buttonInfo = computed(() => {
+		if (stationInfo.status === null) {
+			return { text: '立即充电', disabled: true, tip: '加载中...' }
+		}
+		
+		switch (stationInfo.status) {
+			case 1: // 空闲
+				return { text: '立即充电', disabled: true, tip: '请先插枪后充电' }
+			case 2: // 占用未充电
+				return { text: '立即充电', disabled: false, tip: '' }
+			case 3: // 充电中
+				return { text: '充电中', disabled: true, tip: '该枪正在充电中' }
+			case 4: // 预约锁定
+				return { text: '已预约', disabled: true, tip: '该枪已被预约锁定' }
+			case 0: // 离网
+				return { text: '设备离网', disabled: true, tip: '设备处于离网状态' }
+			case 255: // 故障
+				return { text: '设备故障', disabled: true, tip: '设备出现故障，无法使用' }
+			case 21501: // 升级中
+				return { text: '设备升级', disabled: true, tip: '设备正在升级中' }
+			case 21502: // 启动中
+				return { text: '启动中', disabled: true, tip: '充电启动中，请稍候' }
+			case 21503: // 禁用
+				return { text: '设备禁用', disabled: true, tip: '设备已被禁用' }
+			default:
+				return { text: '立即充电', disabled: true, tip: '设备状态异常' }
+		}
+	})
+	
+	// 获取站点信息和价格
+	const getStationInfo = () => {
 		request({
-			url: '/charging/getChargingPileData',
-			data: params,
-			success: res => {
-				for(let key in res.data.data){
-					form[key] = res.data.data[key]
+			url: 'charging/port/info',
+			data: { stationId: stationId.value, gunNumber: gunNumber.value },
+			method: 'GET',
+			success: (res) => {
+				if (res.data.code === 200) {
+					Object.assign(stationInfo, res.data.data)
 				}
+			},
+			fail: (error) => {
+				console.error('获取站点信息失败:', error)
 			}
 		})
 	}
 	
-	const times = ref([
-		'智能充满',
-		'1',
-		'2',
-		'3'
-	])
-	const activetime = ref(0)
-	const customtimeshow = ref(false)
-	const customtime = ref('')
-	const setime = (index) => {
-		activetime.value = index
-	}
-	const subtime = () => {
-		if(customtime.value) {
-			if(isNaN(customtime.value)) {
-				uni.showToast({
-					title: '请输入数字',
-					icon: 'none'
-				})
-			}else{
-				if(times.value.includes(customtime.value)) {
-					setime(times.value.indexOf(customtime.value))
-				}else{
-					if(times.value.length == 4) {
-						times.value.push(customtime.value)
-					}else{
-						times.value[times.value.length - 1] = customtime.value
+	// 获取企业钱包信息
+	const getEnterpriseWallet = () => {
+		request({
+			url: 'me/getEnterpriseWallet',
+			method: 'GET',
+			success: (res) => {
+				if (res.data.code === 200 && res.data.data) {
+					Object.assign(enterpriseWallet, res.data.data)
+					// 如果有企业钱包，默认选择企业卡支付
+					if (enterpriseWallet.walletBalance !== null) {
+						paymentMethod.value = 'enterprise'
 					}
-					setime(times.value.length - 1)
 				}
-				customtimeshow.value = false
+			},
+			fail: (error) => {
+				// 静默处理错误，不显示错误消息
+				console.log('企业钱包信息获取失败')
 			}
-		}else{
-			uni.showToast({
-				title: '请输入自定义时间',
-				icon: 'none'
-			})
+		})
+	}
+	
+	// 选择付款方式
+	const selectPaymentMethod = (method) => {
+		paymentMethod.value = method
+		// 切换支付方式时清空自定义金额
+		if (method === 'prepay') {
+			customAmount.value = ''
+			selectedAmount.value = 50
 		}
 	}
 	
-	const start = () => {
-		if(token) {
-			if(selected.value === '') {
+	// 充电百分比变化
+	const onChargePercentageChange = (e) => {
+		const val = (e && e.detail && (e.detail.value ?? e.detail)) ?? e
+		const percentage = Number(val)
+		// 确保不低于80%
+		chargePercentage.value = Math.max(80, Math.min(100, percentage))
+	}
+	
+	// 进度条点击事件 (暂不实现交互，仅显示)
+	const onProgressClick = () => {
+		// 进度条点击暂不实现交互功能
+	}
+	
+	// 选择预设金额
+	const selectAmount = (amount) => {
+		selectedAmount.value = amount
+		customAmount.value = ''
+	}
+	
+	// 自定义金额输入
+	const onCustomAmountInput = () => {
+		if (customAmount.value) {
+			selectedAmount.value = null
+		}
+	}
+	
+	// 获取状态样式类
+	const getStatusClass = () => {
+		if (stationInfo.status === null) return ''
+		return getStationStatusClass(stationInfo.status)
+	}
+	
+	// 获取充电枪状态
+	const getGunStatus = () => {
+		request({
+			url: 'charging/port/status',
+			data: { stationId: stationId.value, gunNumber: gunNumber.value },
+			method: 'GET',
+			success: (res) => {
+				if (res.data.code === 200) {
+					// 如果状态为null则当作0(离线)处理
+					stationInfo.status = res.data.data === null ? 0 : res.data.data
+				}
+			},
+			fail: (error) => {
+				console.error('获取充电枪状态失败:', error)
+			}
+		})
+	}
+	
+	// 启动定时刷新 - 改为请求状态接口
+	const startAutoRefresh = () => {
+		stopAutoRefresh()
+		refreshTimer.value = setInterval(() => {
+			getGunStatus()
+		}, 5000) // 每5秒刷新一次状态
+	}
+	
+	// 停止定时刷新
+	const stopAutoRefresh = () => {
+		if (refreshTimer.value) {
+			clearInterval(refreshTimer.value)
+			refreshTimer.value = null
+		}
+	}
+	
+	// 开始充电
+	const startCharging = () => {
+		// 检查充电枪状态
+		if (!canCharge.value) {
+			uni.showToast({
+				title: buttonInfo.value.tip || '当前状态不允许充电',
+				icon: 'none'
+			})
+			return
+		}
+		
+		// 检查企业钱包余额
+		if (paymentMethod.value === 'enterprise' && !isEnterpriseBalanceSufficient.value) {
+			uni.showToast({
+				title: '企业钱包余额不足, 最少需要:' + enterpriseWallet.minLimit + '元',
+				icon: 'none'
+			})
+			return
+		}
+		
+		if (!token) {
+			uni.setStorageSync('redirecturl', `/pages/station/create?stationId=${stationId.value}&gunNumber=${gunNumber.value}`)
+			uni.navigateTo({
+				url: '/pages/user/login'
+			})
+			return
+		}
+		
+		// 校验
+		if (paymentMethod.value === 'prepay') {
+			const amount = finalAmount.value
+			if (!amount || amount < 10) {
 				uni.showToast({
-					title: '请选择设备端口',
+					title: '自定义金额不能少于10元',
 					icon: 'none'
 				})
-			}else{
-				request({
-					url: '/order/saveOrder',
-					data: {
-						amount: 50,
-						hour: times.value[activetime.value] == '智能充满' ? 12 : times.value[activetime.value],
-						portId: form.list[selected.value].portId,
-						userId: user.memberId
-					},
-					success: res => {
-						if(res.data.code == 200) {
+				return
+			}
+		}
+		
+		if (paymentMethod.value === 'enterprise') {
+			startEnterpriseCharging()
+		} else {
+			startPrepayCharging()
+		}
+	}
+	
+	// 企业卡充电
+	const startEnterpriseCharging = () => {
+		request({
+			url: 'charging/start/enterprise',
+			method: 'POST',
+			data: {
+				stationId: stationId.value,
+				gunNumber: gunNumber.value,
+				soc: chargePercentage.value
+			},
+			success: (res) => {
+				if (res.data.code === 200) {
+					uni.showToast({
+						title: '成功开启充电'
+					})
+					setTimeout(() => {
+						uni.navigateTo({
+							url: `/pages/station/powering?orderId=${res.data.data}&stationName=${stationInfo.stationName}&gunNo=${stationInfo.gunNo}`
+						})
+					}, 1500)
+				} else {
+					uni.showToast({
+						title: res.data.msg || '充电启动失败',
+						icon: 'none'
+					})
+				}
+			},
+			fail: (error) => {
+				console.error('充电启动失败:', error)
+				uni.showToast({
+					title: '充电启动失败',
+					icon: 'none'
+				})
+			}
+		})
+	}
+	
+	// 预付费充电
+	const startPrepayCharging = () => {
+		request({
+			url: 'charging/prepay',
+			method: 'POST',
+			data: {
+				stationId: stationId.value,
+				gunNumber: gunNumber.value,
+				amount: finalAmount.value
+			},
+			success: (res) => {
+				if (res.data.code === 200) {
+					const { orderId, paymentParams } = res.data.data
+					
+					// 调起微信支付
+					uni.requestPayment({
+						provider: 'wxpay',
+						...paymentParams,
+						success: (payRes) => {
 							uni.showToast({
-								title: '成功开启充电'
+								title: '支付成功'
 							})
 							setTimeout(() => {
-								go(`/pages/station/powering?stationName=${form.stationName}&port=${res.data.data.portId}&pileId=${res.data.data.pileId}&portname=${form.list[selected.value].name}&orderNumber=${res.data.data.orderNumber}&hour=${res.data.data.hour}&delta=3`)
+								uni.navigateTo({
+									url: `/pages/station/powering?orderId=${orderId}&stationName=${stationInfo.stationName}&gunNo=${stationInfo.gunNo}`
+								})
 							}, 1500)
-						}else{
+						},
+						fail: (payErr) => {
+							console.error('支付失败:', payErr)
 							uni.showToast({
-								title: '开始充电失败',
+								title: '支付失败',
 								icon: 'none'
 							})
 						}
-					}
+					})
+				} else {
+					uni.showToast({
+						title: res.data.msg || '预付费订单创建失败',
+						icon: 'none'
+					})
+				}
+			},
+			fail: (error) => {
+				console.error('预付费订单创建失败:', error)
+				uni.showToast({
+					title: '充电启动失败',
+					icon: 'none'
 				})
 			}
-		}else{
-			uni.setStorageSync('redirecturl', '/pages/station/create?key=' + key.value)
-			go('/pages/user/login')
-		}
-	}
-	
-	const go = (url) => {
-		uni.navigateTo({
-			url: url
 		})
 	}
 	
 	onLoad((option) => {
-		key.value = option.key
-		show(option)
+		stationId.value = option.stationId
+		gunNumber.value = option.gunNumber
+		
+		// 获取数据
+		getStationInfo()
+		getEnterpriseWallet()
+	})
+	
+	onShow(() => {
+		// 页面显示时启动定时刷新
+		startAutoRefresh()
+	})
+	
+	onHide(() => {
+		// 页面隐藏时停止定时刷新
+		stopAutoRefresh()
+	})
+	
+	onUnmounted(() => {
+		// 组件卸载时停止定时刷新
+		stopAutoRefresh()
 	})
 </script>

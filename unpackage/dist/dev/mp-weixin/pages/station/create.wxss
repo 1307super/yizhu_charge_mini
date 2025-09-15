@@ -1,125 +1,369 @@
 
 .container.data-v-3e528b70{
-		background: linear-gradient(-42deg, #E7FFFA, #EFF5FF, #FCFDEF);
-		padding-top: 160rpx;
-		min-height: calc(100vh - 80rpx);
-		padding-bottom: 80rpx;
+    background-color: #F6F7F9;
+    padding-top: 60rpx;
+    min-height: 100vh;
+    padding-bottom: 240rpx;
+}
+
+	/* 顶部视觉区 */
+.hero.data-v-3e528b70{
+		position: relative;
+		height: 360rpx;
+		overflow: hidden;
+}
+.banner.data-v-3e528b70{
+		width: 100%;
+		height: 100%;
+		display: block;
+		object-fit: cover;
+		transform: scale(1.01);
+}
+	/* 底部向内容区的柔和过渡 */
+.banner-mask.data-v-3e528b70{
+		position: absolute;
+		left: 0; right: 0; bottom: 0;
+		height: 60rpx;
+		background: linear-gradient(to bottom, rgba(246,247,249,0) 0%, rgba(246,247,249,0.8) 60%, #F6F7F9 100%);
+		pointer-events: none;
+}
+
+	/* 叠加的站点信息卡，半透明扁平化 */
+.header.data-v-3e528b70{
+	position: absolute;
+	left: 24rpx;
+	right: 24rpx;
+	bottom: 25rpx;
+	padding: 28rpx;
+	background: rgba(255,255,255,0.72);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	border-radius: 16rpx;
+	border: 1rpx solid rgba(255,255,255,0.6);
+	text-align: left;
+	box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.03);
 }
 .main.data-v-3e528b70{
-		margin-left: 20rpx;
-		margin-right: 20rpx;
+		margin: 20rpx;
 }
-.header.data-v-3e528b70{
-		margin-left: 20rpx;
-		margin-right: 20rpx;
-		padding: 20rpx;
-}
-.staion-name.data-v-3e528b70{
+.station-name.data-v-3e528b70{
 		font-family: Microsoft YaHei;
-		font-weight: bold;
+		font-weight: 700;
 		font-size: 36rpx;
-		color: #17141B;
+		color: #1a1a1a;
 		line-height: 60rpx;
 		margin-bottom: 20rpx;
 }
-.address.data-v-3e528b70{
+.gun-info.data-v-3e528b70{
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		gap: 12rpx;
+		flex-wrap: wrap;
+}
+.gun-tag.data-v-3e528b70{
+		display: flex;
+		align-items: center;
+		gap: 8rpx;
+		background-color: #F3F4F6;
+		padding: 8rpx 12rpx;
+		border-radius: 16rpx;
+		border: 1rpx solid #E5E7EB;
+}
+.gun-icon.data-v-3e528b70{
+		width: 32rpx;
+		height: 32rpx;
+		flex-shrink: 0;
+}
+.gun-text.data-v-3e528b70{
+		font-size: 26rpx;
+		color: #6B7280;
+		font-weight: 500;
+		line-height: 1;
+}
+.gun-status.data-v-3e528b70{
+		font-size: 24rpx;
+		padding: 6rpx 12rpx;
+		border-radius: 12rpx;
+		font-weight: 500;
+}
+.gun-status.status-free.data-v-3e528b70{
+		background-color: #e8f5e8;
+		color: #52c41a;
+}
+.gun-status.status-occupied.data-v-3e528b70{
+		background-color: #fff7e6;
+		color: #fa8c16;
+}
+.gun-status.status-charging.data-v-3e528b70{
+		background-color: #e6f7ff;
+		color: #1890ff;
+}
+.gun-status.status-fault.data-v-3e528b70{
+		background-color: #fff2f0;
+		color: #f5222d;
+}
+.gun-status.status-offline.data-v-3e528b70{
+		background-color: #f5f5f5;
+		color: #8c8c8c;
+}
+
+	/* 价格卡片 */
+.price-card.data-v-3e528b70{
+		background-color: #fff;
+		padding: 28rpx;
+		border-radius: 16rpx;
+		margin-bottom: 20rpx;
+		text-align: center;
+		border: 1rpx solid #EEF0F3;
+		box-shadow: none;
+}
+.price-main.data-v-3e528b70{
+    display: block;
+    font-size: 36rpx;
+    font-weight: 600;
+    color: #FF8C00;
+    margin-bottom: 8rpx;
+}
+.price-period.data-v-3e528b70{
+    font-size: 24rpx;
+    color: #666;
+    font-weight: 400;
+}
+
+	/* 企业钱包卡片 */
+.enterprise-wallet-card.data-v-3e528b70{
+		background-color: #fff;
+		padding: 28rpx;
+		border-radius: 16rpx;
+		margin-bottom: 20rpx;
+		border: 1rpx solid #EEF0F3;
+		box-shadow: none;
+}
+.card-header.data-v-3e528b70{
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 24rpx;
+}
+.card-title.data-v-3e528b70{
+		font-size: 32rpx;
+		font-weight: 600;
+		color: #1a1a1a;
+}
+.wallet-content .enterprise-name.data-v-3e528b70{
+		font-size: 28rpx;
+		color: #666;
+		margin-bottom: 20rpx;
+}
+.wallet-info.data-v-3e528b70{
+		display: flex;
+		flex-direction: column;
+		gap: 16rpx;
+}
+.wallet-item.data-v-3e528b70{
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+}
+.wallet-label.data-v-3e528b70{
+		font-size: 28rpx;
 		color: #666;
 }
-.charge.data-v-3e528b70{
-		background-color: white;
-		padding: 20rpx;
-		border-radius: 20rpx;
-		margin-top: 20rpx;
+.wallet-value.data-v-3e528b70{
+		font-size: 28rpx;
+		font-weight: 600;
+		color: #1a1a1a;
 }
-.code-wrapper.data-v-3e528b70{
+.wallet-value.primary.data-v-3e528b70{
+		color: #2D55E8;
+		font-size: 32rpx;
+		font-weight: 700;
+}
+
+	/* 付款方式卡片 */
+.payment-card.data-v-3e528b70{
+		background-color: #fff;
+		padding: 28rpx;
+		border-radius: 16rpx;
+		margin-bottom: 20rpx;
+		border: 1rpx solid #EEF0F3;
+		box-shadow: none;
+}
+.payment-option.data-v-3e528b70{
 		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 24rpx 0;
+		transition: all 0.2s ease;
 }
-.code.data-v-3e528b70{
-		flex: 1;
-		font-size: 32rpx;
-		margin-top: 6rpx;
+.payment-option.data-v-3e528b70:not(:last-child){
+		border-bottom: 1rpx solid #f0f2f5;
 }
-.type-label.data-v-3e528b70{
-		height: 52rpx;
-		line-height: 52rpx;
+.payment-option.selected.data-v-3e528b70{
+		background-color: #F0F4FF;
+		border-radius: 12rpx;
+		padding: 24rpx 16rpx;
+		margin: 0 -16rpx;
+		border-left: 4rpx solid #2D55E8;
 		padding-left: 20rpx;
-		padding-right: 20rpx;
 }
-.port-title.data-v-3e528b70{
-		font-size: 32rpx;
+.payment-option.selected .option-text.data-v-3e528b70{
+		color: #2D55E8;
+		font-weight: 600;
+}
+.option-content.data-v-3e528b70{
+		display: flex;
+		align-items: center;
+		flex: 1;
+		gap: 16rpx;
+}
+.option-icon.data-v-3e528b70{
+    width: 40rpx;
+    height: 40rpx;
+    flex-shrink: 0;
+    display: block;
+    border-radius: 8rpx;
+}
+.option-text.data-v-3e528b70{
+		font-size: 28rpx;
+		color: #1a1a1a;
+		font-weight: 500;
+}
+.option-tip.data-v-3e528b70{
+		font-size: 22rpx;
+		color: #999;
+		margin-left: 8rpx;
+}
+	
+	/* 充电管理卡片 */
+.charge-management-card.data-v-3e528b70{
+		background-color: #fff;
+		padding: 28rpx;
+		border-radius: 16rpx;
+		margin-bottom: 20rpx;
+		border: 1rpx solid #EEF0F3;
+		box-shadow: none;
+}
+.charge-content.data-v-3e528b70{
+    text-align: left;
+}
+.charge-label.data-v-3e528b70{
+		font-size: 28rpx;
+		color: #666;
+		margin-bottom: 16rpx;
+}
+.percentage-display.data-v-3e528b70{
+    font-size: 36rpx;
+    font-weight: 600;
+    color: #2D55E8;
+    margin-bottom: 16rpx;
+    text-align: left;
+}
+.progress-container.data-v-3e528b70{
+		margin: 0 20rpx 24rpx;
+}
+.charge-tip.data-v-3e528b70{
+		font-size: 24rpx;
+		color: #9A6B00;
+		line-height: 1.5;
+		background-color: #FFF8E8;
+		padding: 12rpx 16rpx;
+		border-radius: 10rpx;
+		border: 1rpx solid #F5E2BD;
+}
+	
+	/* 支付详情 */
+.payment-detail.data-v-3e528b70{
+		margin-top: 24rpx;
+		padding-top: 24rpx;
+		border-top: 1rpx solid #f0f2f5;
+}
+.detail-header.data-v-3e528b70{
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
 		margin-bottom: 20rpx;
 }
-.port.data-v-3e528b70 .van-button--primary, .port.data-v-3e528b70 .van-button--default{
-		width: 100%;
-		height: 80rpx;
-}
-.port-num.data-v-3e528b70{
-		font-size: 32rpx;
-		margin-right: 4rpx;
-}
-.busy.data-v-3e528b70{
-		color: #F16A19;
-}
-.selected.data-v-3e528b70 .van-button--primary {
-		background: linear-gradient(96deg, #569AFF, #5A8CFF);
-}
-.port.data-v-3e528b70 .van-button--primary {
-		border: 2rpx solid #5F7DF9;
-		color: white;
-}
-.port.data-v-3e528b70 .van-button--default {
-		border: 2rpx solid #999;
-}
-.port.data-v-3e528b70 .van-button--plain.van-button--primary {
-		background-color: white;
-		color: #569AFF;
-}
-.time.data-v-3e528b70 .van-tag{
-		width: calc(100% - 20rpx);
-		height: 80rpx;
-		line-height: 80rpx;
-		margin-top: 20rpx;
+.detail-title.data-v-3e528b70{
 		font-size: 28rpx;
-		display: inline-block;
-		border-radius: 10rpx;
+		color: #1a1a1a;
+		font-weight: 500;
 }
-.active.data-v-3e528b70 .van-tag{
-		border: #5F7DF9 solid 2rpx;
+.percentage-text.data-v-3e528b70{
+		font-size: 28rpx;
+		color: #2D55E8;
+		font-weight: 600;
 }
-.default.data-v-3e528b70 .van-tag{
-		border: #D8DCE0 solid 2rpx;
+
+	/* 预设金额 */
+.preset-amounts.data-v-3e528b70{
+		display: flex;
+		gap: 16rpx;
+		margin-bottom: 20rpx;
+		flex-wrap: wrap;
 }
-.popup.data-v-3e528b70{
-		padding: 20rpx;
+.amount-btn.data-v-3e528b70{
+		flex: 1;
+		min-width: 140rpx;
+		height: 64rpx;
 }
-.time-footer.data-v-3e528b70{
+
+	/* 自定义金额 */
+.custom-amount.data-v-3e528b70{
 		margin-top: 20rpx;
 }
-.time-footer.data-v-3e528b70 .van-button--small{
-		width: 80%;
-}
-.input.data-v-3e528b70{
-		width: calc(100% - 80rpx);
-		margin: 20rpx auto;
-		height: 60rpx;
-		line-height: 60rpx;
-}
-.price-label.data-v-3e528b70{
-		color: #888;
-		line-height: 48rpx;
-}
-.footer.data-v-3e528b70{
-		position: fixed;
-		left: 0;
-		bottom: 0;
+.amount-input.data-v-3e528b70{
 		width: 100%;
-		background-color: white;
-		padding: 20rpx;
+		height: 88rpx;
+		padding: 0 24rpx;
+		border: 1rpx solid #E5E7EB;
+		border-radius: 14rpx;
+		font-size: 28rpx;
+		box-sizing: border-box;
+		background-color: #F7F9FC;
+		transition: border-color 0.18s ease;
 }
-.footer.data-v-3e528b70 .van-button--primary {
-		border: 2rpx solid #5F7DF9;
-		color: white;
-		background: linear-gradient(96deg, #569AFF, #4A6EF3);
-		width: calc(100% - 40rpx);
-		border-radius: 80rpx;
+.amount-input.data-v-3e528b70:focus{
+		border-color: #2D55E8;
+		background-color: #fff;
+		box-shadow: none;
+}
+
+	/* 底部按钮 */
+.footer.data-v-3e528b70{
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #fff;
+    padding: 10rpx 0rpx calc(20rpx + env(safe-area-inset-bottom));
+    border-top: 1rpx solid #EEF0F3;
+    box-shadow: none;
+}
+.status-tip.data-v-3e528b70{
+		text-align: center;
+		margin-bottom: 16rpx;
+}
+.tip-text.data-v-3e528b70{
+		font-size: 26rpx;
+		color: #A8071A;
+		background-color: #FFF1F0;
+		padding: 8rpx 16rpx;
+		border-radius: 12rpx;
+		display: inline-block;
+		border: 1rpx solid #FFD7D7;
+}
+.footer-button.data-v-3e528b70{
+    width: 60%;
+    max-width: 690rpx;
+    box-sizing: border-box;
+    height: 88rpx;
+    line-height: 88rpx;
+    font-size: 32rpx;
+    font-weight: 600;
+    margin: 0 auto;
+    display: block;
+    border: none;
+		z-idnex: 100;
 }

@@ -90,36 +90,6 @@ const _sfc_main = {
     const onSearchConfirm = () => {
       searchStation();
     };
-    const getCurrentLocation = () => {
-      common_vendor.index.showLoading({
-        title: "\u5B9A\u4F4D\u4E2D..."
-      });
-      common_vendor.index.getLocation({
-        type: "gcj02",
-        success: (res) => {
-          query.lat = res.latitude;
-          query.lng = res.longitude;
-          reverseGeocoding(res.latitude, res.longitude);
-          pager.pageNo = 1;
-          loadall.value = false;
-          stations.value = [];
-          index(1);
-          common_vendor.index.hideLoading();
-          common_vendor.index.showToast({
-            title: "\u5B9A\u4F4D\u6210\u529F",
-            icon: "success"
-          });
-        },
-        fail: (error) => {
-          common_vendor.index.hideLoading();
-          common_vendor.index.showToast({
-            title: "\u5B9A\u4F4D\u5931\u8D25",
-            icon: "none"
-          });
-          console.error("\u5B9A\u4F4D\u5931\u8D25:", error);
-        }
-      });
-    };
     const contactService = () => {
       common_vendor.index.showModal({
         title: "\u8054\u7CFB\u5BA2\u670D",
@@ -300,25 +270,20 @@ const _sfc_main = {
         }),
         d: common_vendor.o(selectLocation),
         e: common_vendor.p({
-          name: "location-o",
-          size: "16px"
-        }),
-        f: common_vendor.o(getCurrentLocation),
-        g: common_vendor.p({
           name: "search",
           size: "16px"
         }),
-        h: common_vendor.o(onSearchConfirm),
-        i: searchKeyword.value,
-        j: common_vendor.o(($event) => searchKeyword.value = $event.detail.value),
-        k: common_vendor.o(($event) => go("/pages/user/order")),
-        l: common_vendor.o(($event) => go("/pages/user/invoice")),
-        m: common_vendor.o(contactService),
-        n: common_vendor.n(query.sortType == 1 ? "active" : ""),
-        o: common_vendor.o(($event) => setActive(1)),
-        p: common_vendor.n(query.sortType == 2 ? "active" : ""),
-        q: common_vendor.o(($event) => setActive(2)),
-        r: common_vendor.f(stations.value, (item, index2, i0) => {
+        f: common_vendor.o(onSearchConfirm),
+        g: searchKeyword.value,
+        h: common_vendor.o(($event) => searchKeyword.value = $event.detail.value),
+        i: common_vendor.o(($event) => go("/pages/user/order")),
+        j: common_vendor.o(($event) => go("/pages/user/invoice")),
+        k: common_vendor.o(contactService),
+        l: common_vendor.n(query.sortType == 1 ? "active" : ""),
+        m: common_vendor.o(($event) => setActive(1)),
+        n: common_vendor.n(query.sortType == 2 ? "active" : ""),
+        o: common_vendor.o(($event) => setActive(2)),
+        p: common_vendor.f(stations.value, (item, index2, i0) => {
           return common_vendor.e({
             a: common_vendor.t(item.stationName),
             b: item.tags && item.tags.length
@@ -342,13 +307,13 @@ const _sfc_main = {
             m: common_vendor.o(($event) => go("/pages/station/index?plotId=" + item.stationId + "&deviceType=" + item.deviceType + "&distance=" + item.distance), index2)
           });
         }),
-        s: common_vendor.t(moreText.value),
-        t: common_vendor.o(($event) => showProvincePopup.value = false),
-        v: common_vendor.p({
+        q: common_vendor.t(moreText.value),
+        r: common_vendor.o(($event) => showProvincePopup.value = false),
+        s: common_vendor.p({
           name: "cross",
           size: "18px"
         }),
-        w: common_vendor.f(provinces.value, (province, index2, i0) => {
+        t: common_vendor.f(provinces.value, (province, index2, i0) => {
           return {
             a: common_vendor.t(province),
             b: index2,
@@ -356,13 +321,13 @@ const _sfc_main = {
             d: common_vendor.o(($event) => onProvinceSelect(province), index2)
           };
         }),
-        x: common_vendor.o(($event) => showProvincePopup.value = $event),
-        y: common_vendor.p({
+        v: common_vendor.o(($event) => showProvincePopup.value = $event),
+        w: common_vendor.p({
           position: "bottom",
           round: true,
           show: showProvincePopup.value
         }),
-        z: common_vendor.p({
+        x: common_vendor.p({
           active: 0
         })
       };

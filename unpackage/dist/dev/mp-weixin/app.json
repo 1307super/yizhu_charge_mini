@@ -5,6 +5,7 @@
     "pages/station/index",
     "pages/station/create",
     "pages/station/powering",
+    "pages/station/confirm",
     "pages/user/order",
     "pages/user/orderdetail",
     "pages/user/setting",
@@ -32,7 +33,8 @@
     "van-tab": "/wxcomponents/vant/tab/index",
     "van-nav-bar": "/wxcomponents/vant/nav-bar/index",
     "van-steps": "/wxcomponents/vant/steps/index",
-    "van-circle": "/wxcomponents/vant/circle/index"
+    "van-circle": "/wxcomponents/vant/circle/index",
+    "van-slider": "/wxcomponents/vant/slider/index"
   },
   "window": {
     "navigationBarTextStyle": "black",

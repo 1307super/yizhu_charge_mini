@@ -4,7 +4,7 @@ function request(options) {
     url: getApp().globalData.serverUrl + options.url,
     header: {
       'content-type': 'application/json',
-      'token': `Bearer ${uni.getStorageSync('token')}`
+      'Authorization': `Bearer ${uni.getStorageSync('token')}`
     },
   	method: options.method || 'GET',
   	data: options.data,

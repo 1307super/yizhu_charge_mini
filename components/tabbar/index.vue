@@ -62,8 +62,8 @@
 	.scan-pic{
 		width: 40rpx;
 		position: absolute;
-		top: 20rpx;
-		left: 50%;
+		top: 18rpx;
+		left: 51.5%;
 		transform: translateX(-50%);
 	}
 </style>

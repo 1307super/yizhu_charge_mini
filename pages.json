@@ -32,6 +32,13 @@
 			}
 		},
 		{
+			"path": "pages/station/confirm",
+			"style": {
+				"navigationBarTitleText": "费用确认",
+				"navigationStyle": "custom"
+			}
+		},
+		{
 			"path": "pages/user/order",
 			"style": {
 				"navigationStyle": "custom",
@@ -84,7 +91,8 @@
 			"van-tab": "/wxcomponents/vant/tab/index",
 			"van-nav-bar": "/wxcomponents/vant/nav-bar/index",
 			"van-steps": "/wxcomponents/vant/steps/index",
-			"van-circle": "/wxcomponents/vant/circle/index"
+			"van-circle": "/wxcomponents/vant/circle/index",
+			"van-slider": "/wxcomponents/vant/slider/index"
 		}
 	},
 	"uniIdRouter": {}

@@ -6,7 +6,7 @@ function request(options) {
     url: getApp().globalData.serverUrl + options.url,
     header: {
       "content-type": "application/json",
-      "token": `Bearer ${common_vendor.index.getStorageSync("token")}`
+      "Authorization": `Bearer ${common_vendor.index.getStorageSync("token")}`
     },
     method: options.method || "GET",
     data: options.data,

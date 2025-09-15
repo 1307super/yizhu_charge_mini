@@ -1,13 +1,31 @@
 "use strict";
+var __defProp = Object.defineProperty;
+var __defProps = Object.defineProperties;
+var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
+var __getOwnPropSymbols = Object.getOwnPropertySymbols;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __propIsEnum = Object.prototype.propertyIsEnumerable;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __spreadValues = (a, b) => {
+  for (var prop in b || (b = {}))
+    if (__hasOwnProp.call(b, prop))
+      __defNormalProp(a, prop, b[prop]);
+  if (__getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(b)) {
+      if (__propIsEnum.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    }
+  return a;
+};
+var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
 var common_vendor = require("../../common/vendor.js");
 var components_js_request = require("../../components/js/request.js");
+var components_js_stationUtils = require("../../components/js/stationUtils.js");
 if (!Array) {
-  const _component_van_tag = common_vendor.resolveComponent("van-tag");
+  const _component_van_radio = common_vendor.resolveComponent("van-radio");
   const _component_van_button = common_vendor.resolveComponent("van-button");
-  const _component_van_col = common_vendor.resolveComponent("van-col");
-  const _component_van_row = common_vendor.resolveComponent("van-row");
-  const _component_van_popup = common_vendor.resolveComponent("van-popup");
-  (_component_van_tag + _component_van_button + _component_van_col + _component_van_row + _component_van_popup)();
+  const _component_van_slider = common_vendor.resolveComponent("van-slider");
+  (_component_van_radio + _component_van_button + _component_van_slider)();
 }
 if (!Math) {
   navbar();
@@ -17,208 +35,387 @@ const _sfc_main = {
   __name: "create",
   setup(__props) {
     getApp();
-    const selected = common_vendor.ref("");
-    const setport = (index) => {
-      selected.value = index;
-    };
-    const form = common_vendor.reactive({});
-    const user = common_vendor.index.getStorageSync("user");
+    common_vendor.index.getStorageSync("user");
     const token = common_vendor.index.getStorageSync("token");
-    const key = common_vendor.ref("");
-    const show = (params) => {
+    const stationId = common_vendor.ref("");
+    const gunNumber = common_vendor.ref("");
+    const refreshTimer = common_vendor.ref(null);
+    const stationInfo = common_vendor.reactive({
+      stationName: "",
+      gunNo: "",
+      price: 0,
+      pricePeriod: "",
+      status: null
+    });
+    const enterpriseWallet = common_vendor.reactive({
+      enterpriseName: null,
+      walletBalance: null,
+      accountingAmount: null,
+      consumedAmount: null,
+      minLimit: null
+    });
+    const paymentMethod = common_vendor.ref("prepay");
+    const chargePercentage = common_vendor.ref(80);
+    const presetAmounts = common_vendor.ref([50, 100, 300, 500]);
+    const selectedAmount = common_vendor.ref(50);
+    const customAmount = common_vendor.ref("");
+    const finalAmount = common_vendor.computed$1(() => {
+      if (customAmount.value) {
+        return parseFloat(customAmount.value);
+      }
+      return selectedAmount.value;
+    });
+    const gunStatusText = common_vendor.computed$1(() => {
+      if (stationInfo.status === null)
+        return "";
+      return components_js_stationUtils.getStatusText(stationInfo.status);
+    });
+    const canCharge = common_vendor.computed$1(() => {
+      return stationInfo.status === 2;
+    });
+    const availableBalance = common_vendor.computed$1(() => {
+      if (enterpriseWallet.walletBalance === null || enterpriseWallet.accountingAmount === null || enterpriseWallet.consumedAmount === null) {
+        return 0;
+      }
+      return enterpriseWallet.walletBalance + enterpriseWallet.accountingAmount - enterpriseWallet.consumedAmount;
+    });
+    const isEnterpriseBalanceSufficient = common_vendor.computed$1(() => {
+      if (enterpriseWallet.minLimit === null)
+        return true;
+      return availableBalance.value >= enterpriseWallet.minLimit;
+    });
+    const buttonInfo = common_vendor.computed$1(() => {
+      if (stationInfo.status === null) {
+        return { text: "\u7ACB\u5373\u5145\u7535", disabled: true, tip: "\u52A0\u8F7D\u4E2D..." };
+      }
+      switch (stationInfo.status) {
+        case 1:
+          return { text: "\u7ACB\u5373\u5145\u7535", disabled: true, tip: "\u8BF7\u5148\u63D2\u67AA\u540E\u5145\u7535" };
+        case 2:
+          return { text: "\u7ACB\u5373\u5145\u7535", disabled: false, tip: "" };
+        case 3:
+          return { text: "\u5145\u7535\u4E2D", disabled: true, tip: "\u8BE5\u67AA\u6B63\u5728\u5145\u7535\u4E2D" };
+        case 4:
+          return { text: "\u5DF2\u9884\u7EA6", disabled: true, tip: "\u8BE5\u67AA\u5DF2\u88AB\u9884\u7EA6\u9501\u5B9A" };
+        case 0:
+          return { text: "\u8BBE\u5907\u79BB\u7F51", disabled: true, tip: "\u8BBE\u5907\u5904\u4E8E\u79BB\u7F51\u72B6\u6001" };
+        case 255:
+          return { text: "\u8BBE\u5907\u6545\u969C", disabled: true, tip: "\u8BBE\u5907\u51FA\u73B0\u6545\u969C\uFF0C\u65E0\u6CD5\u4F7F\u7528" };
+        case 21501:
+          return { text: "\u8BBE\u5907\u5347\u7EA7", disabled: true, tip: "\u8BBE\u5907\u6B63\u5728\u5347\u7EA7\u4E2D" };
+        case 21502:
+          return { text: "\u542F\u52A8\u4E2D", disabled: true, tip: "\u5145\u7535\u542F\u52A8\u4E2D\uFF0C\u8BF7\u7A0D\u5019" };
+        case 21503:
+          return { text: "\u8BBE\u5907\u7981\u7528", disabled: true, tip: "\u8BBE\u5907\u5DF2\u88AB\u7981\u7528" };
+        default:
+          return { text: "\u7ACB\u5373\u5145\u7535", disabled: true, tip: "\u8BBE\u5907\u72B6\u6001\u5F02\u5E38" };
+      }
+    });
+    const getStationInfo = () => {
       components_js_request.request({
-        url: "/charging/getChargingPileData",
-        data: params,
+        url: "charging/port/info",
+        data: { stationId: stationId.value, gunNumber: gunNumber.value },
+        method: "GET",
         success: (res) => {
-          for (let key2 in res.data.data) {
-            form[key2] = res.data.data[key2];
+          if (res.data.code === 200) {
+            Object.assign(stationInfo, res.data.data);
           }
+        },
+        fail: (error) => {
+          console.error("\u83B7\u53D6\u7AD9\u70B9\u4FE1\u606F\u5931\u8D25:", error);
         }
       });
     };
-    const times = common_vendor.ref([
-      "\u667A\u80FD\u5145\u6EE1",
-      "1",
-      "2",
-      "3"
-    ]);
-    const activetime = common_vendor.ref(0);
-    const customtimeshow = common_vendor.ref(false);
-    const customtime = common_vendor.ref("");
-    const setime = (index) => {
-      activetime.value = index;
-    };
-    const subtime = () => {
-      if (customtime.value) {
-        if (isNaN(customtime.value)) {
-          common_vendor.index.showToast({
-            title: "\u8BF7\u8F93\u5165\u6570\u5B57",
-            icon: "none"
-          });
-        } else {
-          if (times.value.includes(customtime.value)) {
-            setime(times.value.indexOf(customtime.value));
-          } else {
-            if (times.value.length == 4) {
-              times.value.push(customtime.value);
-            } else {
-              times.value[times.value.length - 1] = customtime.value;
+    const getEnterpriseWallet = () => {
+      components_js_request.request({
+        url: "me/getEnterpriseWallet",
+        method: "GET",
+        success: (res) => {
+          if (res.data.code === 200 && res.data.data) {
+            Object.assign(enterpriseWallet, res.data.data);
+            if (enterpriseWallet.walletBalance !== null) {
+              paymentMethod.value = "enterprise";
             }
-            setime(times.value.length - 1);
           }
-          customtimeshow.value = false;
+        },
+        fail: (error) => {
+          console.log("\u4F01\u4E1A\u94B1\u5305\u4FE1\u606F\u83B7\u53D6\u5931\u8D25");
         }
-      } else {
-        common_vendor.index.showToast({
-          title: "\u8BF7\u8F93\u5165\u81EA\u5B9A\u4E49\u65F6\u95F4",
-          icon: "none"
-        });
+      });
+    };
+    const selectPaymentMethod = (method) => {
+      paymentMethod.value = method;
+      if (method === "prepay") {
+        customAmount.value = "";
+        selectedAmount.value = 50;
       }
     };
-    const start = () => {
-      if (token) {
-        if (selected.value === "") {
+    const onChargePercentageChange = (e) => {
+      var _a, _b;
+      const val = (_b = e && e.detail && ((_a = e.detail.value) != null ? _a : e.detail)) != null ? _b : e;
+      const percentage = Number(val);
+      chargePercentage.value = Math.max(80, Math.min(100, percentage));
+    };
+    const selectAmount = (amount) => {
+      selectedAmount.value = amount;
+      customAmount.value = "";
+    };
+    const onCustomAmountInput = () => {
+      if (customAmount.value) {
+        selectedAmount.value = null;
+      }
+    };
+    const getStatusClass = () => {
+      if (stationInfo.status === null)
+        return "";
+      return components_js_stationUtils.getStatusClass(stationInfo.status);
+    };
+    const getGunStatus = () => {
+      components_js_request.request({
+        url: "charging/port/status",
+        data: { stationId: stationId.value, gunNumber: gunNumber.value },
+        method: "GET",
+        success: (res) => {
+          if (res.data.code === 200) {
+            stationInfo.status = res.data.data === null ? 0 : res.data.data;
+          }
+        },
+        fail: (error) => {
+          console.error("\u83B7\u53D6\u5145\u7535\u67AA\u72B6\u6001\u5931\u8D25:", error);
+        }
+      });
+    };
+    const startAutoRefresh = () => {
+      stopAutoRefresh();
+      refreshTimer.value = setInterval(() => {
+        getGunStatus();
+      }, 5e3);
+    };
+    const stopAutoRefresh = () => {
+      if (refreshTimer.value) {
+        clearInterval(refreshTimer.value);
+        refreshTimer.value = null;
+      }
+    };
+    const startCharging = () => {
+      if (!canCharge.value) {
+        common_vendor.index.showToast({
+          title: buttonInfo.value.tip || "\u5F53\u524D\u72B6\u6001\u4E0D\u5141\u8BB8\u5145\u7535",
+          icon: "none"
+        });
+        return;
+      }
+      if (paymentMethod.value === "enterprise" && !isEnterpriseBalanceSufficient.value) {
+        common_vendor.index.showToast({
+          title: "\u4F01\u4E1A\u94B1\u5305\u4F59\u989D\u4E0D\u8DB3, \u6700\u5C11\u9700\u8981:" + enterpriseWallet.minLimit + "\u5143",
+          icon: "none"
+        });
+        return;
+      }
+      if (!token) {
+        common_vendor.index.setStorageSync("redirecturl", `/pages/station/create?stationId=${stationId.value}&gunNumber=${gunNumber.value}`);
+        common_vendor.index.navigateTo({
+          url: "/pages/user/login"
+        });
+        return;
+      }
+      if (paymentMethod.value === "prepay") {
+        const amount = finalAmount.value;
+        if (!amount || amount < 10) {
           common_vendor.index.showToast({
-            title: "\u8BF7\u9009\u62E9\u8BBE\u5907\u7AEF\u53E3",
+            title: "\u81EA\u5B9A\u4E49\u91D1\u989D\u4E0D\u80FD\u5C11\u4E8E10\u5143",
             icon: "none"
           });
-        } else {
-          components_js_request.request({
-            url: "/order/saveOrder",
-            data: {
-              amount: 50,
-              hour: times.value[activetime.value] == "\u667A\u80FD\u5145\u6EE1" ? 12 : times.value[activetime.value],
-              portId: form.list[selected.value].portId,
-              userId: user.memberId
-            },
-            success: (res) => {
-              if (res.data.code == 200) {
+          return;
+        }
+      }
+      if (paymentMethod.value === "enterprise") {
+        startEnterpriseCharging();
+      } else {
+        startPrepayCharging();
+      }
+    };
+    const startEnterpriseCharging = () => {
+      components_js_request.request({
+        url: "charging/start/enterprise",
+        method: "POST",
+        data: {
+          stationId: stationId.value,
+          gunNumber: gunNumber.value,
+          soc: chargePercentage.value
+        },
+        success: (res) => {
+          if (res.data.code === 200) {
+            common_vendor.index.showToast({
+              title: "\u6210\u529F\u5F00\u542F\u5145\u7535"
+            });
+            setTimeout(() => {
+              common_vendor.index.navigateTo({
+                url: `/pages/station/powering?orderId=${res.data.data}&stationName=${stationInfo.stationName}&gunNo=${stationInfo.gunNo}`
+              });
+            }, 1500);
+          } else {
+            common_vendor.index.showToast({
+              title: res.data.msg || "\u5145\u7535\u542F\u52A8\u5931\u8D25",
+              icon: "none"
+            });
+          }
+        },
+        fail: (error) => {
+          console.error("\u5145\u7535\u542F\u52A8\u5931\u8D25:", error);
+          common_vendor.index.showToast({
+            title: "\u5145\u7535\u542F\u52A8\u5931\u8D25",
+            icon: "none"
+          });
+        }
+      });
+    };
+    const startPrepayCharging = () => {
+      components_js_request.request({
+        url: "charging/prepay",
+        method: "POST",
+        data: {
+          stationId: stationId.value,
+          gunNumber: gunNumber.value,
+          amount: finalAmount.value
+        },
+        success: (res) => {
+          if (res.data.code === 200) {
+            const { orderId, paymentParams } = res.data.data;
+            common_vendor.index.requestPayment(__spreadProps(__spreadValues({
+              provider: "wxpay"
+            }, paymentParams), {
+              success: (payRes) => {
                 common_vendor.index.showToast({
-                  title: "\u6210\u529F\u5F00\u542F\u5145\u7535"
+                  title: "\u652F\u4ED8\u6210\u529F"
                 });
                 setTimeout(() => {
-                  go(`/pages/station/powering?stationName=${form.stationName}&port=${res.data.data.portId}&pileId=${res.data.data.pileId}&portname=${form.list[selected.value].name}&orderNumber=${res.data.data.orderNumber}&hour=${res.data.data.hour}&delta=3`);
+                  common_vendor.index.navigateTo({
+                    url: `/pages/station/powering?orderId=${orderId}&stationName=${stationInfo.stationName}&gunNo=${stationInfo.gunNo}`
+                  });
                 }, 1500);
-              } else {
+              },
+              fail: (payErr) => {
+                console.error("\u652F\u4ED8\u5931\u8D25:", payErr);
                 common_vendor.index.showToast({
-                  title: "\u5F00\u59CB\u5145\u7535\u5931\u8D25",
+                  title: "\u652F\u4ED8\u5931\u8D25",
                   icon: "none"
                 });
               }
-            }
+            }));
+          } else {
+            common_vendor.index.showToast({
+              title: res.data.msg || "\u9884\u4ED8\u8D39\u8BA2\u5355\u521B\u5EFA\u5931\u8D25",
+              icon: "none"
+            });
+          }
+        },
+        fail: (error) => {
+          console.error("\u9884\u4ED8\u8D39\u8BA2\u5355\u521B\u5EFA\u5931\u8D25:", error);
+          common_vendor.index.showToast({
+            title: "\u5145\u7535\u542F\u52A8\u5931\u8D25",
+            icon: "none"
           });
         }
-      } else {
-        common_vendor.index.setStorageSync("redirecturl", "/pages/station/create?key=" + key.value);
-        go("/pages/user/login");
-      }
-    };
-    const go = (url) => {
-      common_vendor.index.navigateTo({
-        url
       });
     };
     common_vendor.onLoad((option) => {
-      key.value = option.key;
-      show(option);
+      stationId.value = option.stationId;
+      gunNumber.value = option.gunNumber;
+      getStationInfo();
+      getEnterpriseWallet();
+    });
+    common_vendor.onShow(() => {
+      startAutoRefresh();
+    });
+    common_vendor.onHide(() => {
+      stopAutoRefresh();
+    });
+    common_vendor.onUnmounted(() => {
+      stopAutoRefresh();
     });
     return (_ctx, _cache) => {
-      return {
+      return common_vendor.e({
         a: common_vendor.p({
-          title: "\u9009\u62E9\u5145\u7535"
+          title: "\u8D39\u7528\u786E\u8BA4"
         }),
-        b: common_vendor.t(form.stationName),
-        c: common_vendor.t(form.address || "\u6682\u65E0"),
-        d: common_vendor.t(form.pileId),
-        e: common_vendor.t(form.pileType == 1 ? "\u5FEB\u5145" : "\u6162\u5145"),
-        f: common_vendor.p({
-          color: "#E3E8FF",
-          textColor: "#5F7DF9"
-        }),
-        g: common_vendor.f(form.list, (item, index, i0) => {
-          return {
-            a: common_vendor.t(item.name),
-            b: common_vendor.t(item.state == "N" ? "\u7A7A\u95F2" : item.state == "Y" ? "\u4F7F\u7528\u4E2D" : "\u6545\u969C"),
-            c: common_vendor.n(item.state == "Y" ? "busy" : ""),
-            d: common_vendor.n(selected.value === index ? "selected" : ""),
-            e: common_vendor.o(($event) => setport(index)),
-            f: "3e528b70-4-" + i0 + "," + ("3e528b70-3-" + i0),
-            g: common_vendor.p({
-              plain: selected.value === index ? false : true,
-              round: true,
-              type: item.state == "Y" ? "default" : "primary",
-              disabled: item.state == "Y" || item.state == "F"
-            }),
-            h: index,
-            i: "3e528b70-3-" + i0 + ",3e528b70-2"
-          };
-        }),
-        h: common_vendor.p({
-          span: 12
-        }),
-        i: common_vendor.p({
-          gutter: "20"
-        }),
-        j: common_vendor.f(times.value, (item, index, i0) => {
-          return {
-            a: common_vendor.t(item),
-            b: common_vendor.t(item == "\u667A\u80FD\u5145\u6EE1" ? "" : "\u5C0F\u65F6"),
-            c: common_vendor.n(activetime.value === index ? "active" : "default"),
-            d: "3e528b70-7-" + i0 + "," + ("3e528b70-6-" + i0),
-            e: common_vendor.p({
-              color: activetime.value === index ? "#EEF1FF" : "white",
-              textColor: activetime.value === index ? "#5F7DF9" : "#666"
-            }),
-            f: common_vendor.o(($event) => setime(index)),
-            g: index,
-            h: "3e528b70-6-" + i0 + ",3e528b70-5"
-          };
-        }),
-        k: common_vendor.p({
-          span: 8
-        }),
-        l: common_vendor.p({
-          color: "white",
-          textColor: "#666"
-        }),
-        m: common_vendor.o(($event) => customtimeshow.value = true),
+        b: common_vendor.t(stationInfo.stationName),
+        c: common_vendor.t(stationInfo.gunNo),
+        d: common_vendor.unref(gunStatusText)
+      }, common_vendor.unref(gunStatusText) ? {
+        e: common_vendor.t(common_vendor.unref(gunStatusText)),
+        f: common_vendor.n(getStatusClass())
+      } : {}, {
+        g: common_vendor.t(stationInfo.price),
+        h: common_vendor.t(stationInfo.pricePeriod),
+        i: enterpriseWallet.walletBalance !== null
+      }, enterpriseWallet.walletBalance !== null ? {
+        j: common_vendor.t(enterpriseWallet.enterpriseName || "\u6682\u65E0"),
+        k: common_vendor.t(enterpriseWallet.walletBalance.toFixed(2)),
+        l: common_vendor.t(((enterpriseWallet.accountingAmount || 0) - (enterpriseWallet.consumedAmount || 0)).toFixed(2))
+      } : {}, {
+        m: enterpriseWallet.walletBalance !== null
+      }, enterpriseWallet.walletBalance !== null ? {
         n: common_vendor.p({
-          span: 8
+          checked: paymentMethod.value === "enterprise",
+          ["checked-color"]: "#2D55E8"
         }),
-        o: common_vendor.p({
-          gutter: "20"
-        }),
-        p: common_vendor.o(start),
+        o: paymentMethod.value === "enterprise" ? 1 : "",
+        p: common_vendor.o(($event) => selectPaymentMethod("enterprise"))
+      } : {}, {
         q: common_vendor.p({
-          type: "primary"
+          checked: paymentMethod.value === "prepay",
+          ["checked-color"]: "#2D55E8"
         }),
-        r: customtime.value,
-        s: common_vendor.o(($event) => customtime.value = $event.detail.value),
-        t: common_vendor.o(subtime),
-        v: common_vendor.p({
-          type: "primary",
-          size: "small"
+        r: paymentMethod.value === "prepay" ? 1 : "",
+        s: common_vendor.o(($event) => selectPaymentMethod("prepay")),
+        t: paymentMethod.value === "prepay"
+      }, paymentMethod.value === "prepay" ? {
+        v: common_vendor.f(presetAmounts.value, (amount, k0, i0) => {
+          return {
+            a: common_vendor.t(amount),
+            b: amount,
+            c: common_vendor.o(($event) => selectAmount(amount), amount),
+            d: "3e528b70-3-" + i0,
+            e: common_vendor.p({
+              size: "small",
+              type: selectedAmount.value === amount ? "primary" : "default",
+              color: selectedAmount.value === amount ? "#2D55E8" : "",
+              round: true
+            })
+          };
         }),
-        w: common_vendor.p({
-          span: 12
-        }),
-        x: common_vendor.o(($event) => customtimeshow.value = false),
-        y: common_vendor.p({
-          type: "default",
-          size: "small"
-        }),
-        z: common_vendor.p({
-          span: 12
-        }),
-        A: common_vendor.p({
-          gutter: "20"
-        }),
-        B: common_vendor.o(($event) => customtimeshow.value = $event),
+        w: common_vendor.o([($event) => customAmount.value = $event.detail.value, onCustomAmountInput]),
+        x: customAmount.value
+      } : {}, {
+        y: paymentMethod.value === "enterprise"
+      }, paymentMethod.value === "enterprise" ? {
+        z: common_vendor.t(chargePercentage.value),
+        A: common_vendor.o(onChargePercentageChange),
+        B: common_vendor.o(onChargePercentageChange),
         C: common_vendor.p({
-          position: "bottom",
-          show: customtimeshow.value
+          value: chargePercentage.value,
+          min: 0,
+          max: 100,
+          activeColor: "#2D55E8",
+          inactiveColor: "#f0f2f5",
+          barHeight: 8,
+          buttonSize: 20
         })
-      };
+      } : {}, {
+        D: common_vendor.unref(buttonInfo).tip && common_vendor.unref(buttonInfo).disabled
+      }, common_vendor.unref(buttonInfo).tip && common_vendor.unref(buttonInfo).disabled ? {
+        E: common_vendor.t(common_vendor.unref(buttonInfo).tip)
+      } : {}, {
+        F: common_vendor.t(common_vendor.unref(buttonInfo).text),
+        G: common_vendor.o(startCharging),
+        H: common_vendor.p({
+          round: true,
+          block: true,
+          color: common_vendor.unref(buttonInfo).disabled ? "#d9d9d9" : "#2D55E8",
+          disabled: common_vendor.unref(buttonInfo).disabled
+        })
+      });
     };
   }
 };

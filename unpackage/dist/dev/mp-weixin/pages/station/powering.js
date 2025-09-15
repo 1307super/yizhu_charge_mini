@@ -17,30 +17,10 @@ const _sfc_main = {
     const time = common_vendor.ref(0);
     const form = common_vendor.reactive({});
     const wsform = common_vendor.reactive({});
-    const hours = common_vendor.ref(0);
-    const minutes = common_vendor.ref(0);
+    common_vendor.ref(0);
+    common_vendor.ref(0);
     const socketTask = common_vendor.ref(null);
-    const wsurl = app.globalData.wsurl;
-    const initsocket = (order) => {
-      socketTask.value = common_vendor.index.connectSocket({
-        url: wsurl + order,
-        complete: () => {
-        }
-      });
-      common_vendor.index.onSocketOpen(function(res) {
-        console.log("WebSocket\u8FDE\u63A5\u5DF2\u6253\u5F00\uFF01", res);
-      });
-      common_vendor.index.onSocketMessage(function(res) {
-        const result = JSON.parse(res.data);
-        for (let key in result) {
-          wsform[key] = result[key];
-        }
-        time.value = (parseInt(form.hour) * 3600 - wsform.realTimePower) * 1e3;
-        const duration = common_vendor.hooks.duration(wsform.realTimePower, "seconds");
-        hours.value = duration.hours();
-        minutes.value = duration.minutes();
-      });
-    };
+    app.globalData.wsurl;
     const finish = () => {
       common_vendor.index.showModal({
         title: "\u786E\u5B9A\u7ED3\u675F\u5145\u7535?",
@@ -76,8 +56,7 @@ const _sfc_main = {
       for (let key in option) {
         form[key] = option[key];
       }
-      form.delta = parseInt(form.delta);
-      initsocket(form.orderNumber);
+      form.delta = 1;
     });
     common_vendor.onUnload(() => {
       socketTask.value.close({

@@ -11,9 +11,9 @@
 						<text class="location-text">{{currentLocation}}</text>
 						<van-icon name="arrow-down" size="14px" class="location-arrow" />
 					</view>
-					<view class="location-btn" v-on:click="getCurrentLocation">
+				<!-- 	<view class="location-btn" v-on:click="getCurrentLocation">
 						<van-icon name="location-o" size="16px" class="location-icon" />
-					</view>
+					</view> -->
 				</view>
 				<view class="search-box">
 					<van-icon name="search" size="16px" class="search-icon" />

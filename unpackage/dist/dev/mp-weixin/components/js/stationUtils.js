@@ -56,6 +56,9 @@ const isCurrentPeriod = (period) => {
   const endTime = parseInt(period.endTime.replace(":", ""));
   return currentTime >= startTime && currentTime < endTime;
 };
+const getStatusClass = (status) => {
+  return STATUS_MAP.CLASS[status] || "status-occupied";
+};
 const getStatusText = (status) => {
   return STATUS_MAP.TEXT[status] || "\u5360\u7528";
 };
@@ -73,5 +76,6 @@ exports.filterGunsByStatus = filterGunsByStatus;
 exports.formatPrice = formatPrice;
 exports.formatTime = formatTime;
 exports.getServiceIcon = getServiceIcon;
+exports.getStatusClass = getStatusClass;
 exports.getStatusText = getStatusText;
 exports.isCurrentPeriod = isCurrentPeriod;
