@@ -1,18 +1,30 @@
 
 .bar.data-v-be923164{
 		position: fixed;
-		top: 0rpx;
-		padding-top: 55rpx;
+		top: 0;
 		left: 0;
 		width: 100%;
 		background-color: white;
 		z-index: 100;
-		padding-bottom: 20rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+}
+.bar.no-background.data-v-be923164 {
+		background-color: transparent;
+}
+.bar-main.data-v-be923164 {
+		position: relative;
+		width: 100%;
 }
 .icon.data-v-be923164{
 		position: absolute;
 		left: 20rpx;
-		top: 4rpx;
+		color: #212121;
+}
+.no-background .icon.data-v-be923164 {
+		color: #212121;
+		top: 50rpx;
 }
 .title.data-v-be923164{
 		color: #212121;

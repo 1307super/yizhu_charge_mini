@@ -11,6 +11,7 @@
 }
 .user.data-v-137d5072{
 		display: flex;
+		margin-top: 15rpx
 }
 .user-main.data-v-137d5072{
 		flex: 1;

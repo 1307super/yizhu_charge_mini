@@ -258,7 +258,7 @@ const _sfc_main = {
     return (_ctx, _cache) => {
       return common_vendor.e({
         a: common_vendor.p({
-          title: "\u5145\u7535\u7AD9\u8BE6\u60C5"
+          title: ""
         }),
         b: common_vendor.t(stationInfo.value.stationName),
         c: common_vendor.t(stationInfo.value.address),

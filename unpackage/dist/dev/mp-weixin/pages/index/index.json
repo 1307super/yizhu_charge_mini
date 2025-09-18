@@ -2,7 +2,6 @@
   "navigationStyle": "custom",
   "enablePullDownRefresh": true,
   "usingComponents": {
-    "navbar": "../../components/navbar/index",
     "tabbar": "../../components/tabbar/index"
   }
 }

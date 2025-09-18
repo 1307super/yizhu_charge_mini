@@ -45,68 +45,62 @@ const _sfc_main = {
         common_vendor.index.login({
           provider: "weixin",
           success: (res) => {
-            const params = {};
-            params.code = res.code;
-            common_vendor.index.getUserInfo({
-              provider: "weixin",
-              success: (loginRes) => {
-                if (loginRes && loginRes.errMsg == "getUserInfo:ok") {
-                  params.encryptedData = loginRes.encryptedData;
-                  params.iv = loginRes.iv;
-                  login(params, e);
-                }
-              },
-              fail: function(err) {
-              }
+            loginWithPhone(res.code, e.detail.code);
+          },
+          fail: function(err) {
+            common_vendor.index.showToast({
+              title: "\u767B\u5F55\u5931\u8D25\uFF0C\u8BF7\u91CD\u8BD5",
+              icon: "none"
             });
           }
         });
       }
     };
     const redirecturl = common_vendor.index.getStorageSync("redirecturl");
-    const login = (params, e) => {
+    const loginWithPhone = (code, phoneCode) => {
       common_vendor.index.request({
-        url: app.globalData.serverUrl + "v1/auth/login",
+        url: app.globalData.serverUrl + "v1/auth/loginWithPhone",
         method: "POST",
         header: {
           "content-type": "application/x-www-form-urlencoded"
         },
         data: {
           appid: app.globalData.appid,
-          code: params.code
+          code,
+          phoneCode
         },
         success: (res) => {
           if (res.data.code == 200) {
             common_vendor.index.setStorageSync("token", res.data.data.token);
             common_vendor.index.setStorageSync("user", res.data.data.member);
-            common_vendor.index.request({
-              url: app.globalData.serverUrl + "v1/auth/appletBindMobile",
-              method: "GET",
-              data: {
-                appid: app.globalData.appid,
-                code: e.detail.code,
-                openId: res.data.data.member.weixinOpenid
-              },
-              success: (res1) => {
-                common_vendor.index.setStorageSync("phone", res1.data.data.mobile);
-                common_vendor.index.showToast({
-                  title: "\u767B\u5F55\u6210\u529F"
+            common_vendor.index.setStorageSync("phone", res.data.data.member.phone || res.data.data.phone);
+            common_vendor.index.showToast({
+              title: "\u767B\u5F55\u6210\u529F"
+            });
+            setTimeout(() => {
+              if (redirecturl) {
+                common_vendor.index.removeStorageSync("redirecturl");
+                common_vendor.index.redirectTo({
+                  url: redirecturl
                 });
-                setTimeout(() => {
-                  if (redirecturl) {
-                    common_vendor.index.removeStorageSync("redirecturl");
-                    common_vendor.index.redirectTo({
-                      url: redirecturl
-                    });
-                  } else {
-                    common_vendor.index.redirectTo({
-                      url: "/pages/user/index"
-                    });
-                  }
-                }, 1500);
+              } else {
+                common_vendor.index.redirectTo({
+                  url: "/pages/user/index"
+                });
               }
+            }, 1500);
+          } else {
+            common_vendor.index.showToast({
+              title: res.data.message || "\u767B\u5F55\u5931\u8D25\uFF0C\u8BF7\u91CD\u8BD5",
+              icon: "none"
             });
           }
+        },
+        fail: (err) => {
+          common_vendor.index.showToast({
+            title: "\u7F51\u7EDC\u9519\u8BEF\uFF0C\u8BF7\u91CD\u8BD5",
+            icon: "none"
+          });
         }
       });
     };

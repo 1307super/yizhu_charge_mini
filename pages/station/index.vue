@@ -1,6 +1,6 @@
 <template>
 	<view class='container'>
-		<navbar class='navbar' title='充电站详情'></navbar>
+		<navbar class='navbar' title=""></navbar>
 		
 		<!-- 顶部封面图 -->
 		<image src='../../static/image/station.jpg' mode='widthFix' class='banner'></image>
@@ -251,9 +251,13 @@
 <style scoped lang="stylus">
 	.container
 		background-color #f8f9fa
-		padding-top 160rpx
+		padding-top 0
 		padding-bottom 140rpx
 		min-height 100vh
+		
+	.navbar
+		position relative
+		z-index 10
 	
 	.banner
 		width 100%

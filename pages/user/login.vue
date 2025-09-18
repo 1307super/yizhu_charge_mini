@@ -183,22 +183,17 @@
 	const getPhoneNumber = (e) => {
 		// 此时用户已经同意协议并完成了手机号授权
 		if (e.detail.code) {
+			// 获取微信登录code用于获取openid
 			uni.login({
 				provider: 'weixin',
 				success: res => {
-					const params = {}
-					params.code = res.code
-					uni.getUserInfo({
-						provider: 'weixin', 
-						success: (loginRes) => {
-							if (loginRes && loginRes.errMsg == "getUserInfo:ok") {
-								params.encryptedData = loginRes.encryptedData
-								params.iv = loginRes.iv
-								login(params, e)
-							}
-						},
-						fail: function(err) {
-						}
+					// 调用统一登录接口，同时传入code和phoneCode
+					loginWithPhone(res.code, e.detail.code)
+				},
+				fail: function(err) {
+					uni.showToast({
+						title: '登录失败，请重试',
+						icon: 'none'
 					})
 				}
 			})
@@ -206,49 +201,55 @@
 	}
 	
 	const redirecturl = uni.getStorageSync('redirecturl')
-	const login = (params, e) => {
+	
+	// 新的统一登录函数
+	const loginWithPhone = (code, phoneCode) => {
 		uni.request({
-			url: app.globalData.serverUrl + 'v1/auth/login',
+			url: app.globalData.serverUrl + 'v1/auth/loginWithPhone',
 			method: 'POST',
 			header: {
-			  'content-type': 'application/x-www-form-urlencoded'
+				'content-type': 'application/x-www-form-urlencoded'
 			},
 			data: {
 				appid: app.globalData.appid,
-				code: params.code
+				code: code,
+				phoneCode: phoneCode
 			},
 			success: res => {
 				if(res.data.code == 200) {
+					// 保存用户信息和token
 					uni.setStorageSync('token', res.data.data.token)
 					uni.setStorageSync('user', res.data.data.member)
-					uni.request({
-						url: app.globalData.serverUrl + 'v1/auth/appletBindMobile',
-						method: 'GET',
-						data: {
-							appid: app.globalData.appid,
-							code: e.detail.code,
-							openId: res.data.data.member.weixinOpenid
-						},
-						success: res1 => {
-							uni.setStorageSync('phone', res1.data.data.mobile)
-							uni.showToast({
-								title: '登录成功'
+					uni.setStorageSync('phone', res.data.data.member.phone || res.data.data.phone)
+					
+					uni.showToast({
+						title: '登录成功'
+					})
+					
+					setTimeout(() => {
+						if(redirecturl) {
+							uni.removeStorageSync('redirecturl')
+							uni.redirectTo({
+								url: redirecturl
 							})
-							setTimeout(() => {
-								if(redirecturl) {
-									uni.removeStorageSync('redirecturl')
-									uni.redirectTo({
-										url: redirecturl
-									})
-								}else{
-									uni.redirectTo({
-										url: '/pages/user/index'
-									})
-								}
-							}, 1500)
+						} else {
+							uni.redirectTo({
+								url: '/pages/user/index'
+							})
 						}
+					}, 1500)
+				} else {
+					uni.showToast({
+						title: res.data.message || '登录失败，请重试',
+						icon: 'none'
 					})
 				}
+			},
+			fail: err => {
+				uni.showToast({
+					title: '网络错误，请重试',
+					icon: 'none'
+				})
 			}
 		})
 	}

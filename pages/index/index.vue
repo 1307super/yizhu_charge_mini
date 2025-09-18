@@ -2,7 +2,7 @@
 	<view class="container">
 		<!-- 顶部区域 -->
 		<view class='header'>
-			<navbar class='navbar' title='吉运超充' v-bind:showarrow='false'></navbar>
+			
 			
 			<!-- 省市选择和搜索区域 -->
 			<view class="top-bar">

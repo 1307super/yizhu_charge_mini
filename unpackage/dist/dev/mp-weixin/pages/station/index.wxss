@@ -1,8 +1,12 @@
 .container.data-v-e5c43de4 {
   background-color: #f8f9fa;
-  padding-top: 160rpx;
+  padding-top: 0;
   padding-bottom: 140rpx;
   min-height: 100vh;
+}
+.navbar.data-v-e5c43de4 {
+  position: relative;
+  z-index: 10;
 }
 .banner.data-v-e5c43de4 {
   width: 100%;

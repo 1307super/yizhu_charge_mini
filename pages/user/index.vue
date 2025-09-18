@@ -1,7 +1,6 @@
 <template>
 	<view class="container">
 		<view class='header'>
-			<navbar class='navbar' title='我的' v-bind:showarrow='false'></navbar>
 			<view class='user'>
 				<view class='user-main'>
 					<image src='../../static/image/avatar.png' mode='widthFix' class='avatar f-ib'></image>
@@ -86,6 +85,7 @@
 	}
 	.user{
 		display: flex;
+		margin-top: 15rpx
 	}
 	.user-main{
 		flex: 1;

@@ -38,5 +38,5 @@
 		line-height: 1.6;
 		display: block;
 		text-indent: 0;
-		white-space: pre-line;
+		margin-bottom: 20rpx;
 }

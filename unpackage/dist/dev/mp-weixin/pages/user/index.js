@@ -7,9 +7,8 @@ if (!Array) {
   (_component_van_col + _component_van_row)();
 }
 if (!Math) {
-  (navbar + tabbar)();
+  tabbar();
 }
-const navbar = () => "../../components/navbar/index.js";
 const tabbar = () => "../../components/tabbar/index.js";
 const _sfc_main = {
   __name: "index",
@@ -80,33 +79,29 @@ const _sfc_main = {
     });
     return (_ctx, _cache) => {
       return common_vendor.e({
-        a: common_vendor.p({
-          title: "\u6211\u7684",
-          showarrow: false
-        }),
-        b: common_vendor.unref(token)
+        a: common_vendor.unref(token)
       }, common_vendor.unref(token) ? {
-        c: common_vendor.t(common_vendor.unref(phone))
+        b: common_vendor.t(common_vendor.unref(phone))
       } : {
-        d: common_vendor.o(($event) => go("/pages/user/login"))
+        c: common_vendor.o(($event) => go("/pages/user/login"))
       }, {
-        e: common_vendor.o(($event) => goabort("/pages/user/setting")),
-        f: enterpriseWallet.walletBalance !== null
+        d: common_vendor.o(($event) => goabort("/pages/user/setting")),
+        e: enterpriseWallet.walletBalance !== null
       }, enterpriseWallet.walletBalance !== null ? {
-        g: common_vendor.t(enterpriseWallet.walletBalance.toFixed(2)),
-        h: common_vendor.t(((enterpriseWallet.accountingAmount || 0) - (enterpriseWallet.consumedAmount || 0)).toFixed(2))
+        f: common_vendor.t(enterpriseWallet.walletBalance.toFixed(2)),
+        g: common_vendor.t(((enterpriseWallet.accountingAmount || 0) - (enterpriseWallet.consumedAmount || 0)).toFixed(2))
       } : {}, {
-        i: common_vendor.o(($event) => goabort("/pages/user/order")),
-        j: common_vendor.o(($event) => goabort("/pages/user/invoice")),
-        k: common_vendor.t(month.totalChargeDegree || 0),
-        l: common_vendor.p({
+        h: common_vendor.o(($event) => goabort("/pages/user/order")),
+        i: common_vendor.o(($event) => goabort("/pages/user/invoice")),
+        j: common_vendor.t(month.totalChargeDegree || 0),
+        k: common_vendor.p({
           span: 12
         }),
-        m: common_vendor.t(month.totalChargeAmount || 0),
+        l: common_vendor.t(month.totalChargeAmount || 0),
+        m: common_vendor.p({
+          span: 12
+        }),
         n: common_vendor.p({
-          span: 12
-        }),
-        o: common_vendor.p({
           active: 1
         })
       });

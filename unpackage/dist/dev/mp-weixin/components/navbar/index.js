@@ -18,6 +18,14 @@ const _sfc_main = {
     }
   },
   setup(__props) {
+    const navBarStyle = common_vendor.ref({});
+    common_vendor.onMounted(() => {
+      const menuButtonInfo = common_vendor.index.getMenuButtonBoundingClientRect();
+      navBarStyle.value = {
+        paddingTop: `${menuButtonInfo.top + 4}px`,
+        height: `${menuButtonInfo.height}px`
+      };
+    });
     const back = (delta) => {
       common_vendor.index.navigateBack({
         delta
@@ -33,7 +41,9 @@ const _sfc_main = {
           size: "20px"
         })
       } : {}, {
-        d: common_vendor.t(__props.title)
+        d: common_vendor.t(__props.title),
+        e: !__props.title ? 1 : "",
+        f: common_vendor.s(navBarStyle.value)
       });
     };
   }
