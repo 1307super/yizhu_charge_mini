@@ -13,6 +13,13 @@ if (!Math) {
   "./pages/user/orderdetail.js";
   "./pages/user/setting.js";
   "./pages/user/login.js";
+  "./pages/user/invoice.js";
+  "./pages/user/invoice-history.js";
+  "./pages/user/invoice-help.js";
+  "./pages/user/invoice-header-list.js";
+  "./pages/user/invoice-header-form.js";
+  "./pages/user/user-agreement.js";
+  "./pages/user/privacy-policy.js";
 }
 const _sfc_main = {
   globalData: {

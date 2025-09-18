@@ -7,7 +7,7 @@
 		background: linear-gradient(-36deg, #E3E8FF, #FFF7F7);
 		padding-left: 30rpx;
 		padding-right: 30rpx;
-		padding-top: 180rpx;
+		padding-top: 140rpx;
 }
 .user.data-v-137d5072{
 		display: flex;
@@ -31,24 +31,36 @@
 		border-radius: 20rpx 20rpx 0px 0px;
 		color: white;
 		margin-top: 30rpx;
-		padding-top: 40rpx;
-		padding-bottom: 30rpx;
+		padding: 40rpx 30rpx 30rpx;
 }
-.charge-value.data-v-137d5072{
-		font-size: 36rpx;
-		margin-bottom: 10rpx;
+.enterprise-wallet.data-v-137d5072{
+		width: 100%;
 }
-.cash-wrapper.data-v-137d5072{
+.wallet-title.data-v-137d5072{
+		font-size: 32rpx;
+		font-weight: bold;
+		margin-bottom: 30rpx;
+		display: block;
+		text-align: center;
+}
+.wallet-info.data-v-137d5072{
 		display: flex;
+		justify-content: space-around;
+		align-items: center;
 }
-.cash.data-v-137d5072{
+.wallet-balance.data-v-137d5072, .wallet-accounting.data-v-137d5072{
+		text-align: center;
 		flex: 1;
 }
-.line.data-v-137d5072{
-		background-color: #ddd;
-		height: 40rpx;
-		width: 2rpx;
-		margin-top: 40rpx;
+.balance-amount.data-v-137d5072, .accounting-amount.data-v-137d5072{
+		display: block;
+		font-size: 36rpx;
+		font-weight: bold;
+		margin-bottom: 10rpx;
+}
+.balance-label.data-v-137d5072, .accounting-label.data-v-137d5072{
+		font-size: 26rpx;
+		opacity: 0.9;
 }
 .content.data-v-137d5072{
 		padding-left: 30rpx;
@@ -61,11 +73,13 @@
 		padding: 30rpx;
 		margin-top: 30rpx;
 }
+.order-icon.data-v-137d5072{
+		width: 45rpx;
+		height: 50rpx;
+		margin-right: 15rpx;
+}
 .order-label.data-v-137d5072{
 		flex: 1;
-		background: url('https://pic.abdl.eu.org/file/45323f1e74c9eccb77e37.png') left no-repeat;
-		background-size: 45rpx 50rpx;
-		padding-left: 60rpx;
 		height: 50rpx;
 		line-height: 50rpx;
 }

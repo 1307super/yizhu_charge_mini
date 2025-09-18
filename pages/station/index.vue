@@ -3,7 +3,7 @@
 		<navbar class='navbar' title='充电站详情'></navbar>
 		
 		<!-- 顶部封面图 -->
-		<image src='../../static/image/station.png' mode='widthFix' class='banner'></image>
+		<image src='../../static/image/station.jpg' mode='widthFix' class='banner'></image>
 		
 		<!-- 充电站信息卡片 -->
 		<view class='station-info-card'>

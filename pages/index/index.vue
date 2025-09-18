@@ -23,11 +23,11 @@
 			
 			<!-- 功能区域 -->
             <view class="function-area">
-                <view class="function-item" v-on:click="go('/pages/user/order')">
+                <view class="function-item" v-on:click="checkLoginAndGo('/pages/user/order')">
                     <image class="function-image" src="../../static/image/order.png" mode="widthFix" />
                     <text class="function-text">我的订单</text>
                 </view>
-                <view class="function-item" v-on:click="go('/pages/user/invoice')">
+                <view class="function-item" v-on:click="checkLoginAndGo('/pages/user/invoice')">
                     <image class="function-image" src="../../static/image/invoices.png" mode="widthFix" />
                     <text class="function-text">我要开票</text>
                 </view>
@@ -516,6 +516,27 @@
 		uni.navigateTo({
 			url: url
 		})
+	}
+	
+	// 检查登录状态并跳转
+	const checkLoginAndGo = (url) => {
+		const token = uni.getStorageSync('token')
+		if (!token) {
+			uni.showToast({
+				title: '请先登录',
+				icon: 'none',
+				duration: 2000
+			})
+			setTimeout(() => {
+				uni.navigateTo({
+					url: '/pages/user/login'
+				})
+			}, 1000)
+		} else {
+			uni.navigateTo({
+				url: url
+			})
+		}
 	}
 	
 	const setActive = (i) => {

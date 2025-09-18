@@ -9,7 +9,14 @@
     "pages/user/order",
     "pages/user/orderdetail",
     "pages/user/setting",
-    "pages/user/login"
+    "pages/user/login",
+    "pages/user/invoice",
+    "pages/user/invoice-history",
+    "pages/user/invoice-help",
+    "pages/user/invoice-header-list",
+    "pages/user/invoice-header-form",
+    "pages/user/user-agreement",
+    "pages/user/privacy-policy"
   ],
   "usingComponents": {
     "van-button": "/wxcomponents/vant/button/index",
@@ -34,7 +41,11 @@
     "van-nav-bar": "/wxcomponents/vant/nav-bar/index",
     "van-steps": "/wxcomponents/vant/steps/index",
     "van-circle": "/wxcomponents/vant/circle/index",
-    "van-slider": "/wxcomponents/vant/slider/index"
+    "van-slider": "/wxcomponents/vant/slider/index",
+    "van-checkbox": "/wxcomponents/vant/checkbox/index",
+    "van-checkbox-group": "/wxcomponents/vant/checkbox-group/index",
+    "van-radio": "/wxcomponents/vant/radio/index",
+    "van-radio-group": "/wxcomponents/vant/radio-group/index"
   },
   "window": {
     "navigationBarTextStyle": "black",

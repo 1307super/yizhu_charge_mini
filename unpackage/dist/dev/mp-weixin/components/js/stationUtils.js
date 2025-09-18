@@ -1,5 +1,5 @@
 "use strict";
-const STATUS_MAP = {
+const GUN_STATUS_MAP = {
   CLASS: {
     0: "status-offline",
     1: "status-free",
@@ -29,6 +29,7 @@ const STATUS_MAP = {
     "fault": [255, 21501, 21502, 21503]
   }
 };
+const STATUS_MAP = GUN_STATUS_MAP;
 const SERVICE_ICONS = {
   "\u514D\u8D39WiFi": "../../static/image/wifi.png",
   "\u4FBF\u5229\u5E97": "../../static/image/store.png",

@@ -1,7 +1,7 @@
 // 充电站相关工具函数
 
-// 状态映射
-export const STATUS_MAP = {
+// 充电枪状态映射
+export const GUN_STATUS_MAP = {
 	CLASS: {
 		0: 'status-offline',        // 离网
 		1: 'status-free',          // 空闲
@@ -31,6 +31,31 @@ export const STATUS_MAP = {
 		'fault': [255, 21501, 21502, 21503]  // 故障（包括故障、升级、启动、禁用）
 	}
 }
+
+// 充电订单状态映射
+export const ORDER_STATUS_MAP = {
+	TEXT: {
+		1: '启动中',
+		2: '充电中',
+		3: '停止中',
+		4: '已完成',
+		5: '未知',
+		'-1': '已关闭',
+		'-2': '退款失败'
+	},
+	CLASS: {
+		1: 'status-starting',
+		2: 'status-charging', 
+		3: 'status-stopping',
+		4: 'status-completed',
+		5: 'status-unknown',
+		'-1': 'status-closed',
+		'-2': 'status-refund-failed'
+	}
+}
+
+// 为了向后兼容，保留原有的STATUS_MAP
+export const STATUS_MAP = GUN_STATUS_MAP
 
 // 服务图标映射
 export const SERVICE_ICONS = {
@@ -101,4 +126,19 @@ export const filterGunsByStatus = (guns, filterType) => {
 	
 	const targetStatuses = STATUS_MAP.FILTER[filterType] || []
 	return guns.filter(gun => targetStatuses.includes(gun.status))
+}
+
+// 获取订单状态文本
+export const getOrderStatusText = (status) => {
+	return ORDER_STATUS_MAP.TEXT[status] || '未知'
+}
+
+// 获取订单状态样式类
+export const getOrderStatusClass = (status) => {
+	return ORDER_STATUS_MAP.CLASS[status] || 'status-unknown'
+}
+
+// 判断订单是否在充电中
+export const isOrderCharging = (status) => {
+	return status === 1 || status === 2 // 启动中或充电中
 }

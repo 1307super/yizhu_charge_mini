@@ -16,27 +16,13 @@ const _sfc_main = {
   setup(__props) {
     getApp();
     const token = common_vendor.index.getStorageSync("token");
-    const user = common_vendor.index.getStorageSync("user");
+    common_vendor.index.getStorageSync("user");
     const phone = common_vendor.index.getStorageSync("phone");
-    const score = common_vendor.ref(0);
-    const getscore = () => {
-      components_js_request.request({
-        url: "/me/getUserCredit",
-        data: {
-          userId: user.memberId
-        },
-        success: (res) => {
-          score.value = res.data.data.credit;
-        }
-      });
-    };
     const month = common_vendor.reactive({});
     const getmonth = () => {
       components_js_request.request({
-        url: "me/queryMonthTotalByUserId",
-        data: {
-          userId: user.memberId
-        },
+        url: "me/monthlyChargeStats",
+        method: "GET",
         success: (res) => {
           for (let key in res.data.data) {
             month[key] = res.data.data[key];
@@ -44,15 +30,24 @@ const _sfc_main = {
         }
       });
     };
-    const balance = common_vendor.ref(0);
-    const getbalance = () => {
+    const enterpriseWallet = common_vendor.reactive({
+      enterpriseName: null,
+      walletBalance: null,
+      accountingAmount: null,
+      consumedAmount: null,
+      minLimit: null
+    });
+    const getEnterpriseWallet = () => {
       components_js_request.request({
-        url: "/me/getMemberBalanceByUserId",
-        data: {
-          userId: user.memberId
-        },
+        url: "me/getEnterpriseWallet",
+        method: "GET",
         success: (res) => {
-          balance.value = res.data.data.amount;
+          if (res.data.code === 200 && res.data.data) {
+            Object.assign(enterpriseWallet, res.data.data);
+          }
+        },
+        fail: (error) => {
+          console.log("\u4F01\u4E1A\u94B1\u5305\u4FE1\u606F\u83B7\u53D6\u5931\u8D25");
         }
       });
     };
@@ -66,16 +61,21 @@ const _sfc_main = {
         go(url);
       } else {
         common_vendor.index.showToast({
-          title: "\u60A8\u8FD8\u672A\u767B\u5F55\uFF0C\u8BF7\u5148\u767B\u5F55",
-          icon: "none"
+          title: "\u8BF7\u5148\u767B\u5F55",
+          icon: "none",
+          duration: 2e3
         });
+        setTimeout(() => {
+          common_vendor.index.navigateTo({
+            url: "/pages/user/login"
+          });
+        }, 1e3);
       }
     };
     common_vendor.onMounted(() => {
       if (token) {
-        getscore();
-        getbalance();
         getmonth();
+        getEnterpriseWallet();
       }
     });
     return (_ctx, _cache) => {
@@ -91,31 +91,22 @@ const _sfc_main = {
         d: common_vendor.o(($event) => go("/pages/user/login"))
       }, {
         e: common_vendor.o(($event) => goabort("/pages/user/setting")),
-        f: common_vendor.t(balance.value),
-        g: common_vendor.p({
-          span: 8
+        f: enterpriseWallet.walletBalance !== null
+      }, enterpriseWallet.walletBalance !== null ? {
+        g: common_vendor.t(enterpriseWallet.walletBalance.toFixed(2)),
+        h: common_vendor.t(((enterpriseWallet.accountingAmount || 0) - (enterpriseWallet.consumedAmount || 0)).toFixed(2))
+      } : {}, {
+        i: common_vendor.o(($event) => goabort("/pages/user/order")),
+        j: common_vendor.o(($event) => goabort("/pages/user/invoice")),
+        k: common_vendor.t(month.totalChargeDegree || 0),
+        l: common_vendor.p({
+          span: 12
         }),
-        h: common_vendor.p({
-          span: 8
+        m: common_vendor.t(month.totalChargeAmount || 0),
+        n: common_vendor.p({
+          span: 12
         }),
-        i: common_vendor.t(score.value),
-        j: common_vendor.p({
-          span: 8
-        }),
-        k: common_vendor.o(($event) => goabort("/pages/user/order")),
-        l: common_vendor.t(month.chargeDegree || 0),
-        m: common_vendor.p({
-          span: 8
-        }),
-        n: common_vendor.t(month.chargeAmount || 0),
         o: common_vendor.p({
-          span: 8
-        }),
-        p: common_vendor.t(month.chargeTime || 0),
-        q: common_vendor.p({
-          span: 8
-        }),
-        r: common_vendor.p({
           active: 1
         })
       });

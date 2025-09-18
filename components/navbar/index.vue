@@ -11,7 +11,7 @@
 	.bar{
 		position: fixed;
 		top: 0rpx;
-		padding-top: 110rpx;
+		padding-top: 55rpx;
 		left: 0;
 		width: 100%;
 		background-color: white;

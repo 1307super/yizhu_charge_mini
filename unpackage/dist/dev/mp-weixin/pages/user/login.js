@@ -8,6 +8,38 @@ const _sfc_main = {
   __name: "login",
   setup(__props) {
     const app = getApp();
+    const agreed = common_vendor.ref(false);
+    const shouldShake = common_vendor.ref(false);
+    const toggleAgreement = () => {
+      agreed.value = !agreed.value;
+    };
+    const viewUserAgreement = () => {
+      common_vendor.index.navigateTo({
+        url: "/pages/user/user-agreement"
+      });
+    };
+    const viewPrivacyPolicy = () => {
+      common_vendor.index.navigateTo({
+        url: "/pages/user/privacy-policy"
+      });
+    };
+    const handleLoginClick = () => {
+      if (!agreed.value) {
+        common_vendor.index.showToast({
+          title: "\u8BF7\u9605\u8BFB\u5E76\u540C\u610F\u7528\u6237\u534F\u8BAE\u53CA\u9690\u79C1\u4FDD\u62A4\u534F\u8BAE",
+          icon: "none",
+          duration: 2e3
+        });
+        triggerShake();
+        return;
+      }
+    };
+    const triggerShake = () => {
+      shouldShake.value = true;
+      setTimeout(() => {
+        shouldShake.value = false;
+      }, 500);
+    };
     const getPhoneNumber = (e) => {
       if (e.detail.code) {
         common_vendor.index.login({
@@ -85,7 +117,14 @@ const _sfc_main = {
         a: common_vendor.p({
           title: "\u767B\u5F55"
         }),
-        b: common_vendor.o(getPhoneNumber)
+        b: agreed.value ? "getPhoneNumber|agreePrivacyAuthorization" : "",
+        c: common_vendor.o(getPhoneNumber),
+        d: common_vendor.o(handleLoginClick),
+        e: agreed.value,
+        f: common_vendor.o(viewUserAgreement),
+        g: common_vendor.o(viewPrivacyPolicy),
+        h: common_vendor.o(toggleAgreement),
+        i: shouldShake.value ? 1 : ""
       };
     };
   }

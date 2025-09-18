@@ -10,61 +10,62 @@
 				</view>
 				<image v-on:click='goabort("/pages/user/setting")' src='../../static/image/setting.png' mode='widthFix' class='setting'></image>
 			</view>
-			<view class='charge'>
-				<van-row class='f-tac'>
-					<van-col :span='8'>
-						<text class='charge-value f-db f-fwb'>{{balance}}</text>
-						<text class='charge-label f-db'>余额</text>
-					</van-col>
-					<van-col :span='8'>
-						<view class='cash-wrapper'>
-							<text class='line f-ib'></text>
-							<view class='cash f-ib'>
-								<text class='charge-value f-db f-fwb'>0</text>
-								<text class='charge-label f-db'>代金券</text>
-							</view>
-							<text class='line f-ib'></text>
+			<view v-if='enterpriseWallet.walletBalance !== null' class='charge'>
+				<view class='enterprise-wallet'>
+					<text class='wallet-title'>企业钱包</text>
+					<view class='wallet-info'>
+						<view class='wallet-balance'>
+							<text class='balance-amount'>¥{{enterpriseWallet.walletBalance.toFixed(2)}}</text>
+							<text class='balance-label'>可用余额</text>
 						</view>
-					</van-col>
-					<van-col :span='8'>
-						<text class='charge-value f-db f-fwb'>{{score}}</text>
-						<text class='charge-label f-db'>积分</text>
-					</van-col>
-				</van-row>
+						<view class='wallet-accounting'>
+							<text class='accounting-amount'>¥{{((enterpriseWallet.accountingAmount || 0) - (enterpriseWallet.consumedAmount || 0)).toFixed(2)}}</text>
+							<text class='accounting-label'>记账余额</text>
+						</view>
+					</view>
+				</view>
 			</view>
 		</view>
 		<view class='content'>
 			<view class='order' v-on:click='goabort("/pages/user/order")'>
+				<image src='../../static/image/订单-1.png' mode="widthFix" class='order-icon'></image>
 				<text class='order-label'>充电订单</text>
 				<image src='../../static/image/arrow.png' mode="widthFix" class='arrow'></image>
 			</view>
+			
+			<view class='order' v-on:click='goabort("/pages/user/invoice")'>
+				<image src='../../static/image/发票抬头.png' mode="widthFix" class='order-icon'></image>
+				<text class='order-label'>开票管理</text>
+				<image src='../../static/image/arrow.png' mode="widthFix" class='arrow'></image>
+			</view>
+			
 			<view class="power">
 				<text class='power-title f-db'>您本月充电情况</text>
 				<van-row class='f-tac'>
-					<van-col :span='8'>
+					<van-col :span='12'>
 						<view class='power-hd'>
-							<text class='power-value f-fwb'>{{month.chargeDegree || 0}}</text>度
+							<text class='power-value f-fwb'>{{month.totalChargeDegree || 0}}</text>度
 						</view>
 						<text class='power-label f-db'>充电度数</text>
 					</van-col>
-					<van-col :span='8'>
+					<van-col :span='12'>
 						<view class='cash-wrapper'>
 							<text class='line f-ib'></text>
 							<view class='cash f-ib'>
 								<view class='power-hd'>
-									<text class='power-value f-fwb'>{{month.chargeAmount || 0}}</text>元
+									<text class='power-value f-fwb'>{{month.totalChargeAmount || 0}}</text>元
 								</view>
 								<text class='power-label f-db'>充电金额</text>
 							</view>
 							<text class='line f-ib'></text>
 						</view>
 					</van-col>
-					<van-col :span='8'>
+					<!-- <van-col :span='8'>
 						<view class='power-hd'>
 							<text class='power-value f-fwb'>{{month.chargeTime || 0}}</text>小时
 						</view>
 						<text class='power-label f-db'>充电时长</text>
-					</van-col>
+					</van-col> -->
 				</van-row>
 			</view>
 		</view>
@@ -81,7 +82,7 @@
 		background: linear-gradient(-36deg, #E3E8FF, #FFF7F7);
 		padding-left: 30rpx;
 		padding-right: 30rpx;
-		padding-top: 180rpx;
+		padding-top: 140rpx;
 	}
 	.user{
 		display: flex;
@@ -105,24 +106,36 @@
 		border-radius: 20rpx 20rpx 0px 0px;
 		color: white;
 		margin-top: 30rpx;
-		padding-top: 40rpx;
-		padding-bottom: 30rpx;
+		padding: 40rpx 30rpx 30rpx;
 	}
-	.charge-value{
-		font-size: 36rpx;
-		margin-bottom: 10rpx;
+	.enterprise-wallet{
+		width: 100%;
 	}
-	.cash-wrapper{
+	.wallet-title{
+		font-size: 32rpx;
+		font-weight: bold;
+		margin-bottom: 30rpx;
+		display: block;
+		text-align: center;
+	}
+	.wallet-info{
 		display: flex;
+		justify-content: space-around;
+		align-items: center;
 	}
-	.cash{
+	.wallet-balance, .wallet-accounting{
+		text-align: center;
 		flex: 1;
 	}
-	.line{
-		background-color: #ddd;
-		height: 40rpx;
-		width: 2rpx;
-		margin-top: 40rpx;
+	.balance-amount, .accounting-amount{
+		display: block;
+		font-size: 36rpx;
+		font-weight: bold;
+		margin-bottom: 10rpx;
+	}
+	.balance-label, .accounting-label{
+		font-size: 26rpx;
+		opacity: 0.9;
 	}
 	.content{
 		padding-left: 30rpx;
@@ -135,11 +148,13 @@
 		padding: 30rpx;
 		margin-top: 30rpx;
 	}
+	.order-icon{
+		width: 45rpx;
+		height: 50rpx;
+		margin-right: 15rpx;
+	}
 	.order-label{
 		flex: 1;
-		background: url('https://pic.abdl.eu.org/file/45323f1e74c9eccb77e37.png') left no-repeat;
-		background-size: 45rpx 50rpx;
-		padding-left: 60rpx;
 		height: 50rpx;
 		line-height: 50rpx;
 	}
@@ -175,26 +190,12 @@
 	const token = uni.getStorageSync('token')
 	const user = uni.getStorageSync('user')
 	const phone = uni.getStorageSync('phone')
-	const score = ref(0)
-	const getscore = () => {
-		request({
-			url: '/me/getUserCredit',
-			data: {
-				userId: user.memberId
-			},
-			success: res => {
-				score.value = res.data.data.credit
-			}
-		})
-	}
 	
 	const month = reactive({})
 	const getmonth = () => {
 		request({
-			url: 'me/queryMonthTotalByUserId',
-			data: {
-				userId: user.memberId
-			},
+			url: 'me/monthlyChargeStats',
+			method: 'GET',
 			success: res => {
 				for(let key in res.data.data) {
 					month[key] = res.data.data[key]
@@ -203,15 +204,27 @@
 		})
 	}
 	
-	const balance = ref(0)
-	const getbalance = () => {
+	// 企业钱包信息
+	const enterpriseWallet = reactive({
+		enterpriseName: null,
+		walletBalance: null,
+		accountingAmount: null,
+		consumedAmount: null,
+		minLimit: null
+	})
+	
+	// 获取企业钱包信息
+	const getEnterpriseWallet = () => {
 		request({
-			url: '/me/getMemberBalanceByUserId',
-			data: {
-				userId: user.memberId
+			url: 'me/getEnterpriseWallet',
+			method: 'GET',
+			success: (res) => {
+				if (res.data.code === 200 && res.data.data) {
+					Object.assign(enterpriseWallet, res.data.data)
+				}
 			},
-			success: res => {
-				balance.value = res.data.data.amount
+			fail: (error) => {
+				console.log('企业钱包信息获取失败')
 			}
 		})
 	}
@@ -226,17 +239,22 @@
 			go(url)
 		}else{
 			uni.showToast({
-				title: '您还未登录，请先登录',
-				icon: 'none'
+				title: '请先登录',
+				icon: 'none',
+				duration: 2000
 			})
+			setTimeout(() => {
+				uni.navigateTo({
+					url: '/pages/user/login'
+				})
+			}, 1000)
 		}
 	}
 	
 	onMounted(() => {
 		if(token) {
-			getscore()
-			getbalance()
 			getmonth()
+			getEnterpriseWallet()
 		}
 	})
 </script>

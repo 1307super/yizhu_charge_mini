@@ -62,6 +62,48 @@
 			"style": {
 				"navigationStyle": "custom"
 			}
+		},
+		{
+			"path": "pages/user/invoice",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/user/invoice-history",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/user/invoice-help",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/user/invoice-header-list",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/user/invoice-header-form",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/user/user-agreement",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/user/privacy-policy",
+			"style": {
+				"navigationStyle": "custom"
+			}
 		}
 	],
 	"globalStyle": {
@@ -92,7 +134,11 @@
 			"van-nav-bar": "/wxcomponents/vant/nav-bar/index",
 			"van-steps": "/wxcomponents/vant/steps/index",
 			"van-circle": "/wxcomponents/vant/circle/index",
-			"van-slider": "/wxcomponents/vant/slider/index"
+			"van-slider": "/wxcomponents/vant/slider/index",
+			"van-checkbox": "/wxcomponents/vant/checkbox/index",
+			"van-checkbox-group": "/wxcomponents/vant/checkbox-group/index",
+			"van-radio": "/wxcomponents/vant/radio/index",
+			"van-radio-group": "/wxcomponents/vant/radio-group/index"
 		}
 	},
 	"uniIdRouter": {}

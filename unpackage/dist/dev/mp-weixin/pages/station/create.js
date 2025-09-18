@@ -251,7 +251,7 @@ const _sfc_main = {
             });
             setTimeout(() => {
               common_vendor.index.navigateTo({
-                url: `/pages/station/powering?orderId=${res.data.data}&stationName=${stationInfo.stationName}&gunNo=${stationInfo.gunNo}`
+                url: `/pages/station/powering?batchNo=${res.data.data}&stationName=${stationInfo.stationName}&gunNo=${stationInfo.gunNo}`
               });
             }, 1500);
           } else {
@@ -358,14 +358,14 @@ const _sfc_main = {
       }, enterpriseWallet.walletBalance !== null ? {
         n: common_vendor.p({
           checked: paymentMethod.value === "enterprise",
-          ["checked-color"]: "#2D55E8"
+          checkedColor: "#2D55E8"
         }),
         o: paymentMethod.value === "enterprise" ? 1 : "",
         p: common_vendor.o(($event) => selectPaymentMethod("enterprise"))
       } : {}, {
         q: common_vendor.p({
           checked: paymentMethod.value === "prepay",
-          ["checked-color"]: "#2D55E8"
+          checkedColor: "#2D55E8"
         }),
         r: paymentMethod.value === "prepay" ? 1 : "",
         s: common_vendor.o(($event) => selectPaymentMethod("prepay")),

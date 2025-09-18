@@ -56,6 +56,25 @@ const _sfc_main = {
         url
       });
     };
+    const checkLoginAndGo = (url) => {
+      const token = common_vendor.index.getStorageSync("token");
+      if (!token) {
+        common_vendor.index.showToast({
+          title: "\u8BF7\u5148\u767B\u5F55",
+          icon: "none",
+          duration: 2e3
+        });
+        setTimeout(() => {
+          common_vendor.index.navigateTo({
+            url: "/pages/user/login"
+          });
+        }, 1e3);
+      } else {
+        common_vendor.index.navigateTo({
+          url
+        });
+      }
+    };
     const setActive = (i) => {
       query.sortType = i;
       stations.value = [];
@@ -276,8 +295,8 @@ const _sfc_main = {
         f: common_vendor.o(onSearchConfirm),
         g: searchKeyword.value,
         h: common_vendor.o(($event) => searchKeyword.value = $event.detail.value),
-        i: common_vendor.o(($event) => go("/pages/user/order")),
-        j: common_vendor.o(($event) => go("/pages/user/invoice")),
+        i: common_vendor.o(($event) => checkLoginAndGo("/pages/user/order")),
+        j: common_vendor.o(($event) => checkLoginAndGo("/pages/user/invoice")),
         k: common_vendor.o(contactService),
         l: common_vendor.n(query.sortType == 1 ? "active" : ""),
         m: common_vendor.o(($event) => setActive(1)),

@@ -5,7 +5,7 @@
 
 		<!-- 顶部视觉区（背景图 + 渐变 + 站点信息融合） -->
 		<view class='hero'>
-			<image src='../../static/image/create-bg.png' mode='aspectFill' class='banner' />
+			<image src='../../static/image/create-bg.jpg' mode='aspectFill' class='banner' />
 			<view class='banner-mask'></view>
 			<!-- 顶部站点信息（叠加在背景上） -->
 			<view class='header'>
@@ -809,7 +809,7 @@
 					})
 					setTimeout(() => {
 						uni.navigateTo({
-							url: `/pages/station/powering?orderId=${res.data.data}&stationName=${stationInfo.stationName}&gunNo=${stationInfo.gunNo}`
+							url: `/pages/station/powering?batchNo=${res.data.data}&stationName=${stationInfo.stationName}&gunNo=${stationInfo.gunNo}`
 						})
 					}, 1500)
 				} else {
