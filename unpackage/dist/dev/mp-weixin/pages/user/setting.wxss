@@ -1,14 +1,192 @@
 
 .container.data-v-52e26b05{
 		padding-top: 160rpx;
+		background-color: #f7f8fa;
+		min-height: 100vh;
 }
-.cells.data-v-52e26b05{
-		margin-top: 20rpx;
+.section-title.data-v-52e26b05 {
+		font-size: 26rpx;
+		color: #969799;
+		padding: 30rpx 32rpx 20rpx 32rpx;
+		font-weight: 400;
+}
+.setting-item.data-v-52e26b05 {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 32rpx;
+		margin: 0 20rpx 2rpx 20rpx;
+		background: transparent;
+		transition: background-color 0.2s;
+		position: relative;
+}
+.setting-item.data-v-52e26b05:first-of-type {
+		border-radius: 16rpx 16rpx 0 0;
+}
+.setting-item.data-v-52e26b05:last-of-type {
+		border-radius: 0 0 16rpx 16rpx;
+		margin-bottom: 20rpx;
+}
+.setting-item.data-v-52e26b05:only-of-type {
+		border-radius: 16rpx;
+}
+.setting-item.data-v-52e26b05:not(:last-of-type)::after {
+		content: '';
+		position: absolute;
+		bottom: 0;
+		left: 32rpx;
+		right: 0;
+		height: 1rpx;
+		background: #ebedf0;
+}
+.setting-item.data-v-52e26b05:active {
+		background-color: rgba(0, 0, 0, 0.05);
+}
+.item-left.data-v-52e26b05 {
+		flex-shrink: 0;
+}
+.item-label.data-v-52e26b05 {
+		font-size: 30rpx;
+		color: #323233;
+		font-weight: 400;
+}
+.item-right.data-v-52e26b05 {
+		display: flex;
+		align-items: center;
+		flex: 1;
+		justify-content: flex-end;
+}
+.avatar-btn.data-v-52e26b05 {
+		background: none;
+		border: none;
+		padding: 0;
+		margin: 0;
+		margin-right: 16rpx;
+		display: flex;
+		align-items: center;
+		outline: none;
+}
+.avatar-btn.data-v-52e26b05::after {
+		border: none;
+}
+.avatar.data-v-52e26b05 {
+		width: 100rpx;
+		height: 100rpx;
+		border-radius: 50%;
+		border: 2rpx solid #ebedf0;
+		display: block;
+}
+.item-value.data-v-52e26b05 {
+		font-size: 28rpx;
+		color: #646566;
+		margin-right: 16rpx;
+		max-width: 300rpx;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+}
+.arrow-icon.data-v-52e26b05 {
+		color: #c8c9cc;
+		font-size: 32rpx;
+}
+.drawer-content.data-v-52e26b05 {
+		height: 100%;
+		background: #fff;
+		display: flex;
+		flex-direction: column;
+		border-radius: 20rpx 20rpx 0 0;
+}
+.drawer-header.data-v-52e26b05 {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 40rpx 32rpx 20rpx 32rpx;
+		border-bottom: 1rpx solid #ebedf0;
+		position: relative;
+}
+.drawer-title.data-v-52e26b05 {
+		font-size: 34rpx;
+		font-weight: 600;
+		color: #323233;
+		text-align: center;
+}
+.close-icon.data-v-52e26b05 {
+		position: absolute;
+		right: 32rpx;
+		color: #c8c9cc;
+		font-size: 36rpx;
+		padding: 8rpx;
+		cursor: pointer;
+		transition: color 0.2s;
+}
+.close-icon.data-v-52e26b05:active {
+		color: #969799;
+}
+.drawer-body.data-v-52e26b05 {
+		flex: 1;
+		padding: 40rpx 32rpx 20rpx 32rpx;
+}
+.nickname-input.data-v-52e26b05 {
+		width: 100%;
+		height: 100rpx;
+		border: 2rpx solid #ebedf0;
+		border-radius: 12rpx;
+		padding: 0 24rpx;
+		font-size: 30rpx;
+		box-sizing: border-box;
+		background: #fafafa;
+		transition: all 0.3s;
+}
+.nickname-input.data-v-52e26b05:focus {
+		border-color: #5086F9;
+		background: #fff;
+		box-shadow: 0 0 0 4rpx rgba(80, 134, 249, 0.1);
+}
+.input-tip.data-v-52e26b05 {
+		font-size: 24rpx;
+		color: #969799;
+		margin-top: 16rpx;
+		text-align: center;
+}
+.drawer-footer.data-v-52e26b05 {
+		padding: 20rpx 32rpx 40rpx 32rpx;
+		border-top: 1rpx solid #ebedf0;
+}
+.save-btn.data-v-52e26b05 {
+		width: 100%;
+		height: 88rpx;
+		background: linear-gradient(135deg, #5086F9, #4C70E3);
+		border-radius: 12rpx;
+		border: none;
+		color: white;
+		font-size: 30rpx;
+		font-weight: 500;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-shadow: 0 8rpx 20rpx rgba(80, 134, 249, 0.3);
+		transition: all 0.3s ease;
+}
+.save-btn.data-v-52e26b05:active {
+		transform: scale(0.95);
+		box-shadow: 0 4rpx 12rpx rgba(80, 134, 249, 0.4);
+}
+.save-btn[disabled].data-v-52e26b05 {
+		background: #f7f8fa !important;
+		color: #c8c9cc !important;
+		cursor: not-allowed;
+		box-shadow: none !important;
+		transform: none !important;
 }
 .logout.data-v-52e26b05{
 		width: calc(100% - 60rpx);
-		margin: 40rpx auto 0 auto;
+		margin: 40rpx auto 60rpx auto;
+		border-radius: 12rpx;
+		overflow: hidden;
 }
 .logout.data-v-52e26b05 .van-button{
 		width: 100%;
+		height: 88rpx;
+		font-size: 30rpx;
+		border-radius: 12rpx;
 }

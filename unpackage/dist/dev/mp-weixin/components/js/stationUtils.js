@@ -29,6 +29,26 @@ const GUN_STATUS_MAP = {
     "fault": [255, 21501, 21502, 21503]
   }
 };
+const ORDER_STATUS_MAP = {
+  TEXT: {
+    1: "\u542F\u52A8\u4E2D",
+    2: "\u5145\u7535\u4E2D",
+    3: "\u505C\u6B62\u4E2D",
+    4: "\u5DF2\u5B8C\u6210",
+    5: "\u672A\u77E5",
+    "-1": "\u5DF2\u5173\u95ED",
+    "-2": "\u9000\u6B3E\u5931\u8D25"
+  },
+  CLASS: {
+    1: "status-starting",
+    2: "status-charging",
+    3: "status-stopping",
+    4: "status-completed",
+    5: "status-unknown",
+    "-1": "status-closed",
+    "-2": "status-refund-failed"
+  }
+};
 const STATUS_MAP = GUN_STATUS_MAP;
 const SERVICE_ICONS = {
   "\u514D\u8D39WiFi": "../../static/image/wifi.png",
@@ -73,6 +93,7 @@ const filterGunsByStatus = (guns, filterType) => {
   const targetStatuses = STATUS_MAP.FILTER[filterType] || [];
   return guns.filter((gun) => targetStatuses.includes(gun.status));
 };
+exports.ORDER_STATUS_MAP = ORDER_STATUS_MAP;
 exports.filterGunsByStatus = filterGunsByStatus;
 exports.formatPrice = formatPrice;
 exports.formatTime = formatTime;

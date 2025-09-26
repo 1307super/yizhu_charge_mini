@@ -2,8 +2,9 @@
 var common_vendor = require("../../common/vendor.js");
 var components_js_request = require("../../components/js/request.js");
 if (!Array) {
+  const _component_van_empty = common_vendor.resolveComponent("van-empty");
   const _component_van_action_sheet = common_vendor.resolveComponent("van-action-sheet");
-  _component_van_action_sheet();
+  (_component_van_empty + _component_van_action_sheet)();
 }
 if (!Math) {
   navbar();
@@ -14,6 +15,8 @@ const _sfc_main = {
   setup(__props) {
     const token = common_vendor.index.getStorageSync("token");
     const user = common_vendor.index.getStorageSync("user");
+    const reapply = common_vendor.ref(false);
+    const originalInvoiceNo = common_vendor.ref("");
     const headerList = common_vendor.ref([]);
     const showActions = common_vendor.ref(false);
     const actionSheetActions = common_vendor.ref([]);
@@ -67,8 +70,62 @@ const _sfc_main = {
       }
     };
     const selectHeader = (header) => {
-      common_vendor.index.$emit("selectInvoiceHeader", header);
-      common_vendor.index.navigateBack();
+      console.log("selectHeader\u88AB\u8C03\u7528", { reapply: reapply.value, originalInvoiceNo: originalInvoiceNo.value });
+      if (reapply.value && originalInvoiceNo.value) {
+        common_vendor.index.showModal({
+          title: "\u786E\u8BA4\u91CD\u65B0\u7533\u8BF7",
+          content: `\u786E\u5B9A\u4F7F\u7528\u300C${header.headerType === "enterprise" ? header.companyName : header.customerName}\u300D\u4F5C\u4E3A\u53D1\u7968\u62AC\u5934\u91CD\u65B0\u7533\u8BF7\u5417\uFF1F`,
+          success: (res) => {
+            if (res.confirm) {
+              reapplyInvoice(header.id);
+            }
+          }
+        });
+      } else {
+        common_vendor.index.$emit("selectInvoiceHeader", header);
+        common_vendor.index.navigateBack();
+      }
+    };
+    const reapplyInvoice = (headerId) => {
+      console.log("\u8C03\u7528\u91CD\u65B0\u7533\u8BF7\u63A5\u53E3", { originalInvoiceNo: originalInvoiceNo.value, headerId });
+      common_vendor.index.showLoading({
+        title: "\u63D0\u4EA4\u4E2D..."
+      });
+      components_js_request.request({
+        url: "invoice/reapply",
+        method: "POST",
+        data: {
+          originalInvoiceNo: originalInvoiceNo.value,
+          headerId
+        },
+        success: (res) => {
+          console.log("\u91CD\u65B0\u7533\u8BF7\u63A5\u53E3\u54CD\u5E94", res);
+          common_vendor.index.hideLoading();
+          if (res.data.code === 200) {
+            common_vendor.index.showToast({
+              title: "\u91CD\u65B0\u7533\u8BF7\u6210\u529F",
+              icon: "success"
+            });
+            common_vendor.index.$emit("refreshInvoiceHistory");
+            setTimeout(() => {
+              common_vendor.index.navigateBack();
+            }, 1500);
+          } else {
+            common_vendor.index.showToast({
+              title: res.data.msg || "\u91CD\u65B0\u7533\u8BF7\u5931\u8D25",
+              icon: "none"
+            });
+          }
+        },
+        fail: (error) => {
+          console.log("\u91CD\u65B0\u7533\u8BF7\u63A5\u53E3\u5931\u8D25", error);
+          common_vendor.index.hideLoading();
+          common_vendor.index.showToast({
+            title: "\u91CD\u65B0\u7533\u8BF7\u5931\u8D25",
+            icon: "none"
+          });
+        }
+      });
     };
     const goToAddHeader = () => {
       common_vendor.index.navigateTo({
@@ -175,6 +232,14 @@ const _sfc_main = {
         }
       });
     };
+    common_vendor.onLoad((options) => {
+      console.log("\u9875\u9762\u53C2\u6570", options);
+      if (options.reapply) {
+        reapply.value = options.reapply === "true";
+        originalInvoiceNo.value = options.originalInvoiceNo || "";
+        console.log("\u8BBE\u7F6E\u53C2\u6570", { reapply: reapply.value, originalInvoiceNo: originalInvoiceNo.value });
+      }
+    });
     common_vendor.onMounted(() => {
       if (!token) {
         common_vendor.index.showToast({
@@ -197,12 +262,21 @@ const _sfc_main = {
     return (_ctx, _cache) => {
       return common_vendor.e({
         a: common_vendor.p({
-          title: "\u53D1\u7968\u62AC\u5934\u7BA1\u7406"
+          title: reapply.value ? "\u9009\u62E9\u53D1\u7968\u62AC\u5934" : "\u53D1\u7968\u62AC\u5934\u7BA1\u7406"
         }),
-        b: common_vendor.o(goToAddHeader),
-        c: headerList.value.length === 0
-      }, headerList.value.length === 0 ? {} : {}, {
-        d: common_vendor.f(headerList.value, (header, index, i0) => {
+        b: !reapply.value
+      }, !reapply.value ? {
+        c: common_vendor.o(goToAddHeader)
+      } : {}, {
+        d: reapply.value
+      }, reapply.value ? {} : {}, {
+        e: headerList.value.length === 0
+      }, headerList.value.length === 0 ? {
+        f: common_vendor.p({
+          description: "\u6682\u65E0\u53D1\u7968\u62AC\u5934"
+        })
+      } : {}, {
+        g: common_vendor.f(headerList.value, (header, index, i0) => {
           return common_vendor.e({
             a: common_vendor.t(header.headerType === "enterprise" ? header.companyName : header.customerName),
             b: header.isDefault
@@ -218,16 +292,19 @@ const _sfc_main = {
           }, header.contactPhone ? {
             i: common_vendor.t(header.contactPhone)
           } : {}, {
-            j: common_vendor.o(($event) => selectHeader(header)),
-            k: common_vendor.o(($event) => showActionSheet(header, index)),
+            j: common_vendor.o(($event) => selectHeader(header))
+          }, !reapply.value ? {
+            k: common_vendor.o(($event) => showActionSheet(header, index))
+          } : {}, {
             l: header.id
           });
         }),
-        e: common_vendor.o(onActionSelect),
-        f: common_vendor.o(($event) => showActions.value = false),
-        g: common_vendor.o(($event) => showActions.value = false),
-        h: common_vendor.o(($event) => showActions.value = $event),
-        i: common_vendor.p({
+        h: !reapply.value,
+        i: common_vendor.o(onActionSelect),
+        j: common_vendor.o(($event) => showActions.value = false),
+        k: common_vendor.o(($event) => showActions.value = false),
+        l: common_vendor.o(($event) => showActions.value = $event),
+        m: common_vendor.p({
           actions: actionSheetActions.value,
           cancelText: "\u53D6\u6D88",
           closeOnClickOverlay: true,

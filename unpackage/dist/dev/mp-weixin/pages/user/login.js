@@ -73,7 +73,7 @@ const _sfc_main = {
           if (res.data.code == 200) {
             common_vendor.index.setStorageSync("token", res.data.data.token);
             common_vendor.index.setStorageSync("user", res.data.data.member);
-            common_vendor.index.setStorageSync("phone", res.data.data.member.phone || res.data.data.phone);
+            common_vendor.index.setStorageSync("phone", res.data.data.member.mobile || res.data.data.mobile);
             common_vendor.index.showToast({
               title: "\u767B\u5F55\u6210\u529F"
             });

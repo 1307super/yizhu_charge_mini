@@ -18,14 +18,37 @@
 }
 .avatar.data-v-137d5072{
 		width: 120rpx;
+		height: 120rpx;
+		border-radius: 50%;
 		margin-right: 30rpx;
 }
 .phone.data-v-137d5072{
 		line-height: 120rpx;
 }
+.header-actions.data-v-137d5072{
+		display: flex;
+		align-items: center;
+		gap: 30rpx;
+}
+.message-wrapper.data-v-137d5072{
+		position: relative;
+		display: flex;
+		align-items: center;
+}
+.message.data-v-137d5072{
+		width: 40rpx;
+}
+.unread-badge.data-v-137d5072{
+		position: absolute;
+		top: -8rpx;
+		right: -8rpx;
+		background-color: #ff4757;
+		width: 16rpx;
+		height: 16rpx;
+		border-radius: 50%;
+}
 .setting.data-v-137d5072{
 		width: 40rpx;
-		margin-top: 40rpx;
 }
 .charge.data-v-137d5072{
 		background: linear-gradient(264deg, #5086F9, #5278FC, #5470FE, #5569FF);

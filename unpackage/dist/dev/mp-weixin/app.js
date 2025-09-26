@@ -8,7 +8,6 @@ if (!Math) {
   "./pages/station/index.js";
   "./pages/station/create.js";
   "./pages/station/powering.js";
-  "./pages/station/confirm.js";
   "./pages/user/order.js";
   "./pages/user/orderdetail.js";
   "./pages/user/setting.js";
@@ -20,6 +19,8 @@ if (!Math) {
   "./pages/user/invoice-header-form.js";
   "./pages/user/user-agreement.js";
   "./pages/user/privacy-policy.js";
+  "./pages/user/message.js";
+  "./pages/user/message-detail.js";
 }
 const _sfc_main = {
   globalData: {

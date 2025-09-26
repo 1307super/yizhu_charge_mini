@@ -22,7 +22,7 @@ const _sfc_main = {
     common_vendor.onMounted(() => {
       const menuButtonInfo = common_vendor.index.getMenuButtonBoundingClientRect();
       navBarStyle.value = {
-        paddingTop: `${menuButtonInfo.top + 4}px`,
+        paddingTop: `${menuButtonInfo.top}px`,
         height: `${menuButtonInfo.height}px`
       };
     });

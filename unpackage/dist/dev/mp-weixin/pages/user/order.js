@@ -1,6 +1,10 @@
 "use strict";
 var common_vendor = require("../../common/vendor.js");
 var components_js_request = require("../../components/js/request.js");
+if (!Array) {
+  const _component_van_empty = common_vendor.resolveComponent("van-empty");
+  _component_van_empty();
+}
 if (!Math) {
   navbar();
 }
@@ -29,10 +33,8 @@ const _sfc_main = {
       return orderList.value.length;
     });
     const setActiveTab = (value) => {
-      console.log("\u5207\u6362tab:", value);
       currentTab.value = value;
       query.orderState = value;
-      console.log("\u67E5\u8BE2\u53C2\u6570:", query);
       resetAndLoad();
     };
     const resetAndLoad = () => {
@@ -53,7 +55,6 @@ const _sfc_main = {
         method: "GET",
         data: query,
         success: (res) => {
-          console.log("\u63A5\u53E3\u8FD4\u56DE\u7ED3\u679C:", res);
           isLoading.value = false;
           if (res.data.code === 200) {
             const newOrders = res.data.data.records || [];
@@ -178,7 +179,9 @@ const _sfc_main = {
           });
         }),
         c: common_vendor.t(common_vendor.unref(totalOrders)),
-        d: common_vendor.f(orderList.value, (order, index, i0) => {
+        d: orderList.value.length > 0
+      }, orderList.value.length > 0 ? {
+        e: common_vendor.f(orderList.value, (order, index, i0) => {
           return {
             a: common_vendor.t(order.stationName || "\u5145\u7535\u7AD9"),
             b: common_vendor.t(getStatusText(order.batchStatus)),
@@ -190,13 +193,18 @@ const _sfc_main = {
             h: order.batchNo || index,
             i: common_vendor.o(($event) => goToDetail(order), order.batchNo || index)
           };
-        }),
-        e: orderList.value.length > 0
-      }, orderList.value.length > 0 ? {
-        f: common_vendor.t(loadingText.value)
+        })
       } : {}, {
-        g: orderList.value.length === 0 && !isLoading.value
-      }, orderList.value.length === 0 && !isLoading.value ? {} : {});
+        f: orderList.value.length > 0
+      }, orderList.value.length > 0 ? {
+        g: common_vendor.t(loadingText.value)
+      } : {}, {
+        h: orderList.value.length === 0 && !isLoading.value
+      }, orderList.value.length === 0 && !isLoading.value ? {
+        i: common_vendor.p({
+          description: "\u6682\u65E0\u8BA2\u5355\u8BB0\u5F55"
+        })
+      } : {});
     };
   }
 };

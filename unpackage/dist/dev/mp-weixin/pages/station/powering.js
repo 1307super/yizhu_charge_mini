@@ -43,6 +43,19 @@ const _sfc_main = {
         success: (res) => {
           if (res.data.code === 200) {
             const batchData = res.data.data;
+            if (batchData.status !== 2) {
+              clearTimers();
+              common_vendor.index.showToast({
+                title: "\u5145\u7535\u5DF2\u7ED3\u675F",
+                icon: "success"
+              });
+              setTimeout(() => {
+                common_vendor.index.redirectTo({
+                  url: "/pages/user/order"
+                });
+              }, 1500);
+              return;
+            }
             form.stationName = batchData.stationName || "\u5145\u7535\u7AD9\u540D\u79F0";
             form.licensePlate = batchData.licensePlate || "\u8F66\u724C\u53F7/\u8F66\u67B6\u53F7";
             ordersList.value = batchData.orders || [];
@@ -142,9 +155,8 @@ const _sfc_main = {
         mask: true
       });
       components_js_request.request({
-        url: "order/endCharging",
+        url: "order/endCharging?batchNo=" + form.batchNo,
         method: "POST",
-        data: { batchNo: form.batchNo },
         success: (res) => {
           if (res.data.code === 200) {
             startCheckingStatus();
@@ -209,7 +221,7 @@ const _sfc_main = {
     return (_ctx, _cache) => {
       return {
         a: common_vendor.p({
-          title: "\u6B63\u5728\u5145\u7535",
+          title: "",
           delta: form.delta
         }),
         b: common_vendor.t(form.stationName || "\u5145\u7535\u7AD9\u540D\u79F0"),

@@ -12,5 +12,4 @@ function request(options) {
   }
 	uni.request(defaultOptions)
 }
- 
 export default request

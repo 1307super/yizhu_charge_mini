@@ -5,11 +5,18 @@
     "miniprogram": {
       "list": [
         {
+          "name": "充电详情",
+          "pathName": "pages/station/powering",
+          "query": "batchNo=W9XI0JK3K250923091351590&stationName=%E4%B8%B4%E6%B8%AF%E7%AB%991%E5%8F%B7(%E5%B9%B3%E5%8F%B0%E6%8E%A8%E9%80%81)&gunNo=1",
+          "scene": null,
+          "launchMode": "default"
+        },
+        {
           "name": "充电详情页",
           "pathName": "pages/station/powering",
           "query": "batchNo=110823250915103045561",
-          "scene": null,
-          "launchMode": "default"
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "扫码充电",

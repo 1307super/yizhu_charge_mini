@@ -27,11 +27,20 @@
 		background: linear-gradient(45deg, #2D55E8, #5B7BF7);
 		box-shadow: 0 8rpx 24rpx rgba(45, 85, 232, 0.3);
 }
+.status-icon.status-starting.data-v-308973d4 {
+		background: linear-gradient(45deg, #FF9500, #FFAD33);
+}
 .status-icon.status-ongoing.data-v-308973d4 {
 		background: linear-gradient(45deg, #44E590, #70CAF3);
 }
+.status-icon.status-stopping.data-v-308973d4 {
+		background: linear-gradient(45deg, #FFA500, #FFB733);
+}
 .status-icon.status-completed.data-v-308973d4 {
 		background: linear-gradient(45deg, #2D55E8, #5B7BF7);
+}
+.status-icon.status-unknown.data-v-308973d4 {
+		background: linear-gradient(45deg, #888, #bbb);
 }
 .status-icon.status-closed.data-v-308973d4 {
 		background: linear-gradient(45deg, #999, #ccc);

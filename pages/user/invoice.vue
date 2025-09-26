@@ -31,23 +31,26 @@
 		
 		<!-- 订单列表 -->
 		<view class="order-list">
-			<view v-for="(order, index) in orderList" :key="order.batchNo" class="order-item">
-				<van-checkbox 
-					:value="selectedOrders.includes(order.batchNo)"
-					@change="toggleOrderSelection(order.batchNo)"
-					class="order-checkbox"
-				></van-checkbox>
-				<view class="order-content">
-					<view class="order-info">
-						<text class="station-name">{{order.stationName}}</text>
-						<text class="order-time">{{formatDate(order.createTime)}}</text>
-					</view>
-					<view class="order-details">
-						<text class="power">充电量: {{order.chargeDegree}}度</text>
-						<text class="amount">¥{{order.chargeAmount}}</text>
+			<view v-if="orderList.length > 0">
+				<view v-for="(order, index) in orderList" :key="order.batchNo" class="order-item">
+					<van-checkbox 
+						:value="selectedOrders.includes(order.batchNo)"
+						@change="toggleOrderSelection(order.batchNo)"
+						class="order-checkbox"
+					></van-checkbox>
+					<view class="order-content">
+						<view class="order-info">
+							<text class="station-name">{{order.stationName}}</text>
+							<text class="order-time">{{formatDate(order.createTime)}}</text>
+						</view>
+						<view class="order-details">
+							<text class="power">充电量: {{order.chargeDegree}}度</text>
+							<text class="amount">¥{{order.chargeAmount}}</text>
+						</view>
 					</view>
 				</view>
 			</view>
+			<van-empty v-else description="暂无可开票订单" />
 		</view>
 		
 		<!-- 底部操作栏 -->
@@ -83,7 +86,7 @@
 		</view>
 		
 		<!-- 时间筛选抽屉 -->
-		<van-popup v-model:show="showTimeDrawer" position="bottom" :style="{ height: '40%' }">
+		<van-popup v-model:show="showTimeDrawer" position="bottom">
 			<view class="time-drawer">
 				<view class="drawer-header">
 					<text class="drawer-title">选择时间范围</text>
@@ -132,9 +135,13 @@
 <style scoped>
 .container {
 	background-color: #f6f6f6;
-	min-height: 100vh;
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	padding-top: 180rpx;
 	padding-bottom: 120rpx;
-	padding-top: 130rpx;
+	box-sizing: border-box;
 }
 
 .header-actions {
@@ -144,6 +151,7 @@
 	padding: 20rpx 30rpx;
 	background-color: white;
 	border-bottom: 1rpx solid #eee;
+	flex-shrink: 0;
 }
 
 .time-filter {
@@ -184,6 +192,7 @@
 	padding: 30rpx;
 	border-radius: 16rpx;
 	box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.1);
+	flex-shrink: 0;
 }
 
 .card-icon {
@@ -241,6 +250,9 @@
 
 .order-list {
 	padding: 0 30rpx;
+	height: calc(100vh - 400rpx);
+	overflow-y: auto;
+	min-height: 0;
 }
 
 .order-item {

@@ -162,12 +162,24 @@
 		box-shadow: 0 8rpx 24rpx rgba(45, 85, 232, 0.3);
 	}
 	
+	.status-icon.status-starting {
+		background: linear-gradient(45deg, #FF9500, #FFAD33);
+	}
+	
 	.status-icon.status-ongoing {
 		background: linear-gradient(45deg, #44E590, #70CAF3);
 	}
 	
+	.status-icon.status-stopping {
+		background: linear-gradient(45deg, #FFA500, #FFB733);
+	}
+	
 	.status-icon.status-completed {
 		background: linear-gradient(45deg, #2D55E8, #5B7BF7);
+	}
+	
+	.status-icon.status-unknown {
+		background: linear-gradient(45deg, #888, #bbb);
 	}
 	
 	.status-icon.status-closed {
@@ -545,6 +557,7 @@
 	import { onLoad } from '@dcloudio/uni-app'
 	import navbar from '../../components/navbar/index.vue'
 	import request from '../../components/js/request.js'
+	import { ORDER_STATUS_MAP } from '../../components/js/stationUtils.js'
 	
 	const app = getApp()
 	
@@ -631,22 +644,19 @@
 	
 	// 获取状态文本
 	const getStatusText = (status) => {
-		switch (status) {
-			case 1: return '进行中'
-			case 2: return '已完成'
-			case 3: return '已关闭'
-			case 4: return '退款失败'
-			default: return '未知状态'
-		}
+		return ORDER_STATUS_MAP.TEXT[status] || '未知状态'
 	}
 	
 	// 获取状态副标题
 	const getStatusSubtitle = (status) => {
 		switch (status) {
-			case 1: return '请耐心等待充电完成'
-			case 2: return '感谢使用吉运超充，欢迎下次再来！'
-			case 3: return '充电已关闭'
-			case 4: return '退款处理失败，请联系客服'
+			case 1: return '正在启动充电设备，请稍等'
+			case 2: return '请耐心等待充电完成'
+			case 3: return '正在停止充电'
+			case 4: return '感谢使用吉运超充，欢迎下次再来！'
+			case 5: return '状态异常，请联系客服'
+			case -1: return '充电已关闭'
+			case -2: return '退款处理失败，请联系客服'
 			default: return ''
 		}
 	}
@@ -654,10 +664,13 @@
 	// 获取状态图标
 	const getStatusIcon = (status) => {
 		switch (status) {
-			case 1: return '⚡'
-			case 2: return '✓'
-			case 3: return '✕'
-			case 4: return '⚠'
+			case 1: return '🚀'  // 启动中
+			case 2: return '⚡'  // 充电中
+			case 3: return '⏸'  // 停止中
+			case 4: return '✓'  // 已完成
+			case 5: return '❓'  // 未知
+			case -1: return '✕' // 已关闭
+			case -2: return '⚠' // 退款失败
 			default: return '?'
 		}
 	}
@@ -665,11 +678,14 @@
 	// 获取状态图标样式类
 	const getStatusIconClass = (status) => {
 		switch (status) {
-			case 1: return 'status-ongoing'
-			case 2: return 'status-completed'
-			case 3: return 'status-closed'
-			case 4: return 'status-closed'
-			default: return ''
+			case 1: return 'status-starting'    // 启动中
+			case 2: return 'status-ongoing'     // 充电中
+			case 3: return 'status-stopping'    // 停止中
+			case 4: return 'status-completed'   // 已完成
+			case 5: return 'status-unknown'     // 未知
+			case -1: return 'status-closed'     // 已关闭
+			case -2: return 'status-closed'     // 退款失败
+			default: return 'status-unknown'
 		}
 	}
 	

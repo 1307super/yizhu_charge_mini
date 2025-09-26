@@ -22,10 +22,9 @@ var common_vendor = require("../../common/vendor.js");
 var components_js_request = require("../../components/js/request.js");
 var components_js_stationUtils = require("../../components/js/stationUtils.js");
 if (!Array) {
-  const _component_van_radio = common_vendor.resolveComponent("van-radio");
   const _component_van_button = common_vendor.resolveComponent("van-button");
   const _component_van_slider = common_vendor.resolveComponent("van-slider");
-  (_component_van_radio + _component_van_button + _component_van_slider)();
+  (_component_van_button + _component_van_slider)();
 }
 if (!Math) {
   navbar();
@@ -197,7 +196,22 @@ const _sfc_main = {
         refreshTimer.value = null;
       }
     };
-    const startCharging = () => {
+    const subscribeMessage = () => {
+      return new Promise((resolve) => {
+        common_vendor.index.requestSubscribeMessage({
+          tmplIds: ["uxfRzq-jozvWu3dpxUPwr_Zo05LbB_U3TugCjOpmwTo"],
+          success: (res) => {
+            console.log("\u8BA2\u9605\u6D88\u606F\u6210\u529F:", res);
+            resolve(true);
+          },
+          fail: (err) => {
+            console.log("\u8BA2\u9605\u6D88\u606F\u5931\u8D25:", err);
+            resolve(false);
+          }
+        });
+      });
+    };
+    const startCharging = async () => {
       if (!canCharge.value) {
         common_vendor.index.showToast({
           title: buttonInfo.value.tip || "\u5F53\u524D\u72B6\u6001\u4E0D\u5141\u8BB8\u5145\u7535",
@@ -221,7 +235,7 @@ const _sfc_main = {
       }
       if (paymentMethod.value === "prepay") {
         const amount = finalAmount.value;
-        if (!amount || amount < 10) {
+        if (!amount || amount < 0.01) {
           common_vendor.index.showToast({
             title: "\u81EA\u5B9A\u4E49\u91D1\u989D\u4E0D\u80FD\u5C11\u4E8E10\u5143",
             icon: "none"
@@ -229,6 +243,7 @@ const _sfc_main = {
           return;
         }
       }
+      await subscribeMessage();
       if (paymentMethod.value === "enterprise") {
         startEnterpriseCharging();
       } else {
@@ -236,6 +251,9 @@ const _sfc_main = {
       }
     };
     const startEnterpriseCharging = () => {
+      common_vendor.index.showLoading({
+        title: "\u542F\u52A8\u4E2D"
+      });
       components_js_request.request({
         url: "charging/start/enterprise",
         method: "POST",
@@ -253,7 +271,7 @@ const _sfc_main = {
               common_vendor.index.navigateTo({
                 url: `/pages/station/powering?batchNo=${res.data.data}&stationName=${stationInfo.stationName}&gunNo=${stationInfo.gunNo}`
               });
-            }, 1500);
+            }, 200);
           } else {
             common_vendor.index.showToast({
               title: res.data.msg || "\u5145\u7535\u542F\u52A8\u5931\u8D25",
@@ -267,12 +285,77 @@ const _sfc_main = {
             title: "\u5145\u7535\u542F\u52A8\u5931\u8D25",
             icon: "none"
           });
+        },
+        complete: () => {
+          common_vendor.index.hideLoading();
         }
       });
     };
+    const checkPayStatus = (outTradeNo) => {
+      return new Promise((resolve, reject) => {
+        components_js_request.request({
+          url: "pay/checkPayStatus",
+          method: "GET",
+          data: { outTradeNo },
+          success: (res) => {
+            if (res.data.code === 200) {
+              resolve(res.data.data);
+            } else {
+              reject(new Error(res.data.msg || "\u68C0\u67E5\u652F\u4ED8\u72B6\u6001\u5931\u8D25"));
+            }
+          },
+          fail: (error) => {
+            reject(error);
+          }
+        });
+      });
+    };
+    const pollPayStatus = async (outTradeNo) => {
+      let attempts = 0;
+      const maxAttempts = 60;
+      const checkStatus = async () => {
+        try {
+          attempts++;
+          const batchNo = await checkPayStatus(outTradeNo);
+          if (batchNo && batchNo !== "0") {
+            common_vendor.index.hideLoading();
+            common_vendor.index.showToast({
+              title: "\u542F\u52A8\u6210\u529F"
+            });
+            setTimeout(() => {
+              common_vendor.index.navigateTo({
+                url: `/pages/station/powering?batchNo=${batchNo}&stationName=${stationInfo.stationName}&gunNo=${stationInfo.gunNo}`
+              });
+            }, 200);
+          } else {
+            if (attempts < maxAttempts) {
+              setTimeout(checkStatus, 1e3);
+            } else {
+              common_vendor.index.hideLoading();
+              common_vendor.index.showToast({
+                title: "\u652F\u4ED8\u72B6\u6001\u68C0\u67E5\u8D85\u65F6\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5",
+                icon: "none"
+              });
+            }
+          }
+        } catch (error) {
+          console.error("\u68C0\u67E5\u652F\u4ED8\u72B6\u6001\u5931\u8D25:", error);
+          if (attempts < maxAttempts) {
+            setTimeout(checkStatus, 1e3);
+          } else {
+            common_vendor.index.hideLoading();
+            common_vendor.index.showToast({
+              title: "\u652F\u4ED8\u72B6\u6001\u68C0\u67E5\u5931\u8D25\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5",
+              icon: "none"
+            });
+          }
+        }
+      };
+      checkStatus();
+    };
     const startPrepayCharging = () => {
       components_js_request.request({
-        url: "charging/prepay",
+        url: "pay/wxpay/prepay",
         method: "POST",
         data: {
           stationId: stationId.value,
@@ -281,19 +364,15 @@ const _sfc_main = {
         },
         success: (res) => {
           if (res.data.code === 200) {
-            const { orderId, paymentParams } = res.data.data;
+            const { outTradeNo, paymentParams } = res.data.data;
             common_vendor.index.requestPayment(__spreadProps(__spreadValues({
               provider: "wxpay"
             }, paymentParams), {
               success: (payRes) => {
-                common_vendor.index.showToast({
-                  title: "\u652F\u4ED8\u6210\u529F"
+                common_vendor.index.showLoading({
+                  title: "\u542F\u52A8\u4E2D"
                 });
-                setTimeout(() => {
-                  common_vendor.index.navigateTo({
-                    url: `/pages/station/powering?orderId=${orderId}&stationName=${stationInfo.stationName}&gunNo=${stationInfo.gunNo}`
-                  });
-                }, 1500);
+                pollPayStatus(outTradeNo);
               },
               fail: (payErr) => {
                 console.error("\u652F\u4ED8\u5931\u8D25:", payErr);
@@ -356,27 +435,19 @@ const _sfc_main = {
       } : {}, {
         m: enterpriseWallet.walletBalance !== null
       }, enterpriseWallet.walletBalance !== null ? {
-        n: common_vendor.p({
-          checked: paymentMethod.value === "enterprise",
-          checkedColor: "#2D55E8"
-        }),
-        o: paymentMethod.value === "enterprise" ? 1 : "",
-        p: common_vendor.o(($event) => selectPaymentMethod("enterprise"))
+        n: paymentMethod.value === "enterprise" ? 1 : "",
+        o: common_vendor.o(($event) => selectPaymentMethod("enterprise"))
       } : {}, {
-        q: common_vendor.p({
-          checked: paymentMethod.value === "prepay",
-          checkedColor: "#2D55E8"
-        }),
-        r: paymentMethod.value === "prepay" ? 1 : "",
-        s: common_vendor.o(($event) => selectPaymentMethod("prepay")),
-        t: paymentMethod.value === "prepay"
+        p: paymentMethod.value === "prepay" ? 1 : "",
+        q: common_vendor.o(($event) => selectPaymentMethod("prepay")),
+        r: paymentMethod.value === "prepay"
       }, paymentMethod.value === "prepay" ? {
-        v: common_vendor.f(presetAmounts.value, (amount, k0, i0) => {
+        s: common_vendor.f(presetAmounts.value, (amount, k0, i0) => {
           return {
             a: common_vendor.t(amount),
             b: amount,
             c: common_vendor.o(($event) => selectAmount(amount), amount),
-            d: "3e528b70-3-" + i0,
+            d: "3e528b70-1-" + i0,
             e: common_vendor.p({
               size: "small",
               type: selectedAmount.value === amount ? "primary" : "default",
@@ -385,15 +456,15 @@ const _sfc_main = {
             })
           };
         }),
-        w: common_vendor.o([($event) => customAmount.value = $event.detail.value, onCustomAmountInput]),
-        x: customAmount.value
+        t: common_vendor.o([($event) => customAmount.value = $event.detail.value, onCustomAmountInput]),
+        v: customAmount.value
       } : {}, {
-        y: paymentMethod.value === "enterprise"
+        w: paymentMethod.value === "enterprise"
       }, paymentMethod.value === "enterprise" ? {
-        z: common_vendor.t(chargePercentage.value),
-        A: common_vendor.o(onChargePercentageChange),
-        B: common_vendor.o(onChargePercentageChange),
-        C: common_vendor.p({
+        x: common_vendor.t(chargePercentage.value),
+        y: common_vendor.o(onChargePercentageChange),
+        z: common_vendor.o(onChargePercentageChange),
+        A: common_vendor.p({
           value: chargePercentage.value,
           min: 0,
           max: 100,
@@ -403,13 +474,13 @@ const _sfc_main = {
           buttonSize: 20
         })
       } : {}, {
-        D: common_vendor.unref(buttonInfo).tip && common_vendor.unref(buttonInfo).disabled
+        B: common_vendor.unref(buttonInfo).tip && common_vendor.unref(buttonInfo).disabled
       }, common_vendor.unref(buttonInfo).tip && common_vendor.unref(buttonInfo).disabled ? {
-        E: common_vendor.t(common_vendor.unref(buttonInfo).tip)
+        C: common_vendor.t(common_vendor.unref(buttonInfo).tip)
       } : {}, {
-        F: common_vendor.t(common_vendor.unref(buttonInfo).text),
-        G: common_vendor.o(startCharging),
-        H: common_vendor.p({
+        D: common_vendor.t(common_vendor.unref(buttonInfo).text),
+        E: common_vendor.o(startCharging),
+        F: common_vendor.p({
           round: true,
           block: true,
           color: common_vendor.unref(buttonInfo).disabled ? "#d9d9d9" : "#2D55E8",

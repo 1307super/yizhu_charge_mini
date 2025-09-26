@@ -22,7 +22,7 @@
 			</view>
 			
 			<!-- 订单列表 -->
-			<view class='order-list'>
+			<view class='order-list' v-if="orderList.length > 0">
 				<view class='order-card' 
 					v-for="(order, index) in orderList" 
 					:key="order.batchNo || index"
@@ -46,9 +46,7 @@
 								<text class='info-label'>充电金额</text>
 								<text class='info-value price'>¥{{ order.chargeAmount || '0' }}</text>
 							</view>
-						</view>
-						<view class='info-row'>
-							<view class='info-item single'>
+							<view class='info-item'>
 								<text class='info-label'>充电时长</text>
 								<text class='info-value'>{{ order.chargeDuration || '00:00:00' }}</text>
 							</view>
@@ -63,6 +61,7 @@
 						<text class='start-time'>{{ formatTime(order.startTime) }}</text>
 					</view>
 				</view>
+				
 			</view>
 			
 			<!-- 加载更多 -->
@@ -71,9 +70,7 @@
 			</view>
 			
 			<!-- 空状态 -->
-			<view class='empty-state' v-if="orderList.length === 0 && !isLoading">
-				<text class='empty-text'>暂无订单记录</text>
-			</view>
+			<van-empty v-if="orderList.length === 0 && !isLoading" description="暂无订单记录" />
 		</view>
 	</view>
 </template>
@@ -81,9 +78,21 @@
 <style scoped>
 	.container {
 		background: linear-gradient(180deg, #F6F8FB 0%, #FFFFFF 100%);
-		min-height: 100vh;
-		padding-top: 140rpx;
-		padding-bottom: 40rpx;
+		height: 100vh;
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+		padding-top: 180rpx;
+		box-sizing: border-box;
+	}
+	
+	/* 导航栏 */
+	.navbar {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 1000;
 	}
 	
 	/* 顶部tab */
@@ -95,6 +104,7 @@
 		border-radius: 16rpx;
 		box-shadow: 0 4rpx 20rpx rgba(45, 85, 232, 0.08);
 		position: relative;
+		flex-shrink: 0;
 	}
 	
 	.tab-item {
@@ -135,9 +145,13 @@
 		background: #FFFFFF;
 		margin: 0 24rpx;
 		border-radius: 20rpx 20rpx 0 0;
-		padding: 32rpx 24rpx;
-		min-height: calc(100vh - 300rpx);
+		padding: 32rpx 24rpx 0;
 		box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.05);
+		flex: 1;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+		min-height: 0;
 	}
 	
 	/* 订单数量统计 */
@@ -145,6 +159,7 @@
 		margin-bottom: 32rpx;
 		padding-bottom: 24rpx;
 		border-bottom: 2rpx solid #F5F5F5;
+		flex-shrink: 0;
 	}
 	
 	.count-text {
@@ -158,6 +173,11 @@
 		display: flex;
 		flex-direction: column;
 		gap: 24rpx;
+		flex: 1;
+		overflow-y: auto;
+		overflow-x: hidden;
+		min-height: 0;
+		padding-bottom: 32rpx;
 	}
 	
 	.order-card {
@@ -169,6 +189,7 @@
 		position: relative;
 		overflow: hidden;
 		transition: all 0.3s ease;
+		flex-shrink: 0;
 	}
 	
 	.order-card:active {
@@ -263,11 +284,6 @@
 		text-align: center;
 	}
 	
-	.info-item.single {
-		flex: none;
-		width: 50%;
-		margin: 0 auto;
-	}
 	
 	.info-label {
 		font-size: 24rpx;
@@ -296,7 +312,7 @@
 	/* 卡片底部 */
 	.card-footer {
 		display: flex;
-		justify-content: center;
+		justify-content: flex-end;
 	}
 	
 	.start-time {
@@ -314,21 +330,6 @@
 	.load-text {
 		font-size: 24rpx;
 		color: #999;
-	}
-	
-	/* 空状态 */
-	.empty-state {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		padding: 120rpx 0;
-	}
-	
-	.empty-text {
-		font-size: 28rpx;
-		color: #999;
-		font-weight: 400;
 	}
 	
 	/* 响应式适配 */
@@ -411,10 +412,8 @@
 	
 	// 设置活跃tab
 	const setActiveTab = (value) => {
-		console.log('切换tab:', value)
 		currentTab.value = value
 		query.orderState = value
-		console.log('查询参数:', query)
 		resetAndLoad()
 	}
 	
@@ -440,7 +439,6 @@
 			method: 'GET',
 			data: query,
 			success: (res) => {
-				console.log('接口返回结果:', res)
 				isLoading.value = false
 				if (res.data.code === 200) {
 					const newOrders = res.data.data.records || []
@@ -450,7 +448,6 @@
 					} else {
 						orderList.value = orderList.value.concat(newOrders)
 					}
-					
 					// 判断是否还有更多数据
 					if (res.data.data.pages <= res.data.data.current) {
 						hasMore.value = false

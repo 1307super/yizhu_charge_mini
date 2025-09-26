@@ -1,6 +1,7 @@
 "use strict";
 var common_vendor = require("../../common/vendor.js");
 var components_js_request = require("../../components/js/request.js");
+var components_js_stationUtils = require("../../components/js/stationUtils.js");
 if (!Math) {
   navbar();
 }
@@ -74,28 +75,23 @@ const _sfc_main = {
       });
     };
     const getStatusText = (status) => {
-      switch (status) {
-        case 1:
-          return "\u8FDB\u884C\u4E2D";
-        case 2:
-          return "\u5DF2\u5B8C\u6210";
-        case 3:
-          return "\u5DF2\u5173\u95ED";
-        case 4:
-          return "\u9000\u6B3E\u5931\u8D25";
-        default:
-          return "\u672A\u77E5\u72B6\u6001";
-      }
+      return components_js_stationUtils.ORDER_STATUS_MAP.TEXT[status] || "\u672A\u77E5\u72B6\u6001";
     };
     const getStatusSubtitle = (status) => {
       switch (status) {
         case 1:
-          return "\u8BF7\u8010\u5FC3\u7B49\u5F85\u5145\u7535\u5B8C\u6210";
+          return "\u6B63\u5728\u542F\u52A8\u5145\u7535\u8BBE\u5907\uFF0C\u8BF7\u7A0D\u7B49";
         case 2:
-          return "\u611F\u8C22\u4F7F\u7528\u5409\u8FD0\u8D85\u5145\uFF0C\u6B22\u8FCE\u4E0B\u6B21\u518D\u6765\uFF01";
+          return "\u8BF7\u8010\u5FC3\u7B49\u5F85\u5145\u7535\u5B8C\u6210";
         case 3:
-          return "\u5145\u7535\u5DF2\u5173\u95ED";
+          return "\u6B63\u5728\u505C\u6B62\u5145\u7535";
         case 4:
+          return "\u611F\u8C22\u4F7F\u7528\u5409\u8FD0\u8D85\u5145\uFF0C\u6B22\u8FCE\u4E0B\u6B21\u518D\u6765\uFF01";
+        case 5:
+          return "\u72B6\u6001\u5F02\u5E38\uFF0C\u8BF7\u8054\u7CFB\u5BA2\u670D";
+        case -1:
+          return "\u5145\u7535\u5DF2\u5173\u95ED";
+        case -2:
           return "\u9000\u6B3E\u5904\u7406\u5931\u8D25\uFF0C\u8BF7\u8054\u7CFB\u5BA2\u670D";
         default:
           return "";
@@ -104,12 +100,18 @@ const _sfc_main = {
     const getStatusIcon = (status) => {
       switch (status) {
         case 1:
-          return "\u26A1";
+          return "\u{1F680}";
         case 2:
-          return "\u2713";
+          return "\u26A1";
         case 3:
-          return "\u2715";
+          return "\u23F8";
         case 4:
+          return "\u2713";
+        case 5:
+          return "\u2753";
+        case -1:
+          return "\u2715";
+        case -2:
           return "\u26A0";
         default:
           return "?";
@@ -118,15 +120,21 @@ const _sfc_main = {
     const getStatusIconClass = (status) => {
       switch (status) {
         case 1:
-          return "status-ongoing";
+          return "status-starting";
         case 2:
-          return "status-completed";
+          return "status-ongoing";
         case 3:
-          return "status-closed";
+          return "status-stopping";
         case 4:
+          return "status-completed";
+        case 5:
+          return "status-unknown";
+        case -1:
+          return "status-closed";
+        case -2:
           return "status-closed";
         default:
-          return "";
+          return "status-unknown";
       }
     };
     const formatDateTime = (timeStr) => {

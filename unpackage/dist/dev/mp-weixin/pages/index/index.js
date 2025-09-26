@@ -86,6 +86,7 @@ const _sfc_main = {
     const provinces = common_vendor.ref(cityData);
     const showProvincePopup = common_vendor.ref(false);
     common_vendor.ref(true);
+    const statusBarHeight = common_vendor.ref(64);
     const selectLocation = () => {
       console.log("selectLocation clicked");
       showProvincePopup.value = true;
@@ -273,6 +274,15 @@ const _sfc_main = {
     common_vendor.onLoad(() => {
       console.log("onLoad - cityData:", cityData);
       console.log("onLoad - provinces.value:", provinces.value);
+      common_vendor.index.getSystemInfo({
+        success: (res) => {
+          statusBarHeight.value = res.statusBarHeight || 44;
+          statusBarHeight.value = statusBarHeight.value + 30;
+        },
+        fail: () => {
+          statusBarHeight.value = 74;
+        }
+      });
       initLocationAndData();
     });
     return (_ctx, _cache) => {

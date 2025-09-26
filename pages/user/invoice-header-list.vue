@@ -1,19 +1,21 @@
 <template>
 	<view class="container">
-		<navbar class='navbar' title='发票抬头管理'></navbar>
+		<navbar class='navbar' :title="reapply ? '选择发票抬头' : '发票抬头管理'"></navbar>
 		
 		<!-- 添加发票抬头按钮 -->
-		<view class="add-header-btn" @click="goToAddHeader">
+		<view v-if="!reapply" class="add-header-btn" @click="goToAddHeader">
 			<text class="add-icon">+</text>
 			<text class="add-text">添加发票抬头</text>
 		</view>
 		
+		<!-- 重新申请提示 -->
+		<view v-if="reapply" class="reapply-tip">
+			<text class="tip-text">请选择要使用的发票抬头进行重新申请</text>
+		</view>
+		
 		<!-- 抬头列表 -->
 		<view class="header-list">
-			<view v-if="headerList.length === 0" class="empty-state">
-				<text class="empty-text">暂无发票抬头</text>
-				<text class="empty-tip">请先添加发票抬头信息</text>
-			</view>
+			<van-empty v-if="headerList.length === 0" description="暂无发票抬头" />
 			
 			<view v-for="(header, index) in headerList" :key="header.id" class="header-item">
 				<view class="header-content" @click="selectHeader(header)">
@@ -37,7 +39,7 @@
 				</view>
 				
 				<view class="header-actions">
-					<view class="more-btn" @click.stop="showActionSheet(header, index)">
+					<view v-if="!reapply" class="more-btn" @click.stop="showActionSheet(header, index)">
 						<text class="more-icon">⋯</text>
 					</view>
 				</view>
@@ -60,8 +62,12 @@
 <style scoped>
 .container {
 	background-color: #f6f6f6;
-	min-height: 100vh;
-	padding-top: 130rpx;
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	padding-top: 180rpx;
+	box-sizing: border-box;
 }
 
 .add-header-btn {
@@ -74,6 +80,7 @@
 	border-radius: 16rpx;
 	box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05);
 	border: 2rpx dashed #2D55E8;
+	flex-shrink: 0;
 }
 
 .add-icon {
@@ -91,29 +98,9 @@
 
 .header-list {
 	padding: 0 30rpx;
-}
-
-.empty-state {
-	text-align: center;
-	padding: 100rpx 0;
-}
-
-.empty-icon {
-	width: 200rpx;
-	height: 200rpx;
-	margin-bottom: 30rpx;
-}
-
-.empty-text {
-	display: block;
-	font-size: 30rpx;
-	color: #999;
-	margin-bottom: 10rpx;
-}
-
-.empty-tip {
-	font-size: 26rpx;
-	color: #ccc;
+	flex: 1;
+	overflow-y: auto;
+	min-height: 0;
 }
 
 .header-item {
@@ -210,15 +197,36 @@
 	color: #666;
 	font-weight: bold;
 }
+
+/* 重新申请提示样式 */
+.reapply-tip {
+	padding: 30rpx;
+	background-color: #e6f7ff;
+	border-radius: 12rpx;
+	margin: 30rpx;
+	border-left: 4rpx solid #1890ff;
+	flex-shrink: 0;
+}
+
+.tip-text {
+	font-size: 28rpx;
+	color: #1890ff;
+	line-height: 1.5;
+}
 </style>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 import navbar from '../../components/navbar/index.vue'
 import request from '../../components/js/request.js'
 
 const token = uni.getStorageSync('token')
 const user = uni.getStorageSync('user')
+
+// 页面参数
+const reapply = ref(false)
+const originalInvoiceNo = ref('')
 
 // 抬头列表
 const headerList = ref([])
@@ -290,11 +298,71 @@ const onActionSelect = (event) => {
 	}
 }
 
-// 选择抬头并返回开票页
+// 选择抬头
 const selectHeader = (header) => {
-	// 通知开票页更新选中的抬头
-	uni.$emit('selectInvoiceHeader', header)
-	uni.navigateBack()
+	console.log('selectHeader被调用', { reapply: reapply.value, originalInvoiceNo: originalInvoiceNo.value })
+	if (reapply.value && originalInvoiceNo.value) {
+		// 重新申请模式：弹出确认对话框
+		uni.showModal({
+			title: '确认重新申请',
+			content: `确定使用「${header.headerType === 'enterprise' ? header.companyName : header.customerName}」作为发票抬头重新申请吗？`,
+			success: (res) => {
+				if (res.confirm) {
+					reapplyInvoice(header.id)
+				}
+			}
+		})
+	} else {
+		// 普通模式：通知开票页更新选中的抬头
+		uni.$emit('selectInvoiceHeader', header)
+		uni.navigateBack()
+	}
+}
+
+// 发票重新申请接口
+const reapplyInvoice = (headerId) => {
+	console.log('调用重新申请接口', { originalInvoiceNo: originalInvoiceNo.value, headerId })
+	uni.showLoading({
+		title: '提交中...'
+	})
+	
+	request({
+		url: 'invoice/reapply',
+		method: 'POST',
+		data: {
+			originalInvoiceNo: originalInvoiceNo.value,
+			headerId: headerId
+		},
+		success: (res) => {
+			console.log('重新申请接口响应', res)
+			uni.hideLoading()
+			if (res.data.code === 200) {
+				uni.showToast({
+					title: '重新申请成功',
+					icon: 'success'
+				})
+				// 通知发票历史页面刷新数据
+				uni.$emit('refreshInvoiceHistory')
+				// 返回发票历史页面
+				setTimeout(() => {
+					uni.navigateBack()
+				}, 1500)
+			} else {
+				uni.showToast({
+					title: res.data.msg || '重新申请失败',
+					icon: 'none'
+				})
+			}
+		},
+		fail: (error) => {
+			console.log('重新申请接口失败', error)
+			uni.hideLoading()
+			uni.showToast({
+				title: '重新申请失败',
+				icon: 'none'
+			})
+		}
+	})
 }
 
 // 跳转到添加抬头页面
@@ -413,6 +481,15 @@ const loadHeaderList = () => {
 		}
 	})
 }
+
+onLoad((options) => {
+	console.log('页面参数', options)
+	if (options.reapply) {
+		reapply.value = options.reapply === 'true'
+		originalInvoiceNo.value = options.originalInvoiceNo || ''
+		console.log('设置参数', { reapply: reapply.value, originalInvoiceNo: originalInvoiceNo.value })
+	}
+})
 
 onMounted(() => {
 	if (!token) {

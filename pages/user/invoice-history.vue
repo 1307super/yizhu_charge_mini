@@ -12,9 +12,7 @@
 		
 		<!-- 历史记录列表 -->
 		<view class="history-list">
-			<view v-if="historyList.length === 0" class="empty-state">
-				<text class="empty-text">暂无开票记录</text>
-			</view>
+			<van-empty v-if="historyList.length === 0" description="暂无开票记录" />
 			
 			<view v-for="(item, index) in historyList" :key="item.invoiceId" class="history-item">
 				<view class="item-header">
@@ -48,6 +46,24 @@
 					</view>
 				</view>
 				
+				<!-- 被驳回状态显示驳回原因 -->
+				<view v-if="item.status === 'rejected'" class="rejected-section">
+					<view class="reject-reason">
+						<text class="reason-title">驳回原因：</text>
+						<text class="reason-text">{{item.rejectReason || '暂无驳回原因'}}</text>
+					</view>
+					<view class="reapply-action">
+						<van-button 
+							type="primary" 
+							size="small"
+							color="#2D55E8"
+							@click="handleReapply(item)"
+						>
+							重新申请
+						</van-button>
+					</view>
+				</view>
+				
 				<!-- 订单详情 -->
 				<view class="order-details" v-if="expandedItems.includes(item.invoiceId)">
 					<view class="details-header">
@@ -77,7 +93,7 @@
 		</view>
 		
 		<!-- 时间筛选抽屉 -->
-		<van-popup v-model:show="showTimeDrawer" position="bottom" :style="{ height: '40%' }">
+		<van-popup v-model:show="showTimeDrawer" position="bottom" >
 			<view class="time-drawer">
 				<view class="drawer-header">
 					<text class="drawer-title">选择时间范围</text>
@@ -126,14 +142,19 @@
 <style scoped>
 .container {
 	background-color: #f6f6f6;
-	min-height: 100vh;
-	padding-top: 130rpx;
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	padding-top: 180rpx;
+	box-sizing: border-box;
 }
 
 .header-actions {
 	padding: 20rpx 30rpx;
 	background-color: white;
 	border-bottom: 1rpx solid #eee;
+	flex-shrink: 0;
 }
 
 .time-filter {
@@ -158,22 +179,9 @@
 
 .history-list {
 	padding: 20rpx 30rpx;
-}
-
-.empty-state {
-	text-align: center;
-	padding: 100rpx 0;
-}
-
-.empty-icon {
-	width: 200rpx;
-	height: 200rpx;
-	margin-bottom: 30rpx;
-}
-
-.empty-text {
-	font-size: 30rpx;
-	color: #999;
+	flex: 1;
+	overflow-y: auto;
+	min-height: 0;
 }
 
 .history-item {
@@ -447,10 +455,44 @@
 .drawer-footer {
 	margin-top: 40rpx;
 }
+
+/* 被驳回状态样式 */
+.rejected-section {
+	margin-bottom: 20rpx;
+	padding-top: 20rpx;
+	border-top: 1rpx solid #eee;
+}
+
+.reject-reason {
+	margin-bottom: 20rpx;
+	padding: 20rpx;
+	background-color: #fff2f0;
+	border-radius: 12rpx;
+	border-left: 4rpx solid #f5222d;
+}
+
+.reason-title {
+	font-size: 26rpx;
+	font-weight: bold;
+	color: #f5222d;
+	margin-bottom: 8rpx;
+	display: block;
+}
+
+.reason-text {
+	font-size: 28rpx;
+	color: #333;
+	line-height: 1.5;
+}
+
+.reapply-action {
+	text-align: center;
+}
 </style>
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
 import navbar from '../../components/navbar/index.vue'
 import request from '../../components/js/request.js'
 
@@ -683,6 +725,14 @@ const downloadPdf = (pdfUrl, invoiceNo) => {
 	// #endif
 }
 
+// 处理重新申请
+const handleReapply = (item) => {
+	// 跳转到发票抬头选择页面，并传递原发票编号
+	uni.navigateTo({
+		url: `/pages/user/invoice-header-list?reapply=true&originalInvoiceNo=${item.invoiceNo}`
+	})
+}
+
 // 获取开票历史列表
 const loadHistoryList = () => {
 	request({
@@ -723,5 +773,20 @@ onMounted(() => {
 	
 	// 获取数据
 	loadHistoryList()
+	
+	// 监听重新申请成功的刷新事件
+	uni.$on('refreshInvoiceHistory', () => {
+		console.log('收到刷新发票历史事件')
+		loadHistoryList()
+	})
+})
+
+// 页面显示时刷新数据
+onShow(() => {
+	// 如果页面已经初始化过，则在显示时刷新数据
+	if (historyList.value.length > 0 || token) {
+		console.log('页面显示，刷新发票历史数据')
+		loadHistoryList()
+	}
 })
 </script>

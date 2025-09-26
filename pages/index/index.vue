@@ -98,6 +98,7 @@
 					</view>
 				</view>
 			</view>
+			
 			<text class='more f-tac f-db'>{{ moreText }}</text>
 		</view>
 	</view>
@@ -192,25 +193,26 @@
 				flex 1
 				display flex
 				align-items center
-				padding 16rpx 24rpx
+				padding 16rpx 20rpx
 				background-color #ffffff
 				border 1rpx solid #e5eaf6
 				border-radius 24rpx
 				
 				.search-icon
-					color #999
 					margin-right 12rpx
+					color #ccc
 				
 				.search-input
 					flex 1
-					color #333
 					font-size 28rpx
+					color #333
 					background transparent
 					border none
 					outline none
 					
 					&::placeholder
 						color #999
+						font-size 28rpx
 		
 	.function-area
 		display flex
@@ -225,10 +227,10 @@
 					justify-content center
 
 					.function-image
-						width 120rpx
+						width 80rpx
 						height auto
 						display block
-						margin-bottom 8rpx
+						margin-bottom 30rpx
 				
 				.function-text
 					color #666
@@ -552,6 +554,7 @@
 	const provinces = ref(cityData)
 	const showProvincePopup = ref(false)
 	const isReverseGeocodingEnabled = ref(true)
+	const statusBarHeight = ref(64) // 默认值44px
 	
 	const selectLocation = () => {
 		console.log('selectLocation clicked')
@@ -817,6 +820,20 @@
 	onLoad(() => {
 		console.log('onLoad - cityData:', cityData)
 		console.log('onLoad - provinces.value:', provinces.value)
+		
+		// 获取状态栏高度
+		uni.getSystemInfo({
+			success: (res) => {
+				// 状态栏高度，单位px
+				statusBarHeight.value = res.statusBarHeight || 44
+				statusBarHeight.value = statusBarHeight.value + 30
+			},
+			fail: () => {
+				// 获取失败时使用默认值
+				statusBarHeight.value = 74
+			}
+		})
+		
 		// 使用新的初始化方法，先获取位置再加载数据
 		initLocationAndData()
 	})

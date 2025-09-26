@@ -1,9 +1,13 @@
 
 .container.data-v-26c9e962 {
 	background-color: #f6f6f6;
-	min-height: 100vh;
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	padding-top: 180rpx;
 	padding-bottom: 120rpx;
-	padding-top: 130rpx;
+	box-sizing: border-box;
 }
 .header-actions.data-v-26c9e962 {
 	display: flex;
@@ -12,6 +16,7 @@
 	padding: 20rpx 30rpx;
 	background-color: white;
 	border-bottom: 1rpx solid #eee;
+	flex-shrink: 0;
 }
 .time-filter.data-v-26c9e962 {
 	display: flex;
@@ -46,6 +51,7 @@
 	padding: 30rpx;
 	border-radius: 16rpx;
 	box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.1);
+	flex-shrink: 0;
 }
 .card-icon.data-v-26c9e962 {
 	width: 80rpx;
@@ -94,6 +100,9 @@
 }
 .order-list.data-v-26c9e962 {
 	padding: 0 30rpx;
+	height: calc(100vh - 400rpx);
+	overflow-y: auto;
+	min-height: 0;
 }
 .order-item.data-v-26c9e962 {
 	display: flex;

@@ -15,9 +15,10 @@ const _sfc_main = {
   setup(__props) {
     getApp();
     const token = common_vendor.index.getStorageSync("token");
-    common_vendor.index.getStorageSync("user");
+    const user = common_vendor.index.getStorageSync("user");
     const phone = common_vendor.index.getStorageSync("phone");
     const month = common_vendor.reactive({});
+    const unreadCount = common_vendor.ref(0);
     const getmonth = () => {
       components_js_request.request({
         url: "me/monthlyChargeStats",
@@ -26,6 +27,20 @@ const _sfc_main = {
           for (let key in res.data.data) {
             month[key] = res.data.data[key];
           }
+        }
+      });
+    };
+    const getUnreadCount = () => {
+      components_js_request.request({
+        url: "message/unreadCount",
+        method: "GET",
+        success: (res) => {
+          if (res.data.code === 200) {
+            unreadCount.value = res.data.data || 0;
+          }
+        },
+        fail: (error) => {
+          console.log("\u83B7\u53D6\u672A\u8BFB\u6D88\u606F\u6570\u91CF\u5931\u8D25");
         }
       });
     };
@@ -75,33 +90,43 @@ const _sfc_main = {
       if (token) {
         getmonth();
         getEnterpriseWallet();
+        getUnreadCount();
+      }
+    });
+    common_vendor.onShow(() => {
+      if (token) {
+        getUnreadCount();
       }
     });
     return (_ctx, _cache) => {
       return common_vendor.e({
-        a: common_vendor.unref(token)
+        a: common_vendor.unref(user).avatar || "../../static/image/avatar.png",
+        b: common_vendor.unref(token)
       }, common_vendor.unref(token) ? {
-        b: common_vendor.t(common_vendor.unref(phone))
+        c: common_vendor.t(common_vendor.unref(phone))
       } : {
-        c: common_vendor.o(($event) => go("/pages/user/login"))
+        d: common_vendor.o(($event) => go("/pages/user/login"))
       }, {
-        d: common_vendor.o(($event) => goabort("/pages/user/setting")),
-        e: enterpriseWallet.walletBalance !== null
+        e: unreadCount.value > 0
+      }, unreadCount.value > 0 ? {} : {}, {
+        f: common_vendor.o(($event) => goabort("/pages/user/message")),
+        g: common_vendor.o(($event) => goabort("/pages/user/setting")),
+        h: enterpriseWallet.walletBalance !== null
       }, enterpriseWallet.walletBalance !== null ? {
-        f: common_vendor.t(enterpriseWallet.walletBalance.toFixed(2)),
-        g: common_vendor.t(((enterpriseWallet.accountingAmount || 0) - (enterpriseWallet.consumedAmount || 0)).toFixed(2))
+        i: common_vendor.t(enterpriseWallet.walletBalance.toFixed(2)),
+        j: common_vendor.t(((enterpriseWallet.accountingAmount || 0) - (enterpriseWallet.consumedAmount || 0)).toFixed(2))
       } : {}, {
-        h: common_vendor.o(($event) => goabort("/pages/user/order")),
-        i: common_vendor.o(($event) => goabort("/pages/user/invoice")),
-        j: common_vendor.t(month.totalChargeDegree || 0),
-        k: common_vendor.p({
-          span: 12
-        }),
-        l: common_vendor.t(month.totalChargeAmount || 0),
-        m: common_vendor.p({
-          span: 12
-        }),
+        k: common_vendor.o(($event) => goabort("/pages/user/order")),
+        l: common_vendor.o(($event) => goabort("/pages/user/invoice")),
+        m: common_vendor.t(month.totalChargeDegree || 0),
         n: common_vendor.p({
+          span: 12
+        }),
+        o: common_vendor.t(month.totalChargeAmount || 0),
+        p: common_vendor.p({
+          span: 12
+        }),
+        q: common_vendor.p({
           active: 1
         })
       });

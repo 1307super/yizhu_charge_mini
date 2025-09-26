@@ -1,6 +1,6 @@
 <template>
 	<view class='container'>
-		<navbar class='navbar' title='正在充电' v-bind:delta='form.delta'></navbar>
+		<navbar class='navbar' title='' v-bind:delta='form.delta'></navbar>
 		
 		<!-- 顶部信息栏 -->
 		<view class='top-info'>
@@ -8,11 +8,7 @@
 			<text class='license-plate'>{{form.licensePlate || '车牌号/车架号'}}</text>
 		</view>
 		
-		<!-- 背景装饰图 -->
-		<view class='bg-decoration'>
-			<image src='../../static/image/powering-bg.png' class='bg-image' mode='aspectFit'></image>
-		</view>
-		
+	
 		<!-- 充电枪卡片列表 -->
 		<view class='guns-container'>
 			<view class='gun-card' v-for="(order, index) in ordersList" :key="order.orderId">
@@ -118,6 +114,7 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: 20rpx 24rpx;
+		margin-top: 20rpx;
 		margin-bottom: 20rpx;
 	}
 	
@@ -305,15 +302,16 @@
 	
 	.data-row-detail {
 		display: flex;
-		gap: 20rpx;
+		gap: 8rpx;
 	}
 	
 	.data-item-small {
 		flex: 1;
 		text-align: center;
 		background: rgba(45, 85, 232, 0.05);
-		padding: 16rpx 8rpx;
+		padding: 20rpx 50rpx;
 		border-radius: 12rpx;
+		min-width: 0;
 	}
 	
 	.data-value-small {
@@ -328,6 +326,7 @@
 		font-size: 20rpx;
 		color: #666;
 		font-weight: 400;
+		white-space: nowrap;
 	}
 	
 	/* 底部容器 */
@@ -505,6 +504,26 @@
 				if (res.data.code === 200) {
 					const batchData = res.data.data
 					
+					// 检查充电状态，如果不为2说明充电已结束
+					if (batchData.status !== 2) {
+						// 清理所有定时器
+						clearTimers()
+						
+						// 提示充电已结束
+						uni.showToast({
+							title: '充电已结束',
+							icon: 'success'
+						})
+						
+						// 跳转到订单列表页
+						setTimeout(() => {
+							uni.redirectTo({
+								url: '/pages/user/order'
+							})
+						}, 1500)
+						return
+					}
+					
 					// 更新基本信息
 					form.stationName = batchData.stationName || '充电站名称'
 					form.licensePlate = batchData.licensePlate || '车牌号/车架号'
@@ -632,9 +651,8 @@
 		})
 		
 		request({
-			url: 'order/endCharging',
+			url: 'order/endCharging?batchNo='+form.batchNo,
 			method: 'POST',
-			data: { batchNo: form.batchNo },
 			success: (res) => {
 				if (res.data.code === 200) {
 					// 调用成功后，开始轮询检查停止状态

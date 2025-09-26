@@ -1,5 +1,5 @@
 <template>
-	<view class='bar f-tac' :class="{ 'no-background': !title }" :style="navBarStyle">
+    <view class='bar f-tac' :class="{ 'no-background': !title }" :style="navBarStyle">
 		<view class='bar-main f-pr'>
 			<van-icon name="arrow-left" size='20px' class='icon' v-if='showarrow' v-on:click='back(delta)'/>
 			<text class='title'>{{title}}</text>
@@ -8,37 +8,42 @@
 </template>
 
 <style scoped>
-	.bar{
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		background-color: white;
-		z-index: 100;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
+    .bar{
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: white;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 	
 	.bar.no-background {
 		background-color: transparent;
 	}
 	
-	.bar-main {
-		position: relative;
-		width: 100%;
-	}
+    .bar-main {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 	
-	.icon{
-		position: absolute;
-		left: 20rpx;
-		color: #212121;
-	}
+    .icon{
+        position: absolute;
+        left: 20rpx;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #212121;
+    }
 	
-	.no-background .icon {
-		color: #212121;
-		top: 50rpx;
-	}
+    .no-background .icon {
+        color: #212121;
+    }
 	
 	.title{
 		color: #212121;
@@ -66,7 +71,7 @@
 	onMounted(() => {
 		const menuButtonInfo = uni.getMenuButtonBoundingClientRect()
 		navBarStyle.value = {
-			paddingTop: `${menuButtonInfo.top + 4}px`,
+			paddingTop: `${menuButtonInfo.top}px`,
 			height: `${menuButtonInfo.height}px`,
 		}
 	})
@@ -77,4 +82,3 @@
 		})
 	}
 </script>
-

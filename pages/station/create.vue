@@ -58,7 +58,7 @@
 						<image class='option-icon' src='../../static/image/manage_accounts.png' mode='aspectFit' />
 						<text class='option-text'>企业卡</text>
 					</view>
-					<van-radio :checked='paymentMethod === "enterprise"' checked-color="#2D55E8"></van-radio>
+					<!-- <van-radio :checked='paymentMethod === "enterprise"' checked-color="#2D55E8"></van-radio> -->
 				</view>
 				
 				<!-- 预付费选项 -->
@@ -68,7 +68,7 @@
 						<text class='option-text'>预付费</text>
 						<text class='option-tip'>余额原路退回</text>
 					</view>
-					<van-radio :checked='paymentMethod === "prepay"' checked-color="#2D55E8"></van-radio>
+					<!-- <van-radio :checked='paymentMethod === "prepay"' checked-color="#2D55E8"></van-radio> -->
 				</view>
 
 				<!-- 预付费关联操作 - 金额选择 -->
@@ -745,8 +745,25 @@
 		}
 	}
 	
+	// 订阅模板消息
+	const subscribeMessage = () => {
+		return new Promise((resolve) => {
+			uni.requestSubscribeMessage({
+				tmplIds: ['uxfRzq-jozvWu3dpxUPwr_Zo05LbB_U3TugCjOpmwTo'],
+				success: (res) => {
+					console.log('订阅消息成功:', res)
+					resolve(true)
+				},
+				fail: (err) => {
+					console.log('订阅消息失败:', err)
+					resolve(false) // 不管成功失败都继续执行
+				}
+			})
+		})
+	}
+
 	// 开始充电
-	const startCharging = () => {
+	const startCharging = async () => {
 		// 检查充电枪状态
 		if (!canCharge.value) {
 			uni.showToast({
@@ -776,7 +793,7 @@
 		// 校验
 		if (paymentMethod.value === 'prepay') {
 			const amount = finalAmount.value
-			if (!amount || amount < 10) {
+			if (!amount || amount < 0.01) {
 				uni.showToast({
 					title: '自定义金额不能少于10元',
 					icon: 'none'
@@ -784,6 +801,9 @@
 				return
 			}
 		}
+		
+		// 先订阅模板消息，不管成功失败都继续执行
+		await subscribeMessage()
 		
 		if (paymentMethod.value === 'enterprise') {
 			startEnterpriseCharging()
@@ -794,6 +814,10 @@
 	
 	// 企业卡充电
 	const startEnterpriseCharging = () => {
+		uni.showLoading({
+			title: '启动中'
+		})
+		
 		request({
 			url: 'charging/start/enterprise',
 			method: 'POST',
@@ -811,7 +835,7 @@
 						uni.navigateTo({
 							url: `/pages/station/powering?batchNo=${res.data.data}&stationName=${stationInfo.stationName}&gunNo=${stationInfo.gunNo}`
 						})
-					}, 1500)
+					}, 200)
 				} else {
 					uni.showToast({
 						title: res.data.msg || '充电启动失败',
@@ -825,14 +849,89 @@
 					title: '充电启动失败',
 					icon: 'none'
 				})
+			},
+			complete: () => {
+				uni.hideLoading()
 			}
 		})
 	}
 	
+	// 检查支付状态
+	const checkPayStatus = (outTradeNo) => {
+		return new Promise((resolve, reject) => {
+			request({
+				url: 'pay/checkPayStatus',
+				method: 'GET',
+				data: { outTradeNo: outTradeNo },
+				success: (res) => {
+					if (res.data.code === 200) {
+						resolve(res.data.data) // 返回批次号
+					} else {
+						reject(new Error(res.data.msg || '检查支付状态失败'))
+					}
+				},
+				fail: (error) => {
+					reject(error)
+				}
+			})
+		})
+	}
+
+	// 轮询检查支付状态
+	const pollPayStatus = async (outTradeNo) => {
+		let attempts = 0
+		const maxAttempts = 60 // 最多检查60次，即60秒
+		
+		const checkStatus = async () => {
+			try {
+				attempts++
+				const batchNo = await checkPayStatus(outTradeNo)
+				
+				if (batchNo && batchNo !== "0") {
+					// 支付成功且有批次号，跳转到充电页面
+					uni.hideLoading()
+					uni.showToast({
+						title: '启动成功'
+					})
+					setTimeout(() => {
+						uni.navigateTo({
+							url: `/pages/station/powering?batchNo=${batchNo}&stationName=${stationInfo.stationName}&gunNo=${stationInfo.gunNo}`
+						})
+					}, 200)
+				} else {
+					// 批次号为0，说明还未支付成功，继续轮询
+					if (attempts < maxAttempts) {
+						setTimeout(checkStatus, 1000) // 1秒后再次检查
+					} else {
+						// 超时处理
+						uni.hideLoading()
+						uni.showToast({
+							title: '支付状态检查超时，请稍后重试',
+							icon: 'none'
+						})
+					}
+				}
+			} catch (error) {
+				console.error('检查支付状态失败:', error)
+				if (attempts < maxAttempts) {
+					setTimeout(checkStatus, 1000) // 出错也继续重试
+				} else {
+					uni.hideLoading()
+					uni.showToast({
+						title: '支付状态检查失败，请稍后重试',
+						icon: 'none'
+					})
+				}
+			}
+		}
+		
+		checkStatus()
+	}
+
 	// 预付费充电
 	const startPrepayCharging = () => {
 		request({
-			url: 'charging/prepay',
+			url: 'pay/wxpay/prepay',
 			method: 'POST',
 			data: {
 				stationId: stationId.value,
@@ -841,21 +940,18 @@
 			},
 			success: (res) => {
 				if (res.data.code === 200) {
-					const { orderId, paymentParams } = res.data.data
+					const { outTradeNo, paymentParams } = res.data.data
 					
 					// 调起微信支付
 					uni.requestPayment({
 						provider: 'wxpay',
 						...paymentParams,
 						success: (payRes) => {
-							uni.showToast({
-								title: '支付成功'
+							// 支付成功后开始轮询检查支付状态
+							uni.showLoading({
+								title: '启动中'
 							})
-							setTimeout(() => {
-								uni.navigateTo({
-									url: `/pages/station/powering?orderId=${orderId}&stationName=${stationInfo.stationName}&gunNo=${stationInfo.gunNo}`
-								})
-							}, 1500)
+							pollPayStatus(outTradeNo)
 						},
 						fail: (payErr) => {
 							console.error('支付失败:', payErr)

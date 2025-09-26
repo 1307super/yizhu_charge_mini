@@ -1,9 +1,21 @@
 
 .container.data-v-0f0c1843 {
 		background: linear-gradient(180deg, #F6F8FB 0%, #FFFFFF 100%);
-		min-height: 100vh;
-		padding-top: 140rpx;
-		padding-bottom: 40rpx;
+		height: 100vh;
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+		padding-top: 180rpx;
+		box-sizing: border-box;
+}
+	
+	/* 导航栏 */
+.navbar.data-v-0f0c1843 {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 1000;
 }
 	
 	/* 顶部tab */
@@ -15,6 +27,7 @@
 		border-radius: 16rpx;
 		box-shadow: 0 4rpx 20rpx rgba(45, 85, 232, 0.08);
 		position: relative;
+		flex-shrink: 0;
 }
 .tab-item.data-v-0f0c1843 {
 		flex: 1;
@@ -51,9 +64,13 @@
 		background: #FFFFFF;
 		margin: 0 24rpx;
 		border-radius: 20rpx 20rpx 0 0;
-		padding: 32rpx 24rpx;
-		min-height: calc(100vh - 300rpx);
+		padding: 32rpx 24rpx 0;
 		box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.05);
+		flex: 1;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+		min-height: 0;
 }
 	
 	/* 订单数量统计 */
@@ -61,6 +78,7 @@
 		margin-bottom: 32rpx;
 		padding-bottom: 24rpx;
 		border-bottom: 2rpx solid #F5F5F5;
+		flex-shrink: 0;
 }
 .count-text.data-v-0f0c1843 {
 		font-size: 26rpx;
@@ -73,6 +91,11 @@
 		display: flex;
 		flex-direction: column;
 		gap: 24rpx;
+		flex: 1;
+		overflow-y: auto;
+		overflow-x: hidden;
+		min-height: 0;
+		padding-bottom: 32rpx;
 }
 .order-card.data-v-0f0c1843 {
 		background: linear-gradient(135deg, rgba(45, 85, 232, 0.02) 0%, rgba(255, 255, 255, 0.9) 100%);
@@ -83,6 +106,7 @@
 		position: relative;
 		overflow: hidden;
 		transition: all 0.3s ease;
+		flex-shrink: 0;
 }
 .order-card.data-v-0f0c1843:active {
 		transform: scale(0.98);
@@ -162,11 +186,6 @@
 		align-items: center;
 		text-align: center;
 }
-.info-item.single.data-v-0f0c1843 {
-		flex: none;
-		width: 50%;
-		margin: 0 auto;
-}
 .info-label.data-v-0f0c1843 {
 		font-size: 24rpx;
 		color: #666;
@@ -192,7 +211,7 @@
 	/* 卡片底部 */
 .card-footer.data-v-0f0c1843 {
 		display: flex;
-		justify-content: center;
+		justify-content: flex-end;
 }
 .start-time.data-v-0f0c1843 {
 		font-size: 22rpx;
@@ -208,20 +227,6 @@
 .load-text.data-v-0f0c1843 {
 		font-size: 24rpx;
 		color: #999;
-}
-	
-	/* 空状态 */
-.empty-state.data-v-0f0c1843 {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		padding: 120rpx 0;
-}
-.empty-text.data-v-0f0c1843 {
-		font-size: 28rpx;
-		color: #999;
-		font-weight: 400;
 }
 	
 	/* 响应式适配 */

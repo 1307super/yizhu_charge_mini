@@ -220,7 +220,7 @@
 					// 保存用户信息和token
 					uni.setStorageSync('token', res.data.data.token)
 					uni.setStorageSync('user', res.data.data.member)
-					uni.setStorageSync('phone', res.data.data.member.phone || res.data.data.phone)
+					uni.setStorageSync('phone', res.data.data.member.mobile || res.data.data.mobile)
 					
 					uni.showToast({
 						title: '登录成功'

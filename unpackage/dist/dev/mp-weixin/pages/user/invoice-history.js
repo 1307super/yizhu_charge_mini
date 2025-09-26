@@ -2,9 +2,10 @@
 var common_vendor = require("../../common/vendor.js");
 var components_js_request = require("../../components/js/request.js");
 if (!Array) {
+  const _component_van_empty = common_vendor.resolveComponent("van-empty");
   const _component_van_button = common_vendor.resolveComponent("van-button");
   const _component_van_popup = common_vendor.resolveComponent("van-popup");
-  (_component_van_button + _component_van_popup)();
+  (_component_van_empty + _component_van_button + _component_van_popup)();
 }
 if (!Math) {
   navbar();
@@ -205,6 +206,11 @@ const _sfc_main = {
         }
       });
     };
+    const handleReapply = (item) => {
+      common_vendor.index.navigateTo({
+        url: `/pages/user/invoice-header-list?reapply=true&originalInvoiceNo=${item.invoiceNo}`
+      });
+    };
     const loadHistoryList = () => {
       components_js_request.request({
         url: "invoice/history",
@@ -239,6 +245,16 @@ const _sfc_main = {
       }
       selectQuickTime("halfYear");
       loadHistoryList();
+      common_vendor.index.$on("refreshInvoiceHistory", () => {
+        console.log("\u6536\u5230\u5237\u65B0\u53D1\u7968\u5386\u53F2\u4E8B\u4EF6");
+        loadHistoryList();
+      });
+    });
+    common_vendor.onShow(() => {
+      if (historyList.value.length > 0 || token) {
+        console.log("\u9875\u9762\u663E\u793A\uFF0C\u5237\u65B0\u53D1\u7968\u5386\u53F2\u6570\u636E");
+        loadHistoryList();
+      }
     });
     return (_ctx, _cache) => {
       return common_vendor.e({
@@ -248,8 +264,12 @@ const _sfc_main = {
         b: common_vendor.t(common_vendor.unref(timeRangeText)),
         c: common_vendor.o(openTimeFilter),
         d: historyList.value.length === 0
-      }, historyList.value.length === 0 ? {} : {}, {
-        e: common_vendor.f(historyList.value, (item, index, i0) => {
+      }, historyList.value.length === 0 ? {
+        e: common_vendor.p({
+          description: "\u6682\u65E0\u5F00\u7968\u8BB0\u5F55"
+        })
+      } : {}, {
+        f: common_vendor.f(historyList.value, (item, index, i0) => {
           return common_vendor.e({
             a: common_vendor.t(item.invoiceNo),
             b: common_vendor.t(formatDateTime(item.createTime)),
@@ -262,9 +282,20 @@ const _sfc_main = {
           }, item.status === "completed" && item.pdfUrl ? {
             i: common_vendor.o(($event) => downloadPdf(item.pdfUrl, item.invoiceNo))
           } : {}, {
-            j: expandedItems.value.includes(item.invoiceId)
+            j: item.status === "rejected"
+          }, item.status === "rejected" ? {
+            k: common_vendor.t(item.rejectReason || "\u6682\u65E0\u9A73\u56DE\u539F\u56E0"),
+            l: common_vendor.o(($event) => handleReapply(item)),
+            m: "bf7de8ae-2-" + i0,
+            n: common_vendor.p({
+              type: "primary",
+              size: "small",
+              color: "#2D55E8"
+            })
+          } : {}, {
+            o: expandedItems.value.includes(item.invoiceId)
           }, expandedItems.value.includes(item.invoiceId) ? {
-            k: common_vendor.f(item.orders, (order, k1, i1) => {
+            p: common_vendor.f(item.orders, (order, k1, i1) => {
               return {
                 a: common_vendor.t(order.stationName),
                 b: common_vendor.t(formatDate(order.createTime)),
@@ -274,13 +305,13 @@ const _sfc_main = {
               };
             })
           } : {}, {
-            l: common_vendor.t(expandedItems.value.includes(item.invoiceId) ? "\u6536\u8D77\u8BE6\u60C5" : "\u67E5\u770B\u8BE6\u60C5"),
-            m: common_vendor.o(($event) => toggleDetails(item.invoiceId)),
-            n: item.invoiceId
+            q: common_vendor.t(expandedItems.value.includes(item.invoiceId) ? "\u6536\u8D77\u8BE6\u60C5" : "\u67E5\u770B\u8BE6\u60C5"),
+            r: common_vendor.o(($event) => toggleDetails(item.invoiceId)),
+            s: item.invoiceId
           });
         }),
-        f: common_vendor.o(closeTimeFilter),
-        g: common_vendor.f(quickTimeOptions, (option, k0, i0) => {
+        g: common_vendor.o(closeTimeFilter),
+        h: common_vendor.f(quickTimeOptions, (option, k0, i0) => {
           return {
             a: common_vendor.t(option.label),
             b: option.key,
@@ -288,20 +319,20 @@ const _sfc_main = {
             d: common_vendor.o(($event) => selectQuickTime(option.key), option.key)
           };
         }),
-        h: common_vendor.t(startDate.value || "\u8BF7\u9009\u62E9"),
-        i: startDate.value,
-        j: common_vendor.o(onStartDateChange),
-        k: common_vendor.t(endDate.value || "\u8BF7\u9009\u62E9"),
-        l: endDate.value,
-        m: common_vendor.o(onEndDateChange),
-        n: common_vendor.o(confirmTimeFilter),
-        o: common_vendor.p({
+        i: common_vendor.t(startDate.value || "\u8BF7\u9009\u62E9"),
+        j: startDate.value,
+        k: common_vendor.o(onStartDateChange),
+        l: common_vendor.t(endDate.value || "\u8BF7\u9009\u62E9"),
+        m: endDate.value,
+        n: common_vendor.o(onEndDateChange),
+        o: common_vendor.o(confirmTimeFilter),
+        p: common_vendor.p({
           type: "primary",
           color: "#2D55E8",
           block: true
         }),
-        p: common_vendor.o(($event) => showTimeDrawer.value = $event),
-        q: common_vendor.p({
+        q: common_vendor.o(($event) => showTimeDrawer.value = $event),
+        r: common_vendor.p({
           position: "bottom",
           show: showTimeDrawer.value
         })

@@ -5,7 +5,6 @@
     "pages/station/index",
     "pages/station/create",
     "pages/station/powering",
-    "pages/station/confirm",
     "pages/user/order",
     "pages/user/orderdetail",
     "pages/user/setting",
@@ -16,7 +15,9 @@
     "pages/user/invoice-header-list",
     "pages/user/invoice-header-form",
     "pages/user/user-agreement",
-    "pages/user/privacy-policy"
+    "pages/user/privacy-policy",
+    "pages/user/message",
+    "pages/user/message-detail"
   ],
   "usingComponents": {
     "van-button": "/wxcomponents/vant/button/index",
@@ -45,7 +46,9 @@
     "van-checkbox": "/wxcomponents/vant/checkbox/index",
     "van-checkbox-group": "/wxcomponents/vant/checkbox-group/index",
     "van-radio": "/wxcomponents/vant/radio/index",
-    "van-radio-group": "/wxcomponents/vant/radio-group/index"
+    "van-radio-group": "/wxcomponents/vant/radio-group/index",
+    "van-sticky": "/wxcomponents/vant/sticky/index",
+    "van-empty": "/wxcomponents/vant/empty/index"
   },
   "window": {
     "navigationBarTextStyle": "black",

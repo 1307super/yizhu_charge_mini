@@ -3,11 +3,17 @@
 		<view class='header'>
 			<view class='user'>
 				<view class='user-main'>
-					<image src='../../static/image/avatar.png' mode='widthFix' class='avatar f-ib'></image>
+					<image :src="user.avatar || '../../static/image/avatar.png'"  mode='widthFix' class='avatar f-ib'></image>
 					<text v-if='token' class='phone f-fwb f-ib f-vat'>{{phone}}</text>
 					<text v-else class='phone f-fwb f-ib f-vat' v-on:click='go("/pages/user/login")'>请登录</text>
 				</view>
-				<image v-on:click='goabort("/pages/user/setting")' src='../../static/image/setting.png' mode='widthFix' class='setting'></image>
+				<view class="header-actions">
+					<view class="message-wrapper" @click='goabort("/pages/user/message")'>
+						<image src='../../static/image/message.png' mode='widthFix' class='message'></image>
+						<view v-if="unreadCount > 0" class="unread-badge"></view>
+					</view>
+					<image v-on:click='goabort("/pages/user/setting")' src='../../static/image/setting.png' mode='widthFix' class='setting'></image>
+				</view>
 			</view>
 			<view v-if='enterpriseWallet.walletBalance !== null' class='charge'>
 				<view class='enterprise-wallet'>
@@ -92,14 +98,37 @@
 	}
 	.avatar{
 		width: 120rpx;
+		height: 120rpx;
+		border-radius: 50%;
 		margin-right: 30rpx;
 	}
 	.phone{
 		line-height: 120rpx;
 	}
+	.header-actions{
+		display: flex;
+		align-items: center;
+		gap: 30rpx;
+	}
+	.message-wrapper{
+		position: relative;
+		display: flex;
+		align-items: center;
+	}
+	.message{
+		width: 40rpx;
+	}
+	.unread-badge{
+		position: absolute;
+		top: -8rpx;
+		right: -8rpx;
+		background-color: #ff4757;
+		width: 16rpx;
+		height: 16rpx;
+		border-radius: 50%;
+	}
 	.setting{
 		width: 40rpx;
-		margin-top: 40rpx;
 	}
 	.charge{
 		background: linear-gradient(264deg, #5086F9, #5278FC, #5470FE, #5569FF);
@@ -182,6 +211,7 @@
 
 <script setup>
 	import { ref, onMounted, reactive } from 'vue'
+	import { onShow } from '@dcloudio/uni-app'
 	import navbar from '../../components/navbar/index.vue'
 	import tabbar from '../../components/tabbar/index.vue'
 	import request from '../../components/js/request.js'
@@ -192,6 +222,8 @@
 	const phone = uni.getStorageSync('phone')
 	
 	const month = reactive({})
+	const unreadCount = ref(0)
+	
 	const getmonth = () => {
 		request({
 			url: 'me/monthlyChargeStats',
@@ -200,6 +232,22 @@
 				for(let key in res.data.data) {
 					month[key] = res.data.data[key]
 				}
+			}
+		})
+	}
+	
+	// 获取未读消息数量
+	const getUnreadCount = () => {
+		request({
+			url: 'message/unreadCount',
+			method: 'GET',
+			success: (res) => {
+				if (res.data.code === 200) {
+					unreadCount.value = res.data.data || 0
+				}
+			},
+			fail: (error) => {
+				console.log('获取未读消息数量失败')
 			}
 		})
 	}
@@ -255,6 +303,14 @@
 		if(token) {
 			getmonth()
 			getEnterpriseWallet()
+			getUnreadCount()
+		}
+	})
+	
+	// 页面显示时刷新未读消息数量
+	onShow(() => {
+		if(token) {
+			getUnreadCount()
 		}
 	})
 </script>
