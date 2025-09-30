@@ -98,6 +98,7 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	width: 400rpx;
 }
 
 .no-summary {

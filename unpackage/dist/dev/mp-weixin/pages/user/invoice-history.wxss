@@ -291,3 +291,13 @@
 .reapply-action.data-v-bf7de8ae {
 	text-align: center;
 }
+
+/* 加载更多 */
+.load-more.data-v-bf7de8ae {
+	text-align: center;
+	padding: 40rpx 0;
+}
+.load-text.data-v-bf7de8ae {
+	font-size: 24rpx;
+	color: #999;
+}

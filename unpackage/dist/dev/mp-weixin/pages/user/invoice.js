@@ -38,6 +38,16 @@ const _sfc_main = {
     });
     const orderList = common_vendor.ref([]);
     const selectedOrders = common_vendor.ref([]);
+    const query = common_vendor.reactive({
+      startDate: "",
+      endDate: "",
+      userId: "",
+      pageNum: 1,
+      pageSize: 10
+    });
+    const isLoading = common_vendor.ref(false);
+    const hasMore = common_vendor.ref(true);
+    const loadingText = common_vendor.ref("\u4E0A\u6ED1\u52A0\u8F7D\u66F4\u591A");
     const timeRangeText = common_vendor.computed$1(() => {
       const option = quickTimeOptions.find((opt) => opt.key === selectedTimeOption.value);
       if (selectedTimeOption.value === "custom" && startDate.value && endDate.value) {
@@ -64,15 +74,20 @@ const _sfc_main = {
         const halfYearAgo = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
         startDate.value = formatDateForPicker(halfYearAgo);
         endDate.value = formatDateForPicker(now);
+        query.startDate = startDate.value;
+        query.endDate = endDate.value;
       } else if (key === "oneYear") {
         const now = new Date();
         const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
         startDate.value = formatDateForPicker(oneYearAgo);
         endDate.value = formatDateForPicker(now);
+        query.startDate = startDate.value;
+        query.endDate = endDate.value;
       }
     };
     const onStartDateChange = (e) => {
       startDate.value = e.detail.value;
+      query.startDate = e.detail.value;
       selectedTimeOption.value = "custom";
     };
     const onEndDateChange = (e) => {
@@ -85,6 +100,7 @@ const _sfc_main = {
         return;
       }
       endDate.value = selectedEndDate;
+      query.endDate = selectedEndDate;
       selectedTimeOption.value = "custom";
     };
     const confirmTimeFilter = () => {
@@ -96,7 +112,7 @@ const _sfc_main = {
         return;
       }
       showTimeDrawer.value = false;
-      loadOrderList();
+      resetAndLoad();
     };
     const formatDateForPicker = (date) => {
       const year = date.getFullYear();
@@ -204,22 +220,55 @@ const _sfc_main = {
         }
       });
     };
+    const resetAndLoad = () => {
+      orderList.value = [];
+      selectedOrders.value = [];
+      query.pageNum = 1;
+      hasMore.value = true;
+      isLoading.value = false;
+      loadOrderList();
+    };
     const loadOrderList = () => {
+      if (isLoading.value || !hasMore.value)
+        return;
+      console.log("\u5F00\u59CB\u52A0\u8F7D\u8BA2\u5355\u5217\u8868\uFF0C\u53C2\u6570:", query);
+      isLoading.value = true;
+      loadingText.value = "\u52A0\u8F7D\u4E2D...";
       components_js_request.request({
         url: "invoice/orders",
         method: "GET",
-        data: {
-          startDate: startDate.value,
-          endDate: endDate.value,
-          userId: user.memberId
-        },
+        data: query,
         success: (res) => {
+          isLoading.value = false;
           if (res.data.code === 200) {
-            orderList.value = res.data.data || [];
+            const newOrders = res.data.data || [];
+            if (query.pageNum === 1) {
+              orderList.value = newOrders;
+            } else {
+              orderList.value = orderList.value.concat(newOrders);
+            }
+            const total = res.data.total || 0;
+            const currentCount = orderList.value.length;
+            if (currentCount >= total) {
+              hasMore.value = false;
+              loadingText.value = "\u6CA1\u6709\u66F4\u591A\u4E86";
+            } else {
+              loadingText.value = "\u4E0A\u6ED1\u52A0\u8F7D\u66F4\u591A";
+            }
           }
         },
         fail: (error) => {
-          console.log("\u83B7\u53D6\u8BA2\u5355\u5217\u8868\u5931\u8D25");
+          isLoading.value = false;
+          console.error("\u52A0\u8F7D\u8BA2\u5355\u5931\u8D25:", error);
+          common_vendor.index.showToast({
+            title: "\u52A0\u8F7D\u5931\u8D25\uFF0C\u8BF7\u91CD\u8BD5",
+            icon: "none"
+          });
+          loadingText.value = "\u52A0\u8F7D\u5931\u8D25\uFF0C\u70B9\u51FB\u91CD\u8BD5";
+        },
+        complete: () => {
+          isLoading.value = false;
+          common_vendor.index.stopPullDownRefresh();
         }
       });
     };
@@ -236,13 +285,23 @@ const _sfc_main = {
         }, 1500);
         return;
       }
+      query.userId = user.memberId;
       selectQuickTime("halfYear");
       getInvoiceHeader();
-      loadOrderList();
+      resetAndLoad();
       common_vendor.index.$on("selectInvoiceHeader", (header) => {
         console.log("\u6536\u5230\u9009\u4E2D\u7684\u62AC\u5934:", header);
         Object.assign(invoiceHeader, header);
       });
+    });
+    common_vendor.onPullDownRefresh(() => {
+      resetAndLoad();
+    });
+    common_vendor.onReachBottom(() => {
+      if (hasMore.value && !isLoading.value) {
+        query.pageNum++;
+        loadOrderList();
+      }
     });
     return (_ctx, _cache) => {
       return common_vendor.e({
@@ -276,27 +335,33 @@ const _sfc_main = {
             h: order.batchNo
           };
         })
-      } : {
-        l: common_vendor.p({
+      } : {}, {
+        l: orderList.value.length > 0
+      }, orderList.value.length > 0 ? {
+        m: common_vendor.t(loadingText.value)
+      } : {}, {
+        n: orderList.value.length === 0 && !isLoading.value
+      }, orderList.value.length === 0 && !isLoading.value ? {
+        o: common_vendor.p({
           description: "\u6682\u65E0\u53EF\u5F00\u7968\u8BA2\u5355"
         })
-      }, {
-        m: common_vendor.o(toggleSelectAll),
-        n: common_vendor.p({
+      } : {}, {
+        p: common_vendor.o(toggleSelectAll),
+        q: common_vendor.p({
           value: common_vendor.unref(isAllSelected)
         }),
-        o: common_vendor.t(selectedOrders.value.length),
-        p: common_vendor.t(common_vendor.unref(totalAmount).toFixed(2)),
-        q: common_vendor.o(showHelp),
-        r: common_vendor.o(submitInvoiceRequest),
-        s: common_vendor.p({
+        r: common_vendor.t(selectedOrders.value.length),
+        s: common_vendor.t(common_vendor.unref(totalAmount).toFixed(2)),
+        t: common_vendor.o(showHelp),
+        v: common_vendor.o(submitInvoiceRequest),
+        w: common_vendor.p({
           type: "primary",
           color: "#2D55E8",
           disabled: selectedOrders.value.length === 0,
           round: true
         }),
-        t: common_vendor.o(closeTimeFilter),
-        v: common_vendor.f(quickTimeOptions, (option, k0, i0) => {
+        x: common_vendor.o(closeTimeFilter),
+        y: common_vendor.f(quickTimeOptions, (option, k0, i0) => {
           return {
             a: common_vendor.t(option.label),
             b: option.key,
@@ -304,20 +369,20 @@ const _sfc_main = {
             d: common_vendor.o(($event) => selectQuickTime(option.key), option.key)
           };
         }),
-        w: common_vendor.t(startDate.value || "\u8BF7\u9009\u62E9"),
-        x: startDate.value,
-        y: common_vendor.o(onStartDateChange),
-        z: common_vendor.t(endDate.value || "\u8BF7\u9009\u62E9"),
-        A: endDate.value,
-        B: common_vendor.o(onEndDateChange),
-        C: common_vendor.o(confirmTimeFilter),
-        D: common_vendor.p({
+        z: common_vendor.t(startDate.value || "\u8BF7\u9009\u62E9"),
+        A: startDate.value,
+        B: common_vendor.o(onStartDateChange),
+        C: common_vendor.t(endDate.value || "\u8BF7\u9009\u62E9"),
+        D: endDate.value,
+        E: common_vendor.o(onEndDateChange),
+        F: common_vendor.o(confirmTimeFilter),
+        G: common_vendor.p({
           type: "primary",
           color: "#2D55E8",
           block: true
         }),
-        E: common_vendor.o(($event) => showTimeDrawer.value = $event),
-        F: common_vendor.p({
+        H: common_vendor.o(($event) => showTimeDrawer.value = $event),
+        I: common_vendor.p({
           position: "bottom",
           show: showTimeDrawer.value
         })

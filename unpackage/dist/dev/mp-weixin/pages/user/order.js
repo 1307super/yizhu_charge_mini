@@ -21,7 +21,7 @@ const _sfc_main = {
     const currentTab = common_vendor.ref("");
     const query = common_vendor.reactive({
       orderState: "",
-      pageNo: 1,
+      pageNum: 1,
       pageSize: 10,
       userId: ""
     });
@@ -29,9 +29,7 @@ const _sfc_main = {
     const isLoading = common_vendor.ref(false);
     const hasMore = common_vendor.ref(true);
     const loadingText = common_vendor.ref("\u4E0A\u6ED1\u52A0\u8F7D\u66F4\u591A");
-    const totalOrders = common_vendor.computed$1(() => {
-      return orderList.value.length;
-    });
+    const totalOrders = common_vendor.ref(0);
     const setActiveTab = (value) => {
       currentTab.value = value;
       query.orderState = value;
@@ -39,7 +37,7 @@ const _sfc_main = {
     };
     const resetAndLoad = () => {
       orderList.value = [];
-      query.pageNo = 1;
+      query.pageNum = 1;
       hasMore.value = true;
       isLoading.value = false;
       loadOrderList();
@@ -58,11 +56,12 @@ const _sfc_main = {
           isLoading.value = false;
           if (res.data.code === 200) {
             const newOrders = res.data.data.records || [];
-            if (query.pageNo === 1) {
+            if (query.pageNum === 1) {
               orderList.value = newOrders;
             } else {
               orderList.value = orderList.value.concat(newOrders);
             }
+            totalOrders.value = res.data.data.total;
             if (res.data.data.pages <= res.data.data.current) {
               hasMore.value = false;
               loadingText.value = "\u6CA1\u6709\u66F4\u591A\u4E86";
@@ -140,6 +139,12 @@ const _sfc_main = {
         });
       }
     };
+    const onScrollToLower = () => {
+      if (hasMore.value && !isLoading.value) {
+        query.pageNum++;
+        loadOrderList();
+      }
+    };
     common_vendor.onLoad((options) => {
       const userInfo = common_vendor.index.getStorageSync("user");
       if (userInfo && userInfo.memberId) {
@@ -153,12 +158,6 @@ const _sfc_main = {
     });
     common_vendor.onPullDownRefresh(() => {
       resetAndLoad();
-    });
-    common_vendor.onReachBottom(() => {
-      if (hasMore.value && !isLoading.value) {
-        query.pageNo++;
-        loadOrderList();
-      }
     });
     common_vendor.onMounted(() => {
     });
@@ -178,7 +177,7 @@ const _sfc_main = {
             e: common_vendor.o(($event) => setActiveTab(tab.value), index)
           });
         }),
-        c: common_vendor.t(common_vendor.unref(totalOrders)),
+        c: common_vendor.t(totalOrders.value),
         d: orderList.value.length > 0
       }, orderList.value.length > 0 ? {
         e: common_vendor.f(orderList.value, (order, index, i0) => {
@@ -193,11 +192,9 @@ const _sfc_main = {
             h: order.batchNo || index,
             i: common_vendor.o(($event) => goToDetail(order), order.batchNo || index)
           };
-        })
-      } : {}, {
-        f: orderList.value.length > 0
-      }, orderList.value.length > 0 ? {
-        g: common_vendor.t(loadingText.value)
+        }),
+        f: common_vendor.t(loadingText.value),
+        g: common_vendor.o(onScrollToLower)
       } : {}, {
         h: orderList.value.length === 0 && !isLoading.value
       }, orderList.value.length === 0 && !isLoading.value ? {

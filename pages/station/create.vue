@@ -5,7 +5,7 @@
 
 		<!-- 顶部视觉区（背景图 + 渐变 + 站点信息融合） -->
 		<view class='hero'>
-			<image src='../../static/image/create-bg.jpg' mode='aspectFill' class='banner' />
+			<image src='https://chargeyz.oss-cn-shanghai.aliyuncs.com/miniprogram/create-bg.jpg' mode='aspectFill' class='banner' />
 			<view class='banner-mask'></view>
 			<!-- 顶部站点信息（叠加在背景上） -->
 			<view class='header'>

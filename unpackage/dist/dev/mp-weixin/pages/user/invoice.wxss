@@ -266,3 +266,13 @@
 .drawer-footer.data-v-26c9e962 {
 	margin-top: 40rpx;
 }
+
+/* 加载更多 */
+.load-more.data-v-26c9e962 {
+	text-align: center;
+	padding: 40rpx 0;
+}
+.load-text.data-v-26c9e962 {
+	font-size: 24rpx;
+	color: #999;
+}

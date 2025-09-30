@@ -545,7 +545,7 @@
 		query.sortType = i
 		stations.value = []
 		loadall.value = false
-		pager.pageNo = 1
+		pager.pageNum = 1
 		index(1)
 	}
 	
@@ -568,7 +568,7 @@
 		showProvincePopup.value = false
 		
 		// 选择省份后重新加载数据
-		pager.pageNo = 1
+		pager.pageNum = 1
 		loadall.value = false
 		stations.value = []
 		index(1)
@@ -576,7 +576,7 @@
 	
 	const searchStation = () => {
 		// 重置分页
-		pager.pageNo = 1
+		pager.pageNum = 1
 		loadall.value = false
 		// 调用查询接口
 		index(1)
@@ -601,7 +601,7 @@
 				reverseGeocoding(res.latitude, res.longitude)
 				
 				// 重新加载数据
-				pager.pageNo = 1
+				pager.pageNum = 1
 				loadall.value = false
 				stations.value = []
 				index(1)
@@ -696,7 +696,7 @@
 	})
 	
 	const pager = reactive({
-		pageNo: 1,
+		pageNum: 1,
 		pageSize: 5
 	})
 	
@@ -738,7 +738,7 @@
 	}
 	
 	const index = (page) => {
-		pager.pageNo = page
+		pager.pageNum = page
 		if (page === 1) {
 			moreText.value = '加载中...'
 			loadall.value = false
@@ -811,8 +811,8 @@
 		if (moreText.value !== '加载中...') {
 			moreText.value = '加载中...'
 			setTimeout(() => {
-				pager.pageNo++
-				index(pager.pageNo)
+				pager.pageNum++
+				index(pager.pageNum)
 			}, 300)
 		}
 	})

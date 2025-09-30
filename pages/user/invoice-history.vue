@@ -12,7 +12,7 @@
 		
 		<!-- 历史记录列表 -->
 		<view class="history-list">
-			<van-empty v-if="historyList.length === 0" description="暂无开票记录" />
+			<van-empty v-if="historyList.length === 0 && !isLoading" description="暂无开票记录" />
 			
 			<view v-for="(item, index) in historyList" :key="item.invoiceId" class="history-item">
 				<view class="item-header">
@@ -27,8 +27,8 @@
 				
 				<view class="item-content">
 					<view class="invoice-info">
-						<text class="company-name">{{item.companyName}}</text>
-						<text class="tax-number">税号: {{item.taxNumber}}</text>
+						<text class="company-name">{{item.companyName || item.customerName}}</text>
+						<!-- <text class="tax-number">税号: {{item.taxNumber}}</text> -->
 					</view>
 					
 					<view class="order-summary">
@@ -89,6 +89,11 @@
 						{{expandedItems.includes(item.invoiceId) ? '收起详情' : '查看详情'}}
 					</text>
 				</view>
+			</view>
+			
+			<!-- 加载更多 -->
+			<view class='load-more' v-if="historyList.length > 0">
+				<text class='load-text'>{{ loadingText }}</text>
 			</view>
 		</view>
 		
@@ -488,11 +493,22 @@
 .reapply-action {
 	text-align: center;
 }
+
+/* 加载更多 */
+.load-more {
+	text-align: center;
+	padding: 40rpx 0;
+}
+
+.load-text {
+	font-size: 24rpx;
+	color: #999;
+}
 </style>
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import { onShow } from '@dcloudio/uni-app'
+import { onShow, onPullDownRefresh, onReachBottom } from '@dcloudio/uni-app'
 import navbar from '../../components/navbar/index.vue'
 import request from '../../components/js/request.js'
 
@@ -514,6 +530,21 @@ const quickTimeOptions = [
 // 历史记录列表
 const historyList = ref([])
 const expandedItems = ref([])
+
+// 分页相关
+const query = reactive({
+	startDate: '',
+	endDate: '',
+	userId: '',
+	pageNum: 1,
+	pageSize: 10
+})
+
+// 加载状态
+const isLoading = ref(false)
+const hasMore = ref(true)
+const loadingText = ref('上滑加载更多')
+const isInitialized = ref(false)
 
 // 计算属性
 const timeRangeText = computed(() => {
@@ -540,16 +571,21 @@ const selectQuickTime = (key) => {
 		const halfYearAgo = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate())
 		startDate.value = formatDateForPicker(halfYearAgo)
 		endDate.value = formatDateForPicker(now)
+		query.startDate = startDate.value
+		query.endDate = endDate.value
 	} else if (key === 'oneYear') {
 		const now = new Date()
 		const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate())
 		startDate.value = formatDateForPicker(oneYearAgo)
 		endDate.value = formatDateForPicker(now)
+		query.startDate = startDate.value
+		query.endDate = endDate.value
 	}
 }
 
 const onStartDateChange = (e) => {
 	startDate.value = e.detail.value
+	query.startDate = e.detail.value
 	selectedTimeOption.value = 'custom'
 }
 
@@ -563,6 +599,7 @@ const onEndDateChange = (e) => {
 		return
 	}
 	endDate.value = selectedEndDate
+	query.endDate = selectedEndDate
 	selectedTimeOption.value = 'custom'
 }
 
@@ -575,7 +612,7 @@ const confirmTimeFilter = () => {
 		return
 	}
 	showTimeDrawer.value = false
-	loadHistoryList()
+	resetAndLoad()
 }
 
 const formatDateForPicker = (date) => {
@@ -642,7 +679,7 @@ const loadInvoiceDetail = (invoiceNo, invoiceId) => {
 	})
 	
 	request({
-		url: `invoice/detail/${invoiceNo}`,
+		url: `invoice/detail/${invoiceId}`,
 		method: 'GET',
 		success: (res) => {
 			uni.hideLoading()
@@ -733,23 +770,62 @@ const handleReapply = (item) => {
 	})
 }
 
+// 重置并加载数据
+const resetAndLoad = () => {
+	historyList.value = []
+	expandedItems.value = []
+	query.pageNum = 1
+	hasMore.value = true
+	isLoading.value = false
+	loadHistoryList()
+}
+
 // 获取开票历史列表
 const loadHistoryList = () => {
+	if (isLoading.value || !hasMore.value) return
+	
+	console.log('开始加载历史列表，参数:', query)
+	isLoading.value = true
+	loadingText.value = '加载中...'
+	
 	request({
 		url: 'invoice/history',
 		method: 'GET',
-		data: {
-			startDate: startDate.value,
-			endDate: endDate.value,
-			userId: user.memberId
-		},
+		data: query,
 		success: (res) => {
+			isLoading.value = false
 			if (res.data.code === 200) {
-				historyList.value = res.data.data || []
+				const newHistory = res.data.data || []
+				
+				if (query.pageNum === 1) {
+					historyList.value = newHistory
+				} else {
+					historyList.value = historyList.value.concat(newHistory)
+				}
+				
+				// 判断是否还有更多数据
+				const total = res.data.total || 0
+				const currentCount = historyList.value.length
+				if (currentCount >= total) {
+					hasMore.value = false
+					loadingText.value = '没有更多了'
+				} else {
+					loadingText.value = '上滑加载更多'
+				}
 			}
 		},
 		fail: (error) => {
-			console.log('获取开票历史失败')
+			isLoading.value = false
+			console.error('加载历史失败:', error)
+			uni.showToast({
+				title: '加载失败，请重试',
+				icon: 'none'
+			})
+			loadingText.value = '加载失败，点击重试'
+		},
+		complete: () => {
+			isLoading.value = false
+			uni.stopPullDownRefresh()
 		}
 	})
 }
@@ -768,25 +844,44 @@ onMounted(() => {
 		return
 	}
 	
+	// 设置用户ID
+	query.userId = user.memberId
+	
 	// 初始化时间范围
 	selectQuickTime('halfYear')
 	
 	// 获取数据
-	loadHistoryList()
+	resetAndLoad()
+	
+	// 标记已初始化
+	isInitialized.value = true
 	
 	// 监听重新申请成功的刷新事件
 	uni.$on('refreshInvoiceHistory', () => {
 		console.log('收到刷新发票历史事件')
-		loadHistoryList()
+		resetAndLoad()
 	})
+})
+
+// 下拉刷新
+onPullDownRefresh(() => {
+	resetAndLoad()
+})
+
+// 上拉加载更多
+onReachBottom(() => {
+	if (hasMore.value && !isLoading.value) {
+		query.pageNum++
+		loadHistoryList()
+	}
 })
 
 // 页面显示时刷新数据
 onShow(() => {
-	// 如果页面已经初始化过，则在显示时刷新数据
-	if (historyList.value.length > 0 || token) {
+	// 只有在页面已经初始化完成后，才在显示时刷新数据
+	if (isInitialized.value && historyList.value.length > 0) {
 		console.log('页面显示，刷新发票历史数据')
-		loadHistoryList()
+		resetAndLoad()
 	}
 })
 </script>

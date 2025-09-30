@@ -53,6 +53,7 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	width: 400rpx;
 }
 .no-summary.data-v-2620a93c {
 	color: #999;

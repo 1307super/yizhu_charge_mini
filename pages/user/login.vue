@@ -1,7 +1,7 @@
 <template>
 	<view class='container'>
 		<!-- 全屏背景图 -->
-		<image class='bg-image' src='../../static/image/login-bg.jpg' mode='aspectFill'></image>
+		<image class='bg-image' src='https://chargeyz.oss-cn-shanghai.aliyuncs.com/miniprogram/login-bg.jpg' mode='aspectFill'></image>
 		
 		<navbar class='navbar' title='登录'></navbar>
 		

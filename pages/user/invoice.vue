@@ -50,7 +50,13 @@
 					</view>
 				</view>
 			</view>
-			<van-empty v-else description="暂无可开票订单" />
+			
+			<!-- 加载更多 -->
+			<view class='load-more' v-if="orderList.length > 0">
+				<text class='load-text'>{{ loadingText }}</text>
+			</view>
+			
+			<van-empty v-if="orderList.length === 0 && !isLoading" description="暂无可开票订单" />
 		</view>
 		
 		<!-- 底部操作栏 -->
@@ -449,10 +455,22 @@
 .drawer-footer {
 	margin-top: 40rpx;
 }
+
+/* 加载更多 */
+.load-more {
+	text-align: center;
+	padding: 40rpx 0;
+}
+
+.load-text {
+	font-size: 24rpx;
+	color: #999;
+}
 </style>
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
+import { onLoad, onPullDownRefresh, onReachBottom } from '@dcloudio/uni-app'
 import navbar from '../../components/navbar/index.vue'
 import request from '../../components/js/request.js'
 
@@ -486,6 +504,20 @@ const invoiceHeader = reactive({
 // 订单列表
 const orderList = ref([])
 const selectedOrders = ref([])
+
+// 分页相关
+const query = reactive({
+	startDate: '',
+	endDate: '',
+	userId: '',
+	pageNum: 1,
+	pageSize: 10
+})
+
+// 加载状态
+const isLoading = ref(false)
+const hasMore = ref(true)
+const loadingText = ref('上滑加载更多')
 
 // 计算属性
 const timeRangeText = computed(() => {
@@ -522,16 +554,21 @@ const selectQuickTime = (key) => {
 		const halfYearAgo = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate())
 		startDate.value = formatDateForPicker(halfYearAgo)
 		endDate.value = formatDateForPicker(now)
+		query.startDate = startDate.value
+		query.endDate = endDate.value
 	} else if (key === 'oneYear') {
 		const now = new Date()
 		const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate())
 		startDate.value = formatDateForPicker(oneYearAgo)
 		endDate.value = formatDateForPicker(now)
+		query.startDate = startDate.value
+		query.endDate = endDate.value
 	}
 }
 
 const onStartDateChange = (e) => {
 	startDate.value = e.detail.value
+	query.startDate = e.detail.value
 	selectedTimeOption.value = 'custom'
 }
 
@@ -545,6 +582,7 @@ const onEndDateChange = (e) => {
 		return
 	}
 	endDate.value = selectedEndDate
+	query.endDate = selectedEndDate
 	selectedTimeOption.value = 'custom'
 }
 
@@ -557,7 +595,7 @@ const confirmTimeFilter = () => {
 		return
 	}
 	showTimeDrawer.value = false
-	loadOrderList()
+	resetAndLoad()
 }
 
 const formatDateForPicker = (date) => {
@@ -677,23 +715,62 @@ const getInvoiceHeader = () => {
 	})
 }
 
+// 重置并加载数据
+const resetAndLoad = () => {
+	orderList.value = []
+	selectedOrders.value = []
+	query.pageNum = 1
+	hasMore.value = true
+	isLoading.value = false
+	loadOrderList()
+}
+
 // 获取订单列表
 const loadOrderList = () => {
+	if (isLoading.value || !hasMore.value) return
+	
+	console.log('开始加载订单列表，参数:', query)
+	isLoading.value = true
+	loadingText.value = '加载中...'
+	
 	request({
 		url: 'invoice/orders',
 		method: 'GET',
-		data: {
-			startDate: startDate.value,
-			endDate: endDate.value,
-			userId: user.memberId
-		},
+		data: query,
 		success: (res) => {
+			isLoading.value = false
 			if (res.data.code === 200) {
-				orderList.value = res.data.data || []
+				const newOrders = res.data.data || []
+				
+				if (query.pageNum === 1) {
+					orderList.value = newOrders
+				} else {
+					orderList.value = orderList.value.concat(newOrders)
+				}
+				
+				// 判断是否还有更多数据
+				const total = res.data.total || 0
+				const currentCount = orderList.value.length
+				if (currentCount >= total) {
+					hasMore.value = false
+					loadingText.value = '没有更多了'
+				} else {
+					loadingText.value = '上滑加载更多'
+				}
 			}
 		},
 		fail: (error) => {
-			console.log('获取订单列表失败')
+			isLoading.value = false
+			console.error('加载订单失败:', error)
+			uni.showToast({
+				title: '加载失败，请重试',
+				icon: 'none'
+			})
+			loadingText.value = '加载失败，点击重试'
+		},
+		complete: () => {
+			isLoading.value = false
+			uni.stopPullDownRefresh()
 		}
 	})
 }
@@ -712,17 +789,33 @@ onMounted(() => {
 		return
 	}
 	
+	// 设置用户ID
+	query.userId = user.memberId
+	
 	// 初始化时间范围
 	selectQuickTime('halfYear')
 	
 	// 获取数据
 	getInvoiceHeader()
-	loadOrderList()
+	resetAndLoad()
 	
 	// 监听抬头选择事件
 	uni.$on('selectInvoiceHeader', (header) => {
 		console.log('收到选中的抬头:', header)
 		Object.assign(invoiceHeader, header)
 	})
+})
+
+// 下拉刷新
+onPullDownRefresh(() => {
+	resetAndLoad()
+})
+
+// 上拉加载更多
+onReachBottom(() => {
+	if (hasMore.value && !isLoading.value) {
+		query.pageNum++
+		loadOrderList()
+	}
 })
 </script>

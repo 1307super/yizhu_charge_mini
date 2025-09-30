@@ -225,7 +225,7 @@ const _sfc_main = {
           delta: form.delta
         }),
         b: common_vendor.t(form.stationName || "\u5145\u7535\u7AD9\u540D\u79F0"),
-        c: common_vendor.t(form.licensePlate || "\u8F66\u724C\u53F7/\u8F66\u67B6\u53F7"),
+        c: common_vendor.t(form.licensePlate || form.vehicleVin),
         d: common_vendor.f(ordersList.value, (order, index, i0) => {
           return {
             a: common_vendor.t(order.gunNo),

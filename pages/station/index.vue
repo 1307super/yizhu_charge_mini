@@ -3,7 +3,7 @@
 		<navbar class='navbar' title=""></navbar>
 		
 		<!-- 顶部封面图 -->
-		<image src='../../static/image/station.jpg' mode='widthFix' class='banner'></image>
+		<image src='https://chargeyz.oss-cn-shanghai.aliyuncs.com/miniprogram/station.jpg' mode='widthFix' class='banner'></image>
 		
 		<!-- 充电站信息卡片 -->
 		<view class='station-info-card'>

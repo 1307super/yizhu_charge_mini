@@ -22,7 +22,12 @@
 			</view>
 			
 			<!-- 订单列表 -->
-			<view class='order-list' v-if="orderList.length > 0">
+			<scroll-view 
+				class='order-list'
+				scroll-y="true"
+				@scrolltolower="onScrollToLower"
+				v-if="orderList.length > 0"
+			>
 				<view class='order-card' 
 					v-for="(order, index) in orderList" 
 					:key="order.batchNo || index"
@@ -62,12 +67,11 @@
 					</view>
 				</view>
 				
-			</view>
-			
-			<!-- 加载更多 -->
-			<view class='load-more' v-if="orderList.length > 0">
-				<text class='load-text'>{{ loadingText }}</text>
-			</view>
+				<!-- 加载更多 -->
+				<view class='load-more'>
+					<text class='load-text'>{{ loadingText }}</text>
+				</view>
+			</scroll-view>
 			
 			<!-- 空状态 -->
 			<van-empty v-if="orderList.length === 0 && !isLoading" description="暂无订单记录" />
@@ -170,14 +174,9 @@
 	
 	/* 订单列表 */
 	.order-list {
-		display: flex;
-		flex-direction: column;
-		gap: 24rpx;
 		flex: 1;
-		overflow-y: auto;
-		overflow-x: hidden;
 		min-height: 0;
-		padding-bottom: 32rpx;
+		/* padding: 0 24rpx 32rpx 24rpx; */
 	}
 	
 	.order-card {
@@ -190,6 +189,7 @@
 		overflow: hidden;
 		transition: all 0.3s ease;
 		flex-shrink: 0;
+		margin-bottom: 24rpx;
 	}
 	
 	.order-card:active {
@@ -392,7 +392,7 @@
 	// 查询参数
 	const query = reactive({
 		orderState: '',
-		pageNo: 1,
+		pageNum: 1,
 		pageSize: 10,
 		userId: ''
 	})
@@ -406,9 +406,7 @@
 	const loadingText = ref('上滑加载更多')
 	
 	// 总订单数
-	const totalOrders = computed(() => {
-		return orderList.value.length
-	})
+	const totalOrders = ref(0)
 	
 	// 设置活跃tab
 	const setActiveTab = (value) => {
@@ -420,7 +418,7 @@
 	// 重置并加载数据
 	const resetAndLoad = () => {
 		orderList.value = []
-		query.pageNo = 1
+		query.pageNum = 1
 		hasMore.value = true
 		isLoading.value = false
 		loadOrderList()
@@ -443,11 +441,12 @@
 				if (res.data.code === 200) {
 					const newOrders = res.data.data.records || []
 					
-					if (query.pageNo === 1) {
+					if (query.pageNum === 1) {
 						orderList.value = newOrders
 					} else {
 						orderList.value = orderList.value.concat(newOrders)
 					}
+					totalOrders.value = res.data.data.total
 					// 判断是否还有更多数据
 					if (res.data.data.pages <= res.data.data.current) {
 						hasMore.value = false
@@ -528,6 +527,14 @@
 		}
 	}
 	
+	// scroll-view 滚动到底部触发
+	const onScrollToLower = () => {
+		if (hasMore.value && !isLoading.value) {
+			query.pageNum++
+			loadOrderList()
+		}
+	}
+	
 	// 页面加载时
 	onLoad((options) => {
 		// 获取用户信息
@@ -549,14 +556,6 @@
 	// 下拉刷新
 	onPullDownRefresh(() => {
 		resetAndLoad()
-	})
-	
-	// 上拉加载更多
-	onReachBottom(() => {
-		if (hasMore.value && !isLoading.value) {
-			query.pageNo++
-			loadOrderList()
-		}
 	})
 	
 	// 页面挂载后

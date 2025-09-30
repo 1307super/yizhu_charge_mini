@@ -78,7 +78,7 @@ const _sfc_main = {
       query.sortType = i;
       stations.value = [];
       loadall.value = false;
-      pager.pageNo = 1;
+      pager.pageNum = 1;
       index(1);
     };
     const currentLocation = common_vendor.ref("\u5317\u4EAC\u5E02");
@@ -96,13 +96,13 @@ const _sfc_main = {
       currentLocation.value = province;
       query.city = province;
       showProvincePopup.value = false;
-      pager.pageNo = 1;
+      pager.pageNum = 1;
       loadall.value = false;
       stations.value = [];
       index(1);
     };
     const searchStation = () => {
-      pager.pageNo = 1;
+      pager.pageNum = 1;
       loadall.value = false;
       index(1);
     };
@@ -172,7 +172,7 @@ const _sfc_main = {
       city: "\u5317\u4EAC\u5E02"
     });
     const pager = common_vendor.reactive({
-      pageNo: 1,
+      pageNum: 1,
       pageSize: 5
     });
     common_vendor.ref(false);
@@ -201,7 +201,7 @@ const _sfc_main = {
       });
     };
     const index = (page) => {
-      pager.pageNo = page;
+      pager.pageNum = page;
       if (page === 1) {
         moreText.value = "\u52A0\u8F7D\u4E2D...";
         loadall.value = false;
@@ -266,8 +266,8 @@ const _sfc_main = {
       if (moreText.value !== "\u52A0\u8F7D\u4E2D...") {
         moreText.value = "\u52A0\u8F7D\u4E2D...";
         setTimeout(() => {
-          pager.pageNo++;
-          index(pager.pageNo);
+          pager.pageNum++;
+          index(pager.pageNum);
         }, 300);
       }
     });

@@ -5,7 +5,7 @@
 		<!-- 顶部信息栏 -->
 		<view class='top-info'>
 			<text class='station-name'>{{form.stationName || '充电站名称'}}</text>
-			<text class='license-plate'>{{form.licensePlate || '车牌号/车架号'}}</text>
+			<text class='license-plate'>{{form.licensePlate || form.vehicleVin}}</text>
 		</view>
 		
 	
