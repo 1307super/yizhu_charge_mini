@@ -133,7 +133,7 @@
 			<view v-if='buttonInfo.tip && buttonInfo.disabled' class='status-tip'>
 				<text class='tip-text'>{{buttonInfo.tip}}</text>
 			</view>
-			<van-button 
+			<van-button
 				round
 				block
 				:color='buttonInfo.disabled ? "#d9d9d9" : "#2D55E8"'
@@ -143,6 +143,73 @@
 			>
 				{{buttonInfo.text}}
 			</van-button>
+		</view>
+
+		<!-- 停止码弹窗 -->
+		<view v-if='showStopCodeModal' class='stop-code-modal-overlay'>
+			<view class='stop-code-modal'>
+				<!-- 关闭按钮 -->
+				<view class='modal-close' @click='closeStopCodeModal'>
+					<text class='close-icon'>✕</text>
+				</view>
+
+				<!-- 标题 -->
+				<view class='modal-header'>
+					<text class='modal-title'>{{stationInfo.chargingData?.plateNo || '车辆'}} 充电订单信息</text>
+				</view>
+
+				<!-- 内容 -->
+				<view class='modal-content'>
+					<!-- 枪号 -->
+					<view class='gun-number'>{{stationInfo.gunNo}}号枪</view>
+
+					<!-- 进度条 -->
+					<view class='charging-progress'>
+						<view class='progress-bar-container'>
+							<view class='progress-bar-bg'>
+								<view class='progress-bar-fill' :style='{width: (stationInfo.chargingData?.soc || 0) + "%"}'></view>
+							</view>
+						</view>
+						<text class='progress-text'>充电中 已完成{{stationInfo.chargingData?.soc || 0}}%</text>
+					</view>
+
+					<!-- 充电信息 -->
+					<view class='charging-info'>
+						<view class='info-item'>
+							<text class='info-label'>充电功率</text>
+							<text class='info-value'>{{stationInfo.chargingData?.power || 0}} KW</text>
+						</view>
+						<view class='info-item'>
+							<text class='info-label'>剩余充电时长</text>
+							<text class='info-value'>{{stationInfo.chargingData?.remainingTime || '计算中'}}</text>
+						</view>
+					</view>
+
+					<!-- 停止码输入 -->
+					<view class='stop-code-input-section'>
+						<text class='input-label'>请输入车队停止码</text>
+						<input
+							class='stop-code-input'
+							v-model='stopCode'
+							type='number'
+							placeholder='请输入4位停止码'
+							maxlength='4'
+						/>
+					</view>
+
+					<!-- 结束充电按钮 -->
+					<van-button
+						round
+						block
+						:color='stopCode.length === 4 ? "#2D55E8" : "#d9d9d9"'
+						:disabled='stopCode.length !== 4'
+						@click='stopChargeByStopCode'
+						class='stop-button'
+					>
+						结束充电
+					</van-button>
+				</view>
+			</view>
 		</view>
 	</view>
 </template>
@@ -518,6 +585,156 @@
     border: none;
 		z-idnex: 100;
 }
+
+	/* 停止码弹窗样式 */
+	.stop-code-modal-overlay{
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: rgba(0, 0, 0, 0.6);
+		z-index: 9999;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 40rpx;
+	}
+	.stop-code-modal{
+		position: relative;
+		width: 100%;
+		max-width: 600rpx;
+		background-color: #fff;
+		border-radius: 24rpx;
+		overflow: hidden;
+		box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.2);
+	}
+	.modal-close{
+		position: absolute;
+		top: 24rpx;
+		right: 24rpx;
+		width: 56rpx;
+		height: 56rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: rgba(0, 0, 0, 0.05);
+		border-radius: 50%;
+		z-index: 10;
+		cursor: pointer;
+		transition: background-color 0.2s;
+	}
+	.modal-close:active{
+		background-color: rgba(0, 0, 0, 0.1);
+	}
+	.close-icon{
+		font-size: 36rpx;
+		color: #666;
+		font-weight: 300;
+	}
+	.modal-header{
+		padding: 32rpx 32rpx 24rpx;
+		border-bottom: 1rpx solid #f0f0f0;
+		text-align: center;
+	}
+	.modal-title{
+		font-size: 32rpx;
+		font-weight: 600;
+		color: #1a1a1a;
+	}
+	.modal-content{
+		padding: 32rpx;
+	}
+	.gun-number{
+		text-align: center;
+		font-size: 48rpx;
+		font-weight: 700;
+		color: #2D55E8;
+		margin-bottom: 32rpx;
+	}
+	.charging-progress{
+		margin-bottom: 32rpx;
+	}
+	.progress-bar-container{
+		margin-bottom: 16rpx;
+	}
+	.progress-bar-bg{
+		width: 100%;
+		height: 20rpx;
+		background-color: #f0f0f0;
+		border-radius: 10rpx;
+		overflow: hidden;
+	}
+	.progress-bar-fill{
+		height: 100%;
+		background: linear-gradient(90deg, #2D55E8 0%, #5B8EFF 100%);
+		border-radius: 10rpx;
+		transition: width 0.3s ease;
+	}
+	.progress-text{
+		display: block;
+		text-align: center;
+		font-size: 28rpx;
+		color: #666;
+		font-weight: 500;
+	}
+	.charging-info{
+		display: flex;
+		justify-content: space-between;
+		gap: 24rpx;
+		margin-bottom: 32rpx;
+		padding: 24rpx;
+		background-color: #F6F7F9;
+		border-radius: 16rpx;
+	}
+	.info-item{
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8rpx;
+	}
+	.info-label{
+		font-size: 24rpx;
+		color: #999;
+	}
+	.info-value{
+		font-size: 28rpx;
+		font-weight: 600;
+		color: #1a1a1a;
+	}
+	.stop-code-input-section{
+		margin-bottom: 32rpx;
+	}
+	.input-label{
+		display: block;
+		font-size: 28rpx;
+		color: #1a1a1a;
+		margin-bottom: 16rpx;
+		font-weight: 500;
+	}
+	.stop-code-input{
+		width: 100%;
+		height: 88rpx;
+		padding: 0 24rpx;
+		border: 1rpx solid #E5E7EB;
+		border-radius: 14rpx;
+		font-size: 28rpx;
+		box-sizing: border-box;
+		background-color: #F7F9FC;
+		transition: border-color 0.18s ease;
+	}
+	.stop-code-input:focus{
+		border-color: #2D55E8;
+		background-color: #fff;
+	}
+	.stop-button{
+		height: 88rpx;
+		line-height: 88rpx;
+		font-size: 32rpx;
+		font-weight: 600;
+	}
+
 </style>
 
 <script setup>
@@ -544,7 +761,9 @@
 		gunNo: '',
 		price: 0,
 		pricePeriod: '',
-		status: null
+		status: null,
+		allowStopCode: false,
+		chargingData: null
 	})
 	
 	// 企业钱包信息
@@ -566,6 +785,10 @@
 	const presetAmounts = ref([50, 100, 300, 500])
 	const selectedAmount = ref(50)
 	const customAmount = ref('')
+
+	// 停止码弹窗相关
+	const showStopCodeModal = ref(false)
+	const stopCode = ref('')
 	
 	// 获取最终支付金额
 	const finalAmount = computed(() => {
@@ -640,6 +863,11 @@
 			success: (res) => {
 				if (res.data.code === 200) {
 					Object.assign(stationInfo, res.data.data)
+
+					// 检查是否允许使用停止码停止充电
+					if (stationInfo.allowStopCode && stationInfo.chargingData) {
+						showStopCodeModal.value = true
+					}
 				}
 			},
 			fail: (error) => {
@@ -660,6 +888,13 @@
 					if (enterpriseWallet.walletBalance !== null) {
 						paymentMethod.value = 'enterprise'
 					}
+				}
+				if (res.statusCode == 401) {
+						uni.setStorageSync('redirecturl', `/pages/station/create?stationId=${stationId.value}&gunNumber=${gunNumber.value}`)
+						uni.navigateTo({
+							url: '/pages/user/login'
+						})
+						return
 				}
 			},
 			fail: (error) => {
@@ -926,6 +1161,62 @@
 		}
 		
 		checkStatus()
+	}
+
+	// 关闭停止码弹窗
+	const closeStopCodeModal = () => {
+		showStopCodeModal.value = false
+		stopCode.value = ''
+	}
+
+	// 停止码停止充电
+	const stopChargeByStopCode = () => {
+		if (!stopCode.value) {
+			uni.showToast({
+				title: '请输入停止码',
+				icon: 'none'
+			})
+			return
+		}
+
+		uni.showLoading({
+			title: '正在停止...'
+		})
+
+		request({
+			url: 'charging/stop/byStopCode',
+			method: 'POST',
+			data: {
+				stationId: stationId.value,
+				gunNumber: gunNumber.value,
+				stopCode: stopCode.value
+			},
+			success: (res) => {
+				uni.hideLoading()
+				if (res.data.code === 200) {
+					uni.showToast({
+						title: res.data.msg || '充电已停止',
+						icon: 'success'
+					})
+					closeStopCodeModal()
+					// 刷新站点信息
+					getStationInfo()
+				} else {
+					uni.showToast({
+						title: res.data.msg || '停止失败',
+						icon: 'none'
+					})
+				}
+			},
+			fail: (error) => {
+				uni.hideLoading()
+				console.error('停止充电失败:', error)
+				uni.showToast({
+					title: '停止充电失败',
+					icon: 'none'
+				})
+			}
+		})
 	}
 
 	// 预付费充电

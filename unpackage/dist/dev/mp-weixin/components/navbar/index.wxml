@@ -1,1 +1,0 @@
-<view class="{{['bar', 'f-tac', 'data-v-be923164', e && 'no-background']}}" style="{{f}}"><view class="bar-main f-pr data-v-be923164"><van-icon wx:if="{{a}}" class="icon data-v-be923164" bindclick="{{b}}" u-t="m" u-i="be923164-0" bind:__l="__l" u-p="{{c}}"/><text class="title data-v-be923164">{{d}}</text></view></view>
