@@ -2,10 +2,8 @@
 	<view class='container'>
 		<navbar title=''></navbar>
 		
-		<!-- 基本信息标题 -->
 		<view class="section-title">基本信息</view>
 		
-		<!-- 头像设置 -->
 		<view class="setting-item">
 			<view class="item-left">
 				<text class="item-label">头像</text>
@@ -18,7 +16,7 @@
 				>
 					<image 
 						class="avatar" 
-						:src="userInfo.avatar || '../../static/image/avatar.png'" 
+						:src="form.avatar || '../../static/image/avatar.png'" 
 						mode="aspectFill"
 					></image>
 				</button>
@@ -26,60 +24,70 @@
 			</view>
 		</view>
 		
-		<!-- 昵称设置 -->
-		<view class="setting-item" @tap="showNicknameDrawer">
+		<view class="setting-item">
 			<view class="item-left">
 				<text class="item-label">昵称</text>
 			</view>
-			<view class="item-right">
-				<text class="item-value">{{ userInfo.nickname || '未设置' }}</text>
+			<view class="item-right field-right nickname-right">
+				<input
+					class="inline-input"
+					type="nickname"
+					v-model="form.nickname"
+					maxlength="20"
+					confirm-type="done"
+					@blur="onFieldBlur('nickname', $event)"
+				/>
 				<van-icon name="arrow" class="arrow-icon" />
 			</view>
 		</view>
 		
-		<!-- 隐藏的头像选择按钮 -->
-		<!-- 不再需要隐藏按钮，直接使用visible按钮 -->
+		<view class="setting-item">
+			<view class="item-left">
+				<text class="item-label">姓名</text>
+			</view>
+			<view class="item-right field-right">
+				<input
+					class="inline-input"
+					type="text"
+					v-model="form.realName"
+					maxlength="20"
+					confirm-type="done"
+					@blur="onFieldBlur('realName', $event)"
+				/>
+				<van-icon name="arrow" class="arrow-icon" />
+			</view>
+		</view>
+		
+		<view class="setting-item">
+			<view class="item-left">
+				<text class="item-label">性别</text>
+			</view>
+			<picker class="picker" mode="selector" :value="sexIndex" :range="sexOptions" range-key="label" @change="onSexChange">
+				<view class="item-right picker-right">
+					<text class="picker-value">{{ sexText }}</text>
+					<van-icon name="arrow" class="arrow-icon" />
+				</view>
+			</picker>
+		</view>
+		
+		<view class="setting-item">
+			<view class="item-left">
+				<text class="item-label">身份证</text>
+			</view>
+			<view class="item-right field-right">
+				<input
+					class="inline-input"
+					type="idcard"
+					v-model="form.idcardNumber"
+					maxlength="18"
+					confirm-type="done"
+					@blur="onFieldBlur('idcardNumber', $event)"
+				/>
+				<van-icon name="arrow" class="arrow-icon" />
+			</view>
+		</view>
 		
 		<van-button type='default' class='logout f-db' v-on:click='logout'>退出登录</van-button>
-		
-		<!-- 昵称编辑抽屉 -->
-		<van-popup 
-			:show="showNickname" 
-			@close="showNickname = false"
-			position="bottom" 
-			:style="{ height: '40%' }"
-			round
-		>
-			<view class="drawer-content">
-				<view class="drawer-header">
-					<text class="drawer-title">编辑昵称</text>
-					<van-icon name="cross" @click="showNickname = false" class="close-icon" />
-				</view>
-				<view class="drawer-body">
-					<input 
-						class="nickname-input"
-						type="nickname" 
-						v-model="tempNickname"
-						@input="onNicknameInput"
-						@confirm="onNicknameConfirm"
-						placeholder="请输入昵称"
-						:focus="showNickname"
-						maxlength="20"
-						confirm-type="done"
-					/>
-					<view class="input-tip">昵称长度不超过20个字符</view>
-				</view>
-				<view class="drawer-footer">
-					<button 
-						class="save-btn"
-						@click="saveNickname"
-						:disabled="!tempNickname || !tempNickname.trim()"
-					>
-						保存
-					</button>
-				</view>
-			</view>
-		</van-popup>
 	</view>
 </template>
 
@@ -89,14 +97,14 @@
 		background-color: #f7f8fa;
 		min-height: 100vh;
 	}
-	
+
 	.section-title {
 		font-size: 26rpx;
 		color: #969799;
 		padding: 30rpx 32rpx 20rpx 32rpx;
 		font-weight: 400;
 	}
-	
+
 	.setting-item {
 		display: flex;
 		align-items: center;
@@ -107,20 +115,7 @@
 		transition: background-color 0.2s;
 		position: relative;
 	}
-	
-	.setting-item:first-of-type {
-		border-radius: 16rpx 16rpx 0 0;
-	}
-	
-	.setting-item:last-of-type {
-		border-radius: 0 0 16rpx 16rpx;
-		margin-bottom: 20rpx;
-	}
-	
-	.setting-item:only-of-type {
-		border-radius: 16rpx;
-	}
-	
+
 	.setting-item:not(:last-of-type)::after {
 		content: '';
 		position: absolute;
@@ -130,28 +125,28 @@
 		height: 1rpx;
 		background: #ebedf0;
 	}
-	
+
 	.setting-item:active {
 		background-color: rgba(0, 0, 0, 0.05);
 	}
-	
+
 	.item-left {
 		flex-shrink: 0;
 	}
-	
+
 	.item-label {
 		font-size: 30rpx;
 		color: #323233;
 		font-weight: 400;
 	}
-	
+
 	.item-right {
 		display: flex;
 		align-items: center;
 		flex: 1;
 		justify-content: flex-end;
 	}
-	
+
 	.avatar-btn {
 		background: none;
 		border: none;
@@ -162,11 +157,11 @@
 		align-items: center;
 		outline: none;
 	}
-	
+
 	.avatar-btn::after {
 		border: none;
 	}
-	
+
 	.avatar {
 		width: 100rpx;
 		height: 100rpx;
@@ -174,131 +169,78 @@
 		border: 2rpx solid #ebedf0;
 		display: block;
 	}
-	
-	.item-value {
-		font-size: 28rpx;
-		color: #646566;
-		margin-right: 16rpx;
-		max-width: 300rpx;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-	
+
 	.arrow-icon {
 		color: #c8c9cc;
 		font-size: 32rpx;
+		flex-shrink: 0;
 	}
-	
-	.drawer-content {
-		height: 100%;
-		background: #fff;
-		display: flex;
-		flex-direction: column;
-		border-radius: 20rpx 20rpx 0 0;
+
+	.field-right {
+		gap: 16rpx;
 	}
-	
-	.drawer-header {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: 40rpx 32rpx 20rpx 32rpx;
-		border-bottom: 1rpx solid #ebedf0;
-		position: relative;
+
+	.nickname-right {
+		gap: 20rpx;
 	}
-	
-	.drawer-title {
-		font-size: 34rpx;
-		font-weight: 600;
-		color: #323233;
-		text-align: center;
-	}
-	
-	.close-icon {
-		position: absolute;
-		right: 32rpx;
-		color: #c8c9cc;
-		font-size: 36rpx;
-		padding: 8rpx;
-		cursor: pointer;
-		transition: color 0.2s;
-	}
-	
-	.close-icon:active {
-		color: #969799;
-	}
-	
-	.drawer-body {
+
+	.inline-input {
 		flex: 1;
-		padding: 40rpx 32rpx 20rpx 32rpx;
-	}
-	
-	.nickname-input {
-		width: 100%;
-		height: 100rpx;
-		border: 2rpx solid #ebedf0;
-		border-radius: 12rpx;
-		padding: 0 24rpx;
+		height: 84rpx;
+		padding: 0;
 		font-size: 30rpx;
+		color: #323233;
+		background: transparent;
 		box-sizing: border-box;
-		background: #fafafa;
-		transition: all 0.3s;
+		transition: all 0.2s ease;
+		border: none;
+		text-align: right;
 	}
-	
-	.nickname-input:focus {
-		border-color: #5086F9;
-		background: #fff;
-		box-shadow: 0 0 0 4rpx rgba(80, 134, 249, 0.1);
+
+	.inline-input:focus {
+		background: transparent;
 	}
-	
-	.input-tip {
-		font-size: 24rpx;
-		color: #969799;
-		margin-top: 16rpx;
-		text-align: center;
-	}
-	
-	.drawer-footer {
-		padding: 20rpx 32rpx 40rpx 32rpx;
-		border-top: 1rpx solid #ebedf0;
-	}
-	
-	.save-btn {
-		width: 100%;
-		height: 88rpx;
-		background: linear-gradient(135deg, #5086F9, #4C70E3);
+
+	.wechat-btn {
+		height: 84rpx;
+		padding: 0 36rpx;
 		border-radius: 12rpx;
 		border: none;
-		color: white;
-		font-size: 30rpx;
-		font-weight: 500;
+		font-size: 28rpx;
+		color: #5086F9;
+		background: transparent;
+		flex-shrink: 0;
+	}
+
+	.wechat-btn:active {
+		background: rgba(80, 134, 249, 0.08);
+	}
+
+	.picker {
+		flex: 1;
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	.picker-right {
 		display: flex;
 		align-items: center;
-		justify-content: center;
-		box-shadow: 0 8rpx 20rpx rgba(80, 134, 249, 0.3);
-		transition: all 0.3s ease;
+		justify-content: flex-end;
+		gap: 16rpx;
 	}
-	
-	.save-btn:active {
-		transform: scale(0.95);
-		box-shadow: 0 4rpx 12rpx rgba(80, 134, 249, 0.4);
+
+	.picker-value {
+		font-size: 30rpx;
+		color: #323233;
 	}
-	
-	.save-btn[disabled] {
-		background: #f7f8fa !important;
-		color: #c8c9cc !important;
-		cursor: not-allowed;
-		box-shadow: none !important;
-		transform: none !important;
-	}
-	
+
 	.logout{
 		width: calc(100% - 60rpx);
 		margin: 40rpx auto 60rpx auto;
 		border-radius: 12rpx;
 		overflow: hidden;
 	}
-	
+
 	.logout /deep/ .van-button{
 		width: 100%;
 		height: 88rpx;
@@ -308,33 +250,60 @@
 </style>
 
 <script setup>
-	import { ref, onMounted } from 'vue'
+	import { reactive, onMounted, computed } from 'vue'
 	import navbar from '../../components/navbar/index.vue'
 	import request from '../../components/js/request.js'
 	import uploadFile from '../../components/js/uploadFile.js'
-	
-	const userInfo = ref({
+
+	const form = reactive({
 		avatar: '',
-		nickname: ''
+		nickname: '',
+		realName: '',
+		sex: '',
+		idcardNumber: ''
 	})
-	
-	const showNickname = ref(false)
-	const tempNickname = ref('')
-	
+
+	const lastSaved = reactive({
+		nickname: '',
+		realName: '',
+		sex: '',
+		idcardNumber: ''
+	})
+
+	const sexOptions = [
+		{ label: '请选择', value: 0 },	
+		{ label: '男', value: 1 },
+		{ label: '女', value: 2 }
+	]
+
+	const sexIndex = computed(() => {
+		return sexOptions.findIndex(option => option.value === form.sex)
+	})
+
+	const sexText = computed(() => {
+		const option = sexOptions.find(item => item.value === form.sex)
+		return option ? option.label : ''
+	})
+
 	onMounted(() => {
 		loadUserInfo()
 	})
-	
+
 	const loadUserInfo = () => {
 		const user = uni.getStorageSync('user')
 		if (user) {
-			userInfo.value = {
-				avatar: user.avatar || '',
-				nickname: user.nickname || ''
-			}
+			form.avatar = user.avatar || ''
+			form.nickname = user.nickname || ''
+			form.realName = user.realName || ''
+			form.sex = user.sex === undefined || user.sex === null || user.sex === '' ? '' : Number(user.sex)
+			form.idcardNumber = user.idcardNumber || ''
+			lastSaved.nickname = form.nickname
+			lastSaved.realName = form.realName
+			lastSaved.sex = form.sex
+			lastSaved.idcardNumber = form.idcardNumber
 		}
 	}
-	
+
 	const onChooseAvatar = async (e) => {
 		const avatarUrl = e.detail.avatarUrl
 		console.log('选择头像:', avatarUrl)
@@ -343,18 +312,15 @@
 			uni.showLoading({ title: '上传中...' })
 			
 			uploadFile({
-				url: '/me/avatar', // 头像上传接口
+				url: '/me/avatar',
 				filePath: avatarUrl,
 				name: 'file',
 				success: (res) => {
 					try {
 						const data = JSON.parse(res.data)
 						if (data.code === 200) {
-							// 更新用户信息，使用后端返回的头像URL
 							if (data.data && data.data.avatar) {
-								userInfo.value.avatar = data.data.avatar
-								
-								// 更新本地存储
+								form.avatar = data.data.avatar
 								const currentUser = uni.getStorageSync('user') || {}
 								uni.setStorageSync('user', { ...currentUser, avatar: data.data.avatar })
 							}
@@ -395,71 +361,43 @@
 			})
 		}
 	}
-	
-	const showNicknameDrawer = () => {
-		tempNickname.value = userInfo.value.nickname
-		showNickname.value = true
-	}
-	
-	const onNicknameInput = (e) => {
-		// 处理输入事件，确保v-model正常工作
-		tempNickname.value = e.detail.value
-		console.log('昵称输入:', e.detail.value)
-	}
-	
-	const onNicknameConfirm = (e) => {
-		// 处理确认事件，当用户点击键盘的完成按钮时触发
-		console.log('昵称确认:', e.detail.value)
-		// 这里不需要额外处理，v-model已经更新了值
-	}
-	
-	const saveNickname = async () => {
-		if (!tempNickname.value.trim()) {
-			uni.showToast({
-				title: '请输入昵称',
-				icon: 'none'
-			})
-			return
+
+	const useWechatNickname = () => {
+		const handleSuccess = (res) => {
+			const nickname = res.userInfo?.nickName || res.userInfo?.nickname
+			if (nickname) {
+				form.nickname = nickname
+				onFieldBlur('nickname')
+			}
 		}
-		
-		try {
-			uni.showLoading({ title: '保存中...' })
-			
-			// 调用更新用户信息接口
-			await updateUserProfile({
-				nickname: tempNickname.value.trim()
-			})
-			
-			userInfo.value.nickname = tempNickname.value.trim()
-			
-			// 更新本地存储
-			const currentUser = uni.getStorageSync('user') || {}
-			uni.setStorageSync('user', { ...currentUser, nickname: tempNickname.value.trim() })
-			
-			showNickname.value = false
-			uni.hideLoading()
+
+		const handleFail = () => {
 			uni.showToast({
-				title: '昵称更新成功',
-				icon: 'success'
-			})
-		} catch (error) {
-			uni.hideLoading()
-			uni.showToast({
-				title: '昵称更新失败',
+				title: '获取微信昵称失败',
 				icon: 'none'
 			})
 		}
+
+		if (typeof uni.getUserProfile === 'function') {
+			uni.getUserProfile({
+				desc: '用于完善个人资料',
+				success: handleSuccess,
+				fail: handleFail
+			})
+		} else {
+			uni.getUserInfo({
+				success: handleSuccess,
+				fail: handleFail
+			})
+		}
 	}
-	
-	// 调用后端接口更新用户信息
+
 	const updateUserProfile = (data) => {
 		return new Promise((resolve, reject) => {
-			const token = uni.getStorageSync('token')
-			
 			request({
-				url: '/me/profile', 
+				url: '/me/profile',
 				method: 'PUT',
-				data: data,
+				data,
 				success: (res) => {
 					if (res.data.code === 200) {
 						resolve(res.data)
@@ -473,7 +411,54 @@
 			})
 		})
 	}
-	
+
+	const onFieldBlur = async (field, event) => {
+		if (event && event.detail && typeof event.detail.value !== 'undefined') {
+			form[field] = event.detail.value
+		}
+
+		let value = form[field]
+		if (field !== 'sex' && typeof value === 'string') {
+			value = value.trim()
+			form[field] = value
+		}
+
+		if (lastSaved[field] === value) {
+			return
+		}
+
+		const payload = { [field]: value }
+		try {
+			// uni.showLoading({ title: '保存中...' })
+			await updateUserProfile(payload)
+			lastSaved[field] = value
+			const currentUser = uni.getStorageSync('user') || {}
+			uni.setStorageSync('user', { ...currentUser, ...payload })
+			// uni.hideLoading()
+			// uni.showToast({
+			// 	title: '已保存',
+			// 	icon: 'success'
+			// })
+		} catch (error) {
+			// uni.hideLoading()
+			uni.showToast({
+				title: '保存失败',
+				icon: 'none'
+			})
+			form[field] = lastSaved[field]
+		}
+	}
+
+	const onSexChange = (event) => {
+		const index = Number(event.detail.value)
+		const option = sexOptions[index]
+		if (!option) {
+			return
+		}
+		form.sex = option.value
+		onFieldBlur('sex')
+	}
+
 	const logout = () => {
 		uni.showModal({
 			title: '确定退出?',
@@ -493,6 +478,6 @@
 					}, 1500)
 				}
 			}
-		})	
+		})
 	}
 </script>
