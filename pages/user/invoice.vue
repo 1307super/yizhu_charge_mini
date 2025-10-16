@@ -679,7 +679,7 @@ const submitInvoiceRequest = () => {
 					title: '开票申请提交成功'
 				})
 				selectedOrders.value = []
-				loadOrderList()
+				loadOrderList(true)
 			} else {
 				uni.showToast({
 					title: res.data.msg || '申请失败',
@@ -722,12 +722,12 @@ const resetAndLoad = () => {
 	query.pageNum = 1
 	hasMore.value = true
 	isLoading.value = false
-	loadOrderList()
+	loadOrderList(true)
 }
 
 // 获取订单列表
-const loadOrderList = () => {
-	if (isLoading.value || !hasMore.value) return
+const loadOrderList = (force) => {
+	if (!force && (isLoading.value || !hasMore.value)) return
 	
 	console.log('开始加载订单列表，参数:', query)
 	isLoading.value = true

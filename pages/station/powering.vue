@@ -1,14 +1,20 @@
 <template>
 	<view class='container'>
 		<navbar class='navbar' title='' v-bind:delta='form.delta'></navbar>
-		
+
 		<!-- 顶部信息栏 -->
 		<view class='top-info'>
-			<text class='station-name'>{{form.stationName || '充电站名称'}}</text>
-			<text class='license-plate'>{{form.licensePlate || form.vehicleVin}}</text>
+			<view class='info-left'>
+				<text class='station-name'>{{form.stationName || '充电站名称'}}</text>
+				<text class='license-plate'>{{form.licensePlate || form.vehicleVin}}</text>
+			</view>
+			<!-- 全局订单状态 -->
+			<view class='global-state' :class="getOrderStateClass(globalOrderState)">
+				<text class='state-text'>{{getOrderStateText(globalOrderState)}}</text>
+			</view>
 		</view>
-		
-	
+
+
 		<!-- 充电枪卡片列表 -->
 		<view class='guns-container'>
 			<view class='gun-card' v-for="(order, index) in ordersList" :key="order.orderId">
@@ -22,7 +28,7 @@
 					</view>
 					<text class='estimate-time'>预计还需{{order.estimatedTime}}分钟</text>
 				</view>
-				
+
 				<view class='gun-content'>
 					<!-- 左侧圆环进度条 -->
 					<view class='progress-container'>
@@ -33,7 +39,7 @@
 							</view>
 						</view>
 					</view>
-					
+
 					<!-- 右侧数据显示 -->
 					<view class='data-container'>
 						<!-- 第一行：充电费用和已充电量 -->
@@ -47,11 +53,11 @@
 								<text class='data-label'>已充电量(度)</text>
 							</view>
 						</view>
-						
+
 						<!-- 第二行：功率、电流、电压 -->
 						<view class='data-row-detail'>
 							<view class='data-item-small'>
-								<text class='data-value-small'>{{(order.current * order.voltage / 100).toFixed(2)}}</text>
+								<text class='data-value-small'>{{(order.current * order.voltage / 1000).toFixed(2)}}</text>
 								<text class='data-label-small'>功率(KW)</text>
 							</view>
 							<view class='data-item-small'>
@@ -67,7 +73,7 @@
 				</view>
 			</view>
 		</view>
-		
+
 		<!-- 底部总计和操作区 -->
 		<view class='footer-container'>
 			<view class='total-info'>
@@ -80,9 +86,9 @@
 					<text class='total-label'>总充电量</text>
 				</view>
 			</view>
-			
-			<van-button 
-				type='primary' 
+
+			<van-button
+				type='primary'
 				:disabled='!canEndCharge || isStoppingCharge'
 				:color='canEndCharge && !isStoppingCharge ? "#2D55E8" : "#d9d9d9"'
 				@click='finish'
@@ -92,7 +98,7 @@
 			>
 				{{isStoppingCharge ? '正在结束充电...' : (canEndCharge ? '结束充电' : `请等待 ${remainingWaitTime}s`)}}
 			</van-button>
-			
+
 			<text class='footer-tip'>费用总计为预估金额，以实际发生为准</text>
 			<view class='safe-area'></view>
 		</view>
@@ -107,7 +113,7 @@
 		padding-bottom: 220rpx;
 		position: relative;
 	}
-	
+
 	/* 顶部信息栏 */
 	.top-info {
 		display: flex;
@@ -117,19 +123,84 @@
 		margin-top: 20rpx;
 		margin-bottom: 20rpx;
 	}
-	
+
+	.info-left {
+		display: flex;
+		align-items: center;
+		gap: 16rpx;
+	}
+
 	.station-name {
 		font-size: 26rpx;
 		color: #666;
 		font-weight: 400;
 	}
-	
+
 	.license-plate {
 		font-size: 26rpx;
 		color: #666;
 		font-weight: 400;
 	}
-	
+
+	/* 全局状态样式 */
+	.global-state {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 8rpx 20rpx;
+		border-radius: 20rpx;
+	}
+
+	.state-text {
+		font-size: 24rpx;
+		font-weight: 500;
+	}
+
+	/* 状态样式 - 启动中 */
+	.state-starting {
+		background: rgba(255, 152, 0, 0.1);
+	}
+
+	.state-starting .state-text {
+		color: #FF9800;
+	}
+
+	/* 状态样式 - 充电中 */
+	.state-charging {
+		background: rgba(45, 85, 232, 0.1);
+	}
+
+	.state-charging .state-text {
+		color: #2D55E8;
+	}
+
+	/* 状态样式 - 停止中 */
+	.state-stopping {
+		background: rgba(156, 39, 176, 0.1);
+	}
+
+	.state-stopping .state-text {
+		color: #9C27B0;
+	}
+
+	/* 状态样式 - 已完成 */
+	.state-finished {
+		background: rgba(76, 175, 80, 0.1);
+	}
+
+	.state-finished .state-text {
+		color: #4CAF50;
+	}
+
+	/* 状态样式 - 已关闭 */
+	.state-closed {
+		background: rgba(158, 158, 158, 0.1);
+	}
+
+	.state-closed .state-text {
+		color: #9E9E9E;
+	}
+
 	/* 背景装饰图 */
 	.bg-decoration {
 		position: absolute;
@@ -141,19 +212,19 @@
 		z-index: 1;
 		pointer-events: none;
 	}
-	
+
 	.bg-image {
 		width: 100%;
 		height: 100%;
 	}
-	
+
 	/* 充电枪卡片容器 */
 	.guns-container {
 		padding: 0 24rpx;
 		z-index: 2;
 		position: relative;
 	}
-	
+
 	.gun-card {
 		background: linear-gradient(135deg, rgba(45, 85, 232, 0.02) 0%, rgba(255, 255, 255, 0.9) 100%);
 		backdrop-filter: blur(10px);
@@ -165,7 +236,7 @@
 		position: relative;
 		overflow: hidden;
 	}
-	
+
 	.gun-card::before {
 		content: '';
 		position: absolute;
@@ -176,7 +247,7 @@
 		background: linear-gradient(45deg, transparent 30%, rgba(45, 85, 232, 0.1) 50%, transparent 70%);
 		transform: skewX(-20deg);
 	}
-	
+
 	/* 充电枪卡片头部 */
 	.gun-header {
 		display: flex;
@@ -184,13 +255,13 @@
 		align-items: center;
 		margin-bottom: 32rpx;
 	}
-	
+
 	.gun-title {
 		display: flex;
 		align-items: center;
 		gap: 12rpx;
 	}
-	
+
 	.gun-icon {
 		width: 40rpx;
 		height: 40rpx;
@@ -200,18 +271,18 @@
 		background: rgba(45, 85, 232, 0.1);
 		border-radius: 10rpx;
 	}
-	
+
 	.gun-icon-img {
 		width: 24rpx;
 		height: 24rpx;
 	}
-	
+
 	.gun-text {
 		font-size: 32rpx;
 		font-weight: 600;
 		color: #1a1a1a;
 	}
-	
+
 	.estimate-time {
 		font-size: 26rpx;
 		color: #2D55E8;
@@ -220,19 +291,20 @@
 		padding: 6rpx 16rpx;
 		border-radius: 20rpx;
 	}
-	
+
 	/* 充电枪卡片内容 */
 	.gun-content {
 		display: flex;
+		flex-direction: column;
 		align-items: center;
-		gap: 40rpx;
+		gap: 24rpx;
 	}
-	
+
 	/* 圆环进度条 */
 	.progress-container {
 		flex-shrink: 0;
 	}
-	
+
 	.circular-progress {
 		width: 160rpx;
 		height: 160rpx;
@@ -242,7 +314,7 @@
 		justify-content: center;
 		position: relative;
 	}
-	
+
 	.progress-inner {
 		width: 120rpx;
 		height: 120rpx;
@@ -254,38 +326,38 @@
 		justify-content: center;
 		box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
 	}
-	
+
 	.soc-value {
 		font-size: 36rpx;
 		font-weight: 700;
 		color: #2D55E8;
 		line-height: 1;
 	}
-	
+
 	.soc-unit {
 		font-size: 20rpx;
 		color: #666;
 		margin-top: 4rpx;
 	}
-	
+
 	/* 数据显示区域 */
 	.data-container {
-		flex: 1;
+		width: 100%;
 		display: flex;
 		flex-direction: column;
 		gap: 24rpx;
 	}
-	
+
 	.data-row-main {
 		display: flex;
 		gap: 32rpx;
 	}
-	
+
 	.data-item {
 		flex: 1;
 		text-align: center;
 	}
-	
+
 	.data-value {
 		display: block;
 		font-size: 32rpx;
@@ -293,18 +365,18 @@
 		color: #1a1a1a;
 		margin-bottom: 8rpx;
 	}
-	
+
 	.data-label {
 		font-size: 24rpx;
 		color: #666;
 		font-weight: 400;
 	}
-	
+
 	.data-row-detail {
 		display: flex;
 		gap: 8rpx;
 	}
-	
+
 	.data-item-small {
 		flex: 1;
 		text-align: center;
@@ -313,7 +385,7 @@
 		border-radius: 12rpx;
 		min-width: 0;
 	}
-	
+
 	.data-value-small {
 		display: block;
 		font-size: 28rpx;
@@ -321,14 +393,14 @@
 		color: #2D55E8;
 		margin-bottom: 6rpx;
 	}
-	
+
 	.data-label-small {
 		font-size: 20rpx;
 		color: #666;
 		font-weight: 400;
 		white-space: nowrap;
 	}
-	
+
 	/* 底部容器 */
 	.footer-container {
 		position: fixed;
@@ -344,7 +416,7 @@
 		z-index: 10;
 		box-sizing: border-box;
 	}
-	
+
 	.total-info {
 		display: flex;
 		justify-content: space-between;
@@ -354,12 +426,12 @@
 		border-radius: 12rpx;
 		box-sizing: border-box;
 	}
-	
+
 	.total-item {
 		text-align: center;
 		flex: 1;
 	}
-	
+
 	.total-value {
 		display: block;
 		font-size: 28rpx;
@@ -367,13 +439,13 @@
 		color: #2D55E8;
 		margin-bottom: 6rpx;
 	}
-	
+
 	.total-label {
 		font-size: 22rpx;
 		color: #666;
 		font-weight: 400;
 	}
-	
+
 	.end-button {
 		height: 72rpx;
 		border-radius: 36rpx;
@@ -385,7 +457,7 @@
 		width: 100%;
 		box-sizing: border-box;
 	}
-	
+
 	.footer-tip {
 		display: block;
 		text-align: center;
@@ -394,49 +466,44 @@
 		line-height: 1.4;
 		margin-bottom: 6rpx;
 	}
-	
+
 	.safe-area {
 		height: env(safe-area-inset-bottom);
 	}
-	
+
 	/* 响应式适配 */
 	@media (max-width: 375px) {
 		.container {
 			padding-bottom: 200rpx;
 		}
-		
-		.gun-content {
-			flex-direction: column;
-			gap: 20rpx;
-		}
-		
+
 		.data-row-main {
 			justify-content: center;
 		}
-		
+
 		.footer-container {
 			padding: 12rpx 16rpx;
 		}
-		
+
 		.total-info {
 			padding: 12rpx 16rpx;
 			margin-bottom: 16rpx;
 		}
-		
+
 		.total-value {
 			font-size: 24rpx;
 			margin-bottom: 4rpx;
 		}
-		
+
 		.total-label {
 			font-size: 20rpx;
 		}
-		
+
 		.end-button {
 			height: 64rpx;
 			font-size: 26rpx;
 		}
-		
+
 		.bg-decoration {
 			width: 280rpx;
 			height: 200rpx;
@@ -451,9 +518,9 @@
 	import navbar from '../../components/navbar/index.vue'
 	import request from '../../components/js/request.js'
 	import { getOrderStatusText, getOrderStatusClass, isOrderCharging } from '../../components/js/stationUtils.js'
-	
+
 	const app = getApp()
-	
+
 	// 页面参数
 	const form = reactive({
 		batchNo: '',
@@ -461,39 +528,69 @@
 		licensePlate: '',
 		delta: 1
 	})
-	
+
 	// 充电订单列表（一个批次可能有多个订单，每个订单一个枪）
 	const ordersList = ref([])
-	
+
+	// 全局订单状态：1-启动中 2-充电中 3-停止中 4-已完成 5-已关闭
+	const globalOrderState = ref(2)
+
 	// 充电开始时间（用于计算90秒限制）
 	const chargeStartTime = ref(Date.now())
-	
+
 	// 定时器
 	const countdownTimer = ref(null)
 	const dataRefreshTimer = ref(null)
 	const stopStatusTimer = ref(null)
-	
+
 	// 剩余等待时间（90秒限制）
 	const remainingWaitTime = ref(90)
-	
+
 	// 停止充电状态
 	const isStoppingCharge = ref(false)
-	
+
+	// 数据刷新间隔（毫秒）
+	const refreshInterval = ref(1000) // 初始为1秒
+
 	// 计算总充电费用
 	const totalChargeFee = computed(() => {
 		return ordersList.value.reduce((total, order) => total + (parseFloat(order.actualAmount) || 0), 0)
 	})
-	
+
 	// 计算总充电量
 	const totalChargedAmount = computed(() => {
 		return ordersList.value.reduce((total, order) => total + (order.power || 0), 0)
 	})
-	
+
 	// 是否可以结束充电（90秒后）
 	const canEndCharge = computed(() => {
 		return remainingWaitTime.value <= 0
 	})
-	
+
+	// 获取订单状态文本
+	const getOrderStateText = (orderState) => {
+		const stateMap = {
+			1: '启动中',
+			2: '充电中',
+			3: '停止中',
+			4: '已完成',
+			5: '已关闭'
+		}
+		return stateMap[orderState] || '未知状态'
+	}
+
+	// 获取订单状态样式类
+	const getOrderStateClass = (orderState) => {
+		const classMap = {
+			1: 'state-starting',
+			2: 'state-charging',
+			3: 'state-stopping',
+			4: 'state-finished',
+			5: 'state-closed'
+		}
+		return classMap[orderState] || 'state-unknown'
+	}
+
 	// 获取充电批次详情
 	const getChargingBatchDetail = () => {
 		request({
@@ -503,18 +600,25 @@
 			success: (res) => {
 				if (res.data.code === 200) {
 					const batchData = res.data.data
-					
-					// 检查充电状态，如果不为2说明充电已结束
-					if (batchData.status !== 2) {
+
+					// 更新充电订单数据
+					ordersList.value = batchData.orders || []
+
+					// 更新全局订单状态
+					// orderState: 1-启动中 2-充电中 3-停止中 4-已完成 5-已关闭
+					globalOrderState.value = batchData.status || 2
+
+					// 检查全局订单状态，只有 4-已完成 或 5-已关闭 时才跳转
+					if (globalOrderState.value === 4 || globalOrderState.value === 5) {
 						// 清理所有定时器
 						clearTimers()
-						
+
 						// 提示充电已结束
 						uni.showToast({
 							title: '充电已结束',
 							icon: 'success'
 						})
-						
+
 						// 跳转到订单列表页
 						setTimeout(() => {
 							uni.redirectTo({
@@ -523,17 +627,32 @@
 						}, 1500)
 						return
 					}
-					
+
 					// 更新基本信息
 					form.stationName = batchData.stationName || '充电站名称'
-					form.licensePlate = batchData.licensePlate || '车牌号/车架号'
-					
-					// 更新充电订单数据
-					ordersList.value = batchData.orders || []
-					
+					form.licensePlate = batchData.licensePlate || ''
+
 					// 设置充电开始时间 (格式: "2025-01-15 10:30:00")
 					if (batchData.startTime) {
 						chargeStartTime.value = new Date(batchData.startTime.replace(' ', 'T')).getTime()
+					}
+
+					// 检查是否有功率数据（电流和电压都大于0）
+					const hasPowerData = ordersList.value.some(order =>
+						(order.current > 0 && order.voltage > 0)
+					)
+
+					// 根据功率数据动态调整刷新间隔
+					const newInterval = hasPowerData ? 15000 : 1000 // 有数据15秒，无数据1秒
+
+					// 如果间隔发生变化，重启定时器
+					if (newInterval !== refreshInterval.value) {
+						refreshInterval.value = newInterval
+						// 重启数据刷新定时器
+						if (dataRefreshTimer.value) {
+							clearInterval(dataRefreshTimer.value)
+							startDataRefresh()
+						}
 					}
 				}
 			},
@@ -546,26 +665,26 @@
 			}
 		})
 	}
-	
+
 	// 启动倒计时
 	const startCountdown = () => {
 		countdownTimer.value = setInterval(() => {
 			const elapsed = Math.floor((Date.now() - chargeStartTime.value) / 1000)
 			remainingWaitTime.value = Math.max(0, 90 - elapsed)
-			
+
 			if (remainingWaitTime.value <= 0) {
 				clearInterval(countdownTimer.value)
 			}
 		}, 1000)
 	}
-	
+
 	// 启动数据刷新定时器
 	const startDataRefresh = () => {
 		dataRefreshTimer.value = setInterval(() => {
 			getChargingBatchDetail()
-		}, 15000) // 每15秒刷新一次
+		}, refreshInterval.value)
 	}
-	
+
 	// 检查停止充电状态
 	const checkStopChargeStatus = () => {
 		request({
@@ -580,12 +699,12 @@
 						// 停止充电已完成，停止轮询并跳转
 						stopCheckingStatus()
 						uni.hideLoading()
-						
+
 						uni.showToast({
 							title: status === 2 ? '充电已完成' : status === 3 ? '充电已关闭' : '退款失败',
 							icon: status === 2 ? 'success' : 'none'
 						})
-						
+
 						setTimeout(() => {
 							uni.redirectTo({
 								url: `/pages/user/order?batchNo=${form.batchNo}`
@@ -600,14 +719,14 @@
 			}
 		})
 	}
-	
+
 	// 开始检查停止状态（每秒一次）
 	const startCheckingStatus = () => {
 		stopStatusTimer.value = setInterval(() => {
 			checkStopChargeStatus()
 		}, 1000)
 	}
-	
+
 	// 停止检查停止状态
 	const stopCheckingStatus = () => {
 		if (stopStatusTimer.value) {
@@ -616,7 +735,7 @@
 		}
 		isStoppingCharge.value = false
 	}
-	
+
 	// 结束充电
 	const finish = () => {
 		if (!canEndCharge.value) {
@@ -626,7 +745,7 @@
 			})
 			return
 		}
-		
+
 		uni.showModal({
 			title: '确定结束充电？',
 			content: '结束充电后将生成充电账单',
@@ -640,16 +759,16 @@
 			}
 		})
 	}
-	
+
 	// 调用结束充电接口
 	const endCharging = () => {
 		isStoppingCharge.value = true
-		
+
 		uni.showLoading({
 			title: '正在结束充电...',
 			mask: true // 防止用户操作
 		})
-		
+
 		request({
 			url: 'order/endCharging?batchNo='+form.batchNo,
 			method: 'POST',
@@ -677,7 +796,7 @@
 			}
 		})
 	}
-	
+
 	// 清理定时器
 	const clearTimers = () => {
 		if (countdownTimer.value) {
@@ -694,28 +813,28 @@
 		}
 		isStoppingCharge.value = false
 	}
-	
+
 	onLoad((options) => {
 		// 接收页面参数
 		Object.assign(form, options)
-		
+
 		// 获取批次详情
 		getChargingBatchDetail()
-		
+
 		// 启动倒计时
 		startCountdown()
-		
+
 		// 启动数据刷新轮询
 		startDataRefresh()
 	})
-	
+
 	onShow(() => {
 		// 页面显示时重新启动轮询（如果已停止）
 		if (!dataRefreshTimer.value && form.batchNo) {
 			startDataRefresh()
 		}
 	})
-	
+
 	onHide(() => {
 		// 页面隐藏时停止数据轮询以节省资源，但保持停止状态检查
 		if (dataRefreshTimer.value) {
@@ -724,12 +843,12 @@
 		}
 		// 如果正在停止充电，继续保持状态检查
 	})
-	
+
 	onUnload(() => {
 		// 页面卸载时清理资源
 		clearTimers()
 	})
-	
+
 	onUnmounted(() => {
 		// 组件卸载时清理资源
 		clearTimers()

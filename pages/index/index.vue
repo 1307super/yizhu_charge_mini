@@ -53,7 +53,17 @@
 			<view class='station-card' v-for='(item, index) in stations' v-bind:key='index' v-on:click='go("/pages/station/index?plotId=" + item.stationId + "&deviceType=" + item.deviceType + "&distance=" + item.distance)'>
 				<view class='content-area'>
 					<view class='station-header'>
-						<text class='station-title'>{{item.stationName}}</text>
+						<view class='title-row'>
+							<text class='station-title'>{{item.stationName}}</text>
+							<view
+								v-if="shouldShowStatus(item.stationStatus)"
+								class='status-badge'
+								:style="getStatusBadgeStyle(item.stationStatus)"
+							>
+								<view class='status-dot' :style="{ backgroundColor: getStatusTheme(item.stationStatus).dot }"></view>
+								<text class='status-text'>{{ getStatusText(item.stationStatus) }}</text>
+							</view>
+						</view>
 						<view class="tag-list" v-if="item.tags && item.tags.length">
 							<view class="tag-chip" v-for="(tag, tIdx) in item.tags" :key="tIdx">{{ tag }}</view>
 						</view>
@@ -289,6 +299,15 @@
 				
 				.station-header
 					padding 32rpx 32rpx 24rpx 32rpx
+					display flex
+					flex-direction column
+					gap 14rpx
+					
+					.title-row
+						display flex
+						align-items center
+						justify-content space-between
+						gap 24rpx
 					
 					.station-title
 						font-size 34rpx
@@ -310,6 +329,30 @@
 							color #2D55E8
 							font-size 20rpx
 							line-height 1
+
+					.status-badge
+						display inline-flex
+						align-items center
+						gap 12rpx
+						padding 10rpx 22rpx
+						border-radius 999rpx
+						font-size 24rpx
+						font-weight 600
+						border 1rpx solid transparent
+						line-height 1
+						box-shadow 0 6rpx 12rpx rgba(45, 85, 232, 0.08)
+						transition transform 0.2s ease, box-shadow 0.2s ease
+						
+						.status-dot
+							width 14rpx
+							height 14rpx
+							border-radius 50%
+							background-color currentColor
+							opacity 0.88
+						
+						.status-text
+							line-height 1
+							letter-spacing 1rpx
 				
 				.charging-info
 					padding 0 32rpx 20rpx 32rpx
@@ -510,6 +553,7 @@
 	import navbar from '../../components/navbar/index.vue'
 	import tabbar from '../../components/tabbar/index.vue'
 	import request from '../../components/js/request.js'
+	import { getStationStatusText, getStationStatusColor, isStationAvailable } from '../../components/js/stationUtils.js'
 	import cityData from '../../static/city.json'
 	
 	const app = getApp()
@@ -638,11 +682,41 @@
 			}
 		})
 	}
+
+	// 站点状态主题与展示
+	const getStatusTheme = (status) => {
+		const theme = getStationStatusColor(status)
+		return {
+			bg: theme.bg,
+			text: theme.text,
+			border: theme.border || 'transparent',
+			dot: theme.dot || theme.text,
+			shadow: theme.shadow || 'none'
+		}
+	}
+
+	const getStatusBadgeStyle = (status) => {
+		const theme = getStatusTheme(status)
+		return {
+			background: theme.bg,
+			color: theme.text,
+			borderColor: theme.border,
+			boxShadow: theme.shadow
+		}
+	}
+
+	const getStatusText = (status) => {
+		return getStationStatusText(status)
+	}
+
+	const shouldShowStatus = (status) => {
+		return !isStationAvailable(status)
+	}
 	
 	const openMap = (station) => {
 		uni.openLocation({
-			latitude: station.lat || query.lat,
-			longitude: station.lng || query.lng,
+			latitude: station.latitude || query.lat,
+			longitude: station.longitude || query.lng,
 			name: station.stationName,
 			address: station.address || ''
 		})

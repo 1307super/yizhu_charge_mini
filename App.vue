@@ -6,11 +6,12 @@
 </style>
 
 <script>
+	// serverUrl: 'https://dev.echargeyz.com/prod-api/yzev-mp/'
+	// serverUrl: 'http://127.0.0.1:38080/yzev-mp/'
 	export default {
 		globalData: {
 			appid: 'wxbe36fe76127d185a',
-			serverUrl: 'http://127.0.0.1:38080/yzev-mp/',
-			wsurl: 'ws://127.0.0.1/yzev-mp/websocket/charge/'
+			serverUrl: 'https://dev.echargeyz.com/prod-api/yzev-mp/'
 		},
 		onLaunch: function() {
 			console.log('App Launch')

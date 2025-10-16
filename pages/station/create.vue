@@ -1,6 +1,6 @@
 <template>
 	<view class='container'>
-		<navbar class='navbar' title='费用确认'></navbar>
+		<!-- <navbar class='navbar' title='费用确认'></navbar> -->
 		
 
 		<!-- 顶部视觉区（背景图 + 渐变 + 站点信息融合） -->
@@ -15,6 +15,10 @@
 						<text class='gun-text'>{{stationInfo.gunNo}}号枪</text>
 					</view>
 					<view v-if='gunStatusText' class='gun-status' :class='getStatusClass()'>{{gunStatusText}}</view>
+					<view v-if='showStationStatus' class='station-status' :style='stationStatusStyle'>
+						<view class='status-dot' :style="{ backgroundColor: stationStatusTheme.dot }"></view>
+						<text class='status-text'>{{stationStatusText}}</text>
+					</view>
 				</view>
 			</view>
 		</view>
@@ -155,7 +159,7 @@
 
 				<!-- 标题 -->
 				<view class='modal-header'>
-					<text class='modal-title'>{{stationInfo.chargingData?.plateNo || '车辆'}} 充电订单信息</text>
+					<text class='modal-title'>{{stationInfo.chargingData?.plateNo || ''}} 充电订单信息</text>
 				</view>
 
 				<!-- 内容 -->
@@ -181,7 +185,7 @@
 						</view>
 						<view class='info-item'>
 							<text class='info-label'>剩余充电时长</text>
-							<text class='info-value'>{{stationInfo.chargingData?.remainingTime || '计算中'}}</text>
+							<text class='info-value'>{{stationInfo.chargingData?.remainingTime + '分钟' || '计算中'}}</text>
 						</view>
 					</view>
 
@@ -218,7 +222,6 @@
 <style scoped>
 .container{
     background-color: #F6F7F9;
-    padding-top: 60rpx;
     min-height: 100vh;
     padding-bottom: 240rpx;
 }
@@ -324,6 +327,29 @@
 	.gun-status.status-offline{
 		background-color: #f5f5f5;
 		color: #8c8c8c;
+	}
+	.station-status{
+		display: inline-flex;
+		align-items: center;
+		gap: 10rpx;
+		padding: 8rpx 20rpx;
+		border-radius: 999rpx;
+		font-size: 24rpx;
+		font-weight: 600;
+		border: 1rpx solid transparent;
+		line-height: 1;
+		box-shadow: 0 6rpx 12rpx rgba(45,85,232,0.08);
+	}
+	.station-status .status-dot{
+		width: 12rpx;
+		height: 12rpx;
+		border-radius: 50%;
+		background-color: currentColor;
+		opacity: 0.88;
+	}
+	.station-status .status-text{
+		line-height: 1;
+		letter-spacing: 1rpx;
 	}
 
 	/* 价格卡片 */
@@ -742,7 +768,13 @@
 	import { onLoad, onShow, onHide } from '@dcloudio/uni-app'
 	import navbar from '../../components/navbar/index.vue'
 	import request from '../../components/js/request.js'
-	import { getStatusText, getStatusClass as getStationStatusClass } from '../../components/js/stationUtils.js'
+	import {
+		getStatusText,
+		getStatusClass as getStationStatusClass,
+		getStationStatusText,
+		getStationStatusColor,
+		isStationAvailable
+	} from '../../components/js/stationUtils.js'
 	
 	const app = getApp()
 	const user = uni.getStorageSync('user')
@@ -762,18 +794,28 @@
 		price: 0,
 		pricePeriod: '',
 		status: null,
+		stationStatus: null,  // 站点状态
 		allowStopCode: false,
 		chargingData: null
 	})
 	
-	// 企业钱包信息
-	const enterpriseWallet = reactive({
+	// 企业钱包初始状态
+	const initialWalletState = {
 		enterpriseName: null,
 		walletBalance: null,
 		accountingAmount: null,
 		consumedAmount: null,
 		minLimit: null
+	}
+
+	// 企业钱包信息
+	const enterpriseWallet = reactive({
+		...initialWalletState
 	})
+
+	const resetEnterpriseWallet = () => {
+		Object.assign(enterpriseWallet, initialWalletState)
+	}
 	
 	// 付款方式相关
 	const paymentMethod = ref('prepay') // 'enterprise' | 'prepay'
@@ -803,11 +845,46 @@
 		if (stationInfo.status === null) return ''
 		return getStatusText(stationInfo.status)
 	})
+
+	// 获取站点状态展示主题
+	const stationStatusText = computed(() => {
+		const status = stationInfo.stationStatus
+		if (status === null || status === undefined || status === '') return ''
+		return getStationStatusText(status)
+	})
+
+	const stationStatusTheme = computed(() => {
+		const theme = getStationStatusColor(stationInfo.stationStatus)
+		return {
+			bg: theme.bg,
+			text: theme.text,
+			border: theme.border || 'transparent',
+			dot: theme.dot || theme.text,
+			shadow: theme.shadow || 'none'
+		}
+	})
+
+	const stationStatusStyle = computed(() => {
+		if (!stationStatusText.value) return {}
+		const theme = stationStatusTheme.value
+		return {
+			background: theme.bg,
+			color: theme.text,
+			borderColor: theme.border,
+			boxShadow: theme.shadow
+		}
+	})
+
+	const showStationStatus = computed(() => {
+		return !!stationStatusText.value && !isStationAvailable(stationInfo.stationStatus)
+	})
 	
 	// 判断是否可以充电
 	const canCharge = computed(() => {
-		// 只有状态为2（占用未充电）时才可以充电
-		return stationInfo.status === 2
+		// 站点状态必须为50（正常使用），且充电枪状态为2（占用未充电）时才可以充电
+		const stationOk = isStationAvailable(stationInfo.stationStatus)
+		const gunOk = stationInfo.status === 2
+		return stationOk && gunOk
 	})
 	
 	// 计算企业钱包可用余额
@@ -829,7 +906,18 @@
 		if (stationInfo.status === null) {
 			return { text: '立即充电', disabled: true, tip: '加载中...' }
 		}
-		
+console.log(111)
+		// 优先检查站点状态
+		if (!isStationAvailable(stationInfo.stationStatus)) {
+			const statusText = getStationStatusText(stationInfo.stationStatus)
+			return {
+				text: `站点${statusText}`,
+				disabled: true,
+				tip: `当前站点处于${statusText}状态，暂时无法充电`
+			}
+		}
+
+		// 然后检查充电枪状态
 		switch (stationInfo.status) {
 			case 1: // 空闲
 				return { text: '立即充电', disabled: true, tip: '请先插枪后充电' }
@@ -862,7 +950,25 @@
 			method: 'GET',
 			success: (res) => {
 				if (res.data.code === 200) {
-					Object.assign(stationInfo, res.data.data)
+					const data = res.data.data || {}
+					const { wallet, stationStatus, status, ...stationData } = data
+					Object.assign(stationInfo, stationData)
+					stationInfo.status = status ?? stationInfo.status
+					stationInfo.stationStatus = stationStatus ?? stationInfo.stationStatus ??  0
+
+					// 更新企业钱包信息
+					if (wallet) {
+						resetEnterpriseWallet()
+						Object.assign(enterpriseWallet, wallet)
+						if (wallet.walletBalance !== null && wallet.walletBalance !== undefined) {
+							paymentMethod.value = 'enterprise'
+						} else {
+							paymentMethod.value = 'prepay'
+						}
+					} else {
+						resetEnterpriseWallet()
+						paymentMethod.value = 'prepay'
+					}
 
 					// 检查是否允许使用停止码停止充电
 					if (stationInfo.allowStopCode && stationInfo.chargingData) {
@@ -872,34 +978,6 @@
 			},
 			fail: (error) => {
 				console.error('获取站点信息失败:', error)
-			}
-		})
-	}
-	
-	// 获取企业钱包信息
-	const getEnterpriseWallet = () => {
-		request({
-			url: 'me/getEnterpriseWallet',
-			method: 'GET',
-			success: (res) => {
-				if (res.data.code === 200 && res.data.data) {
-					Object.assign(enterpriseWallet, res.data.data)
-					// 如果有企业钱包，默认选择企业卡支付
-					if (enterpriseWallet.walletBalance !== null) {
-						paymentMethod.value = 'enterprise'
-					}
-				}
-				if (res.statusCode == 401) {
-						uni.setStorageSync('redirecturl', `/pages/station/create?stationId=${stationId.value}&gunNumber=${gunNumber.value}`)
-						uni.navigateTo({
-							url: '/pages/user/login'
-						})
-						return
-				}
-			},
-			fail: (error) => {
-				// 静默处理错误，不显示错误消息
-				console.log('企业钱包信息获取失败')
 			}
 		})
 	}
@@ -1028,7 +1106,7 @@
 		// 校验
 		if (paymentMethod.value === 'prepay') {
 			const amount = finalAmount.value
-			if (!amount || amount < 0.01) {
+			if (!amount || amount < 1) {
 				uni.showToast({
 					title: '自定义金额不能少于10元',
 					icon: 'none'
@@ -1268,14 +1346,48 @@
 			}
 		})
 	}
-	
-	onLoad((option) => {
-		stationId.value = option.stationId
-		gunNumber.value = option.gunNumber
-		
+	const qrcodeContent = ref('')
+	onLoad(option => {
+		let url = option.key || decodeURIComponent(option.q)
+		wx.setNavigationBarTitle({
+				title: '费用确认'
+		});
+
+		// 如果通过key参数传入，解析URL获取stationId和gunNumber
+		if (url) {
+			try {
+				// URL格式: https://dev.echargeyz.com/qrcode/code/295|1
+				// 提取 /code/ 后面的内容
+				const match = url.match(/\/code\/(.+)/)
+				if (match && match[1]) {
+					const params = match[1].split('|')
+					if (params.length === 2) {
+						stationId.value = params[0]
+						gunNumber.value = params[1]
+					}
+				}
+			} catch (error) {
+				console.error('解析key参数失败:', error)
+			}
+		}
+
+		// 兼容直接传参的方式
+		if (option.stationId) {
+			stationId.value = option.stationId
+		}
+		if (option.gunNumber) {
+			gunNumber.value = option.gunNumber
+		}
+		if (!stationId.value || !gunNumber.value) {
+			uni.showToast({
+				title: '不支持的二维码',
+				icon: 'none'
+			})
+			return
+		}
+
 		// 获取数据
 		getStationInfo()
-		getEnterpriseWallet()
 	})
 	
 	onShow(() => {

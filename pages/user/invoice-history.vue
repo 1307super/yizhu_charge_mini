@@ -715,51 +715,18 @@ const downloadPdf = (pdfUrl, invoiceNo) => {
 		})
 		return
 	}
+	let fileObj = JSON.parse(pdfUrl)
 	
 	// 复制链接到剪贴板
 	uni.setClipboardData({
-		data: pdfUrl,
+		data: fileObj.pdfUrl,
 		success: () => {
 			uni.showToast({
 				title: 'PDF链接已复制'
 			})
 		}
 	})
-	
-	// 也可以尝试直接打开
-	// #ifdef H5
-	window.open(pdfUrl, '_blank')
-	// #endif
-	
-	// #ifdef MP-WEIXIN
-	uni.downloadFile({
-		url: pdfUrl,
-		success: (res) => {
-			if (res.statusCode === 200) {
-				uni.openDocument({
-					filePath: res.tempFilePath,
-					success: () => {
-						console.log('打开PDF成功')
-					},
-					fail: (err) => {
-						console.log('打开PDF失败', err)
-						uni.showToast({
-							title: '无法打开PDF文件',
-							icon: 'none'
-						})
-					}
-				})
-			}
-		},
-		fail: (err) => {
-			console.log('下载PDF失败', err)
-			uni.showToast({
-				title: '下载PDF失败',
-				icon: 'none'
-			})
-		}
-	})
-	// #endif
+
 }
 
 // 处理重新申请

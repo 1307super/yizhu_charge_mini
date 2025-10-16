@@ -21,9 +21,7 @@
 		},
 		{
 			"path": "pages/station/create",
-			"style": {
-				"navigationStyle": "custom"
-			}
+			"navigationBarTitleText": "费用确认"
 		},
 		{
 			"path": "pages/station/powering",

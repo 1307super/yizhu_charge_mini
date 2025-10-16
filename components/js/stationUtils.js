@@ -1,5 +1,53 @@
 // 充电站相关工具函数
 
+// 站点状态映射
+export const STATION_STATUS_MAP = {
+	TEXT: {
+		0: '未知',
+		1: '建设中',
+		5: '关闭下线',
+		6: '维护中',
+		50: '正常使用'
+	},
+	COLOR: {
+		0: {                                                // 未知 - 灰色
+			bg: 'linear-gradient(135deg, #f7f8fa 0%, #f0f2f5 100%)',
+			text: '#8c8c8c',
+			border: 'rgba(140, 140, 140, 0.18)',
+			dot: '#bfbfbf',
+			shadow: '0 6rpx 14rpx rgba(99, 99, 99, 0.12)'
+		},
+		1: {                                                // 建设中 - 蓝色
+			bg: 'linear-gradient(135deg, #e6f4ff 0%, #cfe9ff 100%)',
+			text: '#177ddc',
+			border: 'rgba(24, 144, 255, 0.26)',
+			dot: '#1890ff',
+			shadow: '0 6rpx 14rpx rgba(24, 144, 255, 0.16)'
+		},
+		5: {                                                // 关闭下线 - 红色
+			bg: 'linear-gradient(135deg, #fff2f0 0%, #ffe2e0 100%)',
+			text: '#d4380d',
+			border: 'rgba(255, 77, 79, 0.24)',
+			dot: '#ff4d4f',
+			shadow: '0 6rpx 14rpx rgba(255, 82, 82, 0.18)'
+		},
+		6: {                                                // 维护中 - 橙色
+			bg: 'linear-gradient(135deg, #fff7e6 0%, #ffe7c3 100%)',
+			text: '#d48806',
+			border: 'rgba(250, 173, 20, 0.26)',
+			dot: '#faad14',
+			shadow: '0 6rpx 14rpx rgba(250, 173, 20, 0.18)'
+		},
+		50: {                                               // 正常使用 - 绿色
+			bg: 'linear-gradient(135deg, #f6ffed 0%, #d9f7be 100%)',
+			text: '#389e0d',
+			border: 'rgba(82, 196, 26, 0.24)',
+			dot: '#52c41a',
+			shadow: '0 6rpx 14rpx rgba(82, 196, 26, 0.18)'
+		}
+	}
+}
+
 // 充电枪状态映射
 export const GUN_STATUS_MAP = {
 	CLASS: {
@@ -141,4 +189,29 @@ export const getOrderStatusClass = (status) => {
 // 判断订单是否在充电中
 export const isOrderCharging = (status) => {
 	return status === 1 || status === 2 // 启动中或充电中
+}
+
+const normalizeStationStatus = (status) => {
+	if (status === undefined || status === null || status === '') {
+		return 0
+	}
+	const parsed = Number(status)
+	return Number.isNaN(parsed) ? 0 : parsed
+}
+
+// 获取站点状态文本
+export const getStationStatusText = (status) => {
+	const normalized = normalizeStationStatus(status)
+	return STATION_STATUS_MAP.TEXT[normalized] || '未知'
+}
+
+// 获取站点状态颜色
+export const getStationStatusColor = (status) => {
+	const normalized = normalizeStationStatus(status)
+	return STATION_STATUS_MAP.COLOR[normalized] || STATION_STATUS_MAP.COLOR[0]
+}
+
+// 判断站点是否可用
+export const isStationAvailable = (status) => {
+	return normalizeStationStatus(status) === 50
 }

@@ -1,5 +1,5 @@
 <template>
-	<view class='container'>
+	<view class='container' :class="{ 'no-scroll': showPriceDetail || showAllGuns }">
 		<navbar class='navbar' title=""></navbar>
 		
 		<!-- 顶部封面图 -->
@@ -7,7 +7,13 @@
 		
 		<!-- 充电站信息卡片 -->
 		<view class='station-info-card'>
-			<view class='station-name'>{{stationInfo.stationName}}</view>
+			<view class='station-header-row'>
+				<text class='station-name'>{{stationInfo.stationName}}</text>
+				<view v-if="showStationStatusChip" class='station-status-chip' :style="stationStatusStyle">
+					<view class='status-dot' :style="{ backgroundColor: stationStatusTheme.dot }"></view>
+					<text class='status-text'>{{stationStatusText}}</text>
+				</view>
+			</view>
 			<view class='address-row'>
 				<text class='station-address'>{{stationInfo.address}}</text>
 				<view class='station-distance' v-on:click="navigateToStation">
@@ -28,7 +34,7 @@
 		<view class='charge-fee-card'>
 			<view class='card-header'>
 				<text class='card-title'>充电费</text>
-				<text class='view-all' v-on:click='showPriceDetail = true'>全部时段 ></text>
+				<text class='view-all' v-on:click='showPriceDetail = true'>全部时段</text>
 			</view>
 			<view class='current-period'>
 				<view class='period-time'>当前时段：{{currentPeriod.startTime}} - {{currentPeriod.endTime}}</view>
@@ -61,20 +67,26 @@
 		<view class='charging-guns-card'>
 			<view class='card-header'>
 				<text class='card-title'>充电枪信息</text>
-				<text class='view-all' v-on:click='showAllGuns = true'>查看全部 ></text>
+				<text class='view-all' v-on:click='showAllGuns = true'>查看全部</text>
 			</view>
 			<view class='guns-list'>
 				<view class='gun-item' v-for='(gun, index) in chargingGuns.slice(0, 4)' v-bind:key='index'>
 					<view class='gun-status'>
-						<van-circle
-							:value="getCircleRate(gun)"
-							:color="getCircleColor(gun.status)"
-							:layer-color="'#f0f2f5'"
-							:stroke-width="4"
-							:size="60"
-						>
+						<!-- 使用纯 CSS 圆环替代 van-circle，避免原生组件层级问题 -->
+						<view class='custom-circle'>
+							<!-- 背景圆环 -->
+							<view class='circle-bg'></view>
+							<!-- 进度圆环 -->
+							<view class='circle-progress'
+								:style="{
+									background: `conic-gradient(${getCircleColor(gun.status)} ${getCircleRate(gun)}%, transparent ${getCircleRate(gun)}%)`
+								}"
+							></view>
+							<!-- 内部白色遮罩 -->
+							<view class='circle-inner'></view>
+							<!-- 状态文字 -->
 							<text class='status-text' :style="{ color: getCircleColor(gun.status) }">{{ getStatusText(gun.status) }}</text>
-						</van-circle>
+						</view>
 					</view>
 					<view class='gun-info'>
 						<view class='gun-number'>{{gun.gunNumber}}号枪</view>
@@ -87,7 +99,22 @@
 				</view>
 			</view>
 		</view>
-		
+
+		<!-- 站点负责人信息卡片 -->
+		<view class='station-manager-card' v-if='stationManagers && stationManagers.length > 0'>
+			<view class='card-header'>
+				<text class='card-title'>站点负责人</text>
+			</view>
+			<view class='managers-content'>
+				<view class='manager-item' v-for='(manager, index) in stationManagers' v-bind:key='index'>
+					<view class='manager-info'>
+						<text class='manager-name'>{{manager.name}}</text>
+						<text class='manager-phone' v-on:click='makePhoneCall(manager.phone)'>{{manager.phone}}</text>
+					</view>
+				</view>
+			</view>
+		</view>
+
 		<!-- 周边服务卡片 -->
 		<view class='nearby-services-card'>
 			<view class='card-header'>
@@ -114,93 +141,86 @@
 		</view>
 		
 		<!-- 价格详情弹窗 -->
-		<van-popup 
-			v-model:show="showPriceDetail" 
-			position="bottom" 
-			custom-style="height: 70%; border-radius: 20rpx 20rpx 0 0;"
-			@opened="onPricePopupOpened"
-			@closed="onPricePopupClosed"
+		<van-popup
+			v-model:show="showPriceDetail"
+			position="bottom"
+			custom-style="height: 70%; border-radius: 20rpx 20rpx 0 0; display: flex; flex-direction: column; overflow: hidden;"
+			:lock-scroll="true"
+			:catch-move="true"
+			@touchmove.stop
 		>
 			<view class='price-detail-popup'>
 				<view class='popup-header'>
 					<text class='popup-title'>价格详情</text>
 					<van-icon name="cross" size="20px" v-on:click='showPriceDetail = false' />
 				</view>
-                <van-tabs v-if="priceTabsVisible" v-model:active="activeTab" color="#2D55E8">
-                    <van-tab title="兆瓦价格">
-						<view class='price-periods'>
-							<view class='period-card' v-for='(period, index) in megawattPrices' v-bind:key='index' v-bind:class='{current: period.isCurrent}'>
-								<view class='period-badge' v-if='period.isCurrent'>当前时段价</view>
-								<view class='period-time'>{{period.startTime}} - {{period.endTime}}</view>
-								<view class='period-prices'>
-									<view class='price-row'>
-										<text class='label'>充电单价</text>
-										<view class='price-values'>
-											<text v-if='period.originalChargingPrice !== period.chargingPrice' class='original-price'>{{period.originalChargingPrice}}元/度</text>
-											<text class='current-price'>{{period.chargingPrice}}元/度</text>
-										</view>
+				<view class="price-tabs">
+					<view class="tab-list" v-if="priceTabItems.length">
+						<view
+							class="tab-item"
+							v-for="tab in priceTabItems"
+							:key="tab.key"
+							:class="{ active: tab.key === activePriceTab }"
+							@tap="handlePriceTabChange(tab.key)"
+						>
+							<text>{{ tab.label }}</text>
+						</view>
+					</view>
+
+					<scroll-view
+						class='price-periods'
+						scroll-y
+						enable-flex
+					>
+						<view
+							class='period-card'
+							v-for='(period, index) in activePriceList'
+							:key='index'
+							:class='{current: period.isCurrent}'
+						>
+							<view class='period-badge' v-if='period.isCurrent'>当前时段价</view>
+							<view class='period-time'>{{period.startTime}} - {{period.endTime}}</view>
+							<view class='period-prices'>
+								<view class='price-row'>
+									<text class='label'>充电单价</text>
+									<view class='price-values'>
+										<text v-if='period.originalChargingPrice !== period.chargingPrice' class='original-price'>{{period.originalChargingPrice}}元/度</text>
+										<text class='current-price'>{{period.chargingPrice}}元/度</text>
 									</view>
-									<view class='price-row'>
-										<text class='label'>电费</text>
-										<view class='price-values'>
-											<text v-if='period.originalElectricityFee !== period.electricityFee' class='original-price'>{{period.originalElectricityFee}}元/度</text>
-											<text class='current-price'>{{period.electricityFee}}元/度</text>
-										</view>
+								</view>
+								<view class='price-row'>
+									<text class='label'>电费</text>
+									<view class='price-values'>
+										<text v-if='period.originalElectricityFee !== period.electricityFee' class='original-price'>{{period.originalElectricityFee}}元/度</text>
+										<text class='current-price'>{{period.electricityFee}}元/度</text>
 									</view>
-									<view class='price-row'>
-										<text class='label'>服务费</text>
-										<view class='price-values'>
-											<text v-if='period.originalServiceFee !== period.serviceFee' class='original-price'>{{period.originalServiceFee}}元/度</text>
-											<text class='current-price'>{{period.serviceFee}}元/度</text>
-										</view>
+								</view>
+								<view class='price-row'>
+									<text class='label'>服务费</text>
+									<view class='price-values'>
+										<text v-if='period.originalServiceFee !== period.serviceFee' class='original-price'>{{period.originalServiceFee}}元/度</text>
+										<text class='current-price'>{{period.serviceFee}}元/度</text>
 									</view>
 								</view>
 							</view>
 						</view>
-					</van-tab>
-                    <van-tab title="超充价格">
-						<view class='price-periods'>
-							<view class='period-card' v-for='(period, index) in fastChargingPrices' v-bind:key='index' v-bind:class='{current: period.isCurrent}'>
-								<view class='period-badge' v-if='period.isCurrent'>当前时段价</view>
-								<view class='period-time'>{{period.startTime}} - {{period.endTime}}</view>
-								<view class='period-prices'>
-									<view class='price-row'>
-										<text class='label'>充电单价</text>
-										<view class='price-values'>
-											<text v-if='period.originalChargingPrice !== period.chargingPrice' class='original-price'>{{period.originalChargingPrice}}元/度</text>
-											<text class='current-price'>{{period.chargingPrice}}元/度</text>
-										</view>
-									</view>
-									<view class='price-row'>
-										<text class='label'>电费</text>
-										<view class='price-values'>
-											<text v-if='period.originalElectricityFee !== period.electricityFee' class='original-price'>{{period.originalElectricityFee}}元/度</text>
-											<text class='current-price'>{{period.electricityFee}}元/度</text>
-										</view>
-									</view>
-									<view class='price-row'>
-										<text class='label'>服务费</text>
-										<view class='price-values'>
-											<text v-if='period.originalServiceFee !== period.serviceFee' class='original-price'>{{period.originalServiceFee}}元/度</text>
-											<text class='current-price'>{{period.serviceFee}}元/度</text>
-										</view>
-									</view>
-								</view>
-							</view>
+
+						<view v-if="!activePriceList.length" class="empty-price">
+							<text>暂无价格信息</text>
 						</view>
-					</van-tab>
-				</van-tabs>
+					</scroll-view>
+				</view>
 			</view>
 		</van-popup>
 		
 		<!-- 全部充电枪弹窗 -->
 		<van-popup v-model:show="showAllGuns" position="bottom" custom-style="height: 70%; border-radius: 20rpx 20rpx 0 0;">
-			<view class='all-guns-popup'>
+			<view class='all-guns-popup' @touchmove.stop>
 				<view class='popup-header'>
 					<text class='popup-title'>全部充电枪</text>
 					<van-icon name="cross" size="20px" v-on:click='showAllGuns = false' />
 				</view>
-				
+
 				<!-- 状态筛选 -->
 				<view class='status-filters'>
 					<view class='filter-chip' v-bind:class='{active: gunStatusFilter === "all"}' v-on:click='gunStatusFilter = "all"'>
@@ -219,30 +239,38 @@
 						<text>故障</text>
 					</view>
 				</view>
-				
-				<view class='guns-grid'>
-					<view class='gun-card' v-for='(gun, index) in filteredGuns' v-bind:key='index'>
-						<view class='gun-status'>
-							<van-circle
-								:value="getCircleRate(gun)"
-								:color="getCircleColor(gun.status)"
-								:layer-color="'#f0f2f5'"
-								:stroke-width="4"
-								:size="60"
-							>
-								<text class='status-text' :style="{ color: getCircleColor(gun.status) }">{{ getStatusText(gun.status) }}</text>
-							</van-circle>
-						</view>
-						<view class='gun-info'>
-							<view class='gun-number'>{{gun.gunNumber}}号枪</view>
-							<view class='gun-power'>最大功率 {{gun.maxPower}}KW</view>
-							<view v-if='gun.status === 3 && gun.remainingTime' class='gun-remaining'>剩余 {{gun.remainingTime}}分钟</view>
-						</view>
-						<view class='gun-type' v-bind:class='gun.type === 1 ? "megawatt-type" : "fast-type"'>
-							{{gun.type === 1 ? '兆冲' : '快充'}}
+
+				<scroll-view scroll-y class='popup-scroll-content' enable-flex>
+					<view class='guns-grid'>
+						<view class='gun-card' v-for='(gun, index) in filteredGuns' v-bind:key='index'>
+							<view class='gun-status'>
+								<!-- 使用纯 CSS 圆环替代 van-circle，避免原生组件层级问题 -->
+								<view class='custom-circle'>
+									<!-- 背景圆环 -->
+									<view class='circle-bg'></view>
+									<!-- 进度圆环 -->
+									<view class='circle-progress'
+										:style="{
+											background: `conic-gradient(${getCircleColor(gun.status)} ${getCircleRate(gun)}%, transparent ${getCircleRate(gun)}%)`
+										}"
+									></view>
+									<!-- 内部白色遮罩 -->
+									<view class='circle-inner'></view>
+									<!-- 状态文字 -->
+									<text class='status-text' :style="{ color: getCircleColor(gun.status) }">{{ getStatusText(gun.status) }}</text>
+								</view>
+							</view>
+							<view class='gun-info'>
+								<view class='gun-number'>{{gun.gunNumber}}号枪</view>
+								<view class='gun-power'>最大功率 {{gun.maxPower}}KW</view>
+								<view v-if='gun.status === 3 && gun.remainingTime' class='gun-remaining'>剩余 {{gun.remainingTime}}分钟</view>
+							</view>
+							<view class='gun-type' v-bind:class='gun.type === 1 ? "megawatt-type" : "fast-type"'>
+								{{gun.type === 1 ? '兆冲' : '快充'}}
+							</view>
 						</view>
 					</view>
-				</view>
+				</scroll-view>
 			</view>
 		</van-popup>
 	</view>
@@ -254,6 +282,10 @@
 		padding-top 0
 		padding-bottom 140rpx
 		min-height 100vh
+
+		&.no-scroll
+			overflow hidden
+			height 100vh
 		
 	.navbar
 		position relative
@@ -274,11 +306,45 @@
 		z-index 10
 		box-shadow 0 4rpx 20rpx rgba(0, 0, 0, 0.08)
 		
+		.station-header-row
+			display flex
+			align-items flex-start
+			justify-content space-between
+			gap 20rpx
+			margin-bottom 20rpx
+		
 		.station-name
+			flex 1
 			font-size 36rpx
 			font-weight 700
 			color #1a1a1a
-			margin-bottom 16rpx
+			margin 0
+			line-height 1.4
+			word-break break-word
+		
+		.station-status-chip
+			display inline-flex
+			align-items center
+			gap 12rpx
+			padding 10rpx 24rpx
+			border-radius 999rpx
+			font-size 24rpx
+			font-weight 600
+			border 1rpx solid transparent
+			line-height 1
+			box-shadow 0 6rpx 12rpx rgba(45, 85, 232, 0.08)
+			white-space nowrap
+			
+			.status-dot
+				width 14rpx
+				height 14rpx
+				border-radius 50%
+				background-color currentColor
+				opacity 0.88
+			
+			.status-text
+				line-height 1
+				letter-spacing 1rpx
 		
 		.address-row
 			display flex
@@ -326,7 +392,7 @@
 				border-radius 20rpx
 				font-size 22rpx
 	
-	.charge-fee-card, .parking-fee-card, .charging-guns-card, .nearby-services-card
+	.charge-fee-card, .parking-fee-card, .charging-guns-card, .station-manager-card, .nearby-services-card
 		background white
 		margin 20rpx
 		padding 30rpx
@@ -383,13 +449,42 @@
 			
 			.gun-status
 				margin-right 20rpx
-				
-				.status-text
-					font-size 24rpx
-					font-weight 600
-				
 
-			
+				.custom-circle
+					width 60px
+					height 60px
+					position relative
+					display flex
+					align-items center
+					justify-content center
+
+					.circle-bg
+						position absolute
+						width 100%
+						height 100%
+						border-radius 50%
+						background #f0f2f5
+
+					.circle-progress
+						position absolute
+						width 100%
+						height 100%
+						border-radius 50%
+						transform rotate(-90deg)
+
+					.circle-inner
+						position absolute
+						width 52px
+						height 52px
+						border-radius 50%
+						background white
+
+					.status-text
+						font-size 24rpx
+						font-weight 600
+						position relative
+						z-index 10
+
 			.gun-info
 				flex 1
 				
@@ -425,21 +520,48 @@
 		flex-wrap wrap
 		gap 32rpx
 		margin-top: 10rpx
-		
+
 		.service-item
 			display flex
 			flex-direction column
 			align-items center
 			gap 12rpx
-			
+
 			.service-icon
 				width 48rpx
 				height 48rpx
-			
+
 			.service-text
 				color #666
 				font-size 24rpx
 				text-align center
+
+	.managers-content
+		.manager-item
+			margin-bottom 20rpx
+
+			&:last-child
+				margin-bottom 0
+
+			.manager-info
+				display flex
+				justify-content space-between
+				align-items center
+
+				.manager-name
+					color #1a1a1a
+					font-size 28rpx
+					font-weight 500
+
+				.manager-phone
+					color #2D55E8
+					font-size 28rpx
+					text-decoration underline
+					cursor pointer
+
+					&:active
+						opacity 0.7
+
 	
 	.footer
 		position fixed
@@ -483,33 +605,109 @@
 			margin-left 20rpx
 			flex-shrink 0
 	
-	.price-detail-popup, .all-guns-popup
+	.price-detail-popup
 		padding 30rpx
-		
+		height 100%
+		display flex
+		flex-direction column
+		box-sizing border-box
+		flex 1
+
 		.popup-header
 			display flex
 			justify-content space-between
 			align-items center
 			margin-bottom 30rpx
-			
+			flex-shrink 0
+
 			.popup-title
 				font-size 32rpx
 				font-weight 600
+
+	.price-tabs
+		flex 1
+		display flex
+		flex-direction column
+		min-height 0
+
+		.tab-list
+			display flex
+			align-items center
+			margin-bottom 24rpx
+			flex-shrink 0
+		
+		.tab-item
+			padding 12rpx 32rpx
+			border-radius 999rpx
+			background #f3f5ff
+			color #666
+			font-size 26rpx
+			transition all 0.2s ease
+			box-shadow 0 2rpx 6rpx rgba(0, 0, 0, 0.04)
+			margin-right 20rpx
+
+			text
+				color inherit
+
+			&.active
+				background linear-gradient(135deg, #e8f0ff, #f0f4ff)
+				color #2D55E8
+				font-weight 500
+				box-shadow 0 4rpx 16rpx rgba(45, 85, 232, 0.12)
+
+			&:last-child
+				margin-right 0
+	
+	.all-guns-popup
+		padding 30rpx
+		height 100%
+		display flex
+		flex-direction column
+
+		.popup-header
+			display flex
+			justify-content space-between
+			align-items center
+			margin-bottom 30rpx
+			flex-shrink 0
+
+			.popup-title
+				font-size 32rpx
+				font-weight 600
+
+		.popup-scroll-content
+			flex 1
+			height 0
 		
 		// 移除手动修复，交由组件在可见时自适应计算
 	
 	.price-periods
+		flex 1
+		min-height 0
+		height 100%
+		box-sizing border-box
+		padding-bottom 20rpx
+	
+		.empty-price
+			margin-top 80rpx
+			text-align center
+			color #999
+			font-size 26rpx
+
 		.period-card
 			background #f8f9fa
 			border-radius 16rpx
 			padding 24rpx
-			margin-bottom 20rpx
 			position relative
 			margin-top: 10rpx
+			margin-bottom 20rpx
 			
 			&.current
 				background linear-gradient(135deg, #e8f0ff, #f0f4ff)
 				border 2rpx solid #2D55E8
+
+			&:last-child
+				margin-bottom 0
 			
 			.period-badge
 				position absolute
@@ -570,10 +768,42 @@
 			
 			.gun-status
 				margin-right 20rpx
-				.status-text
-					font-size 24rpx
-					font-weight 600
-			
+
+				.custom-circle
+					width 60px
+					height 60px
+					position relative
+					display flex
+					align-items center
+					justify-content center
+
+					.circle-bg
+						position absolute
+						width 100%
+						height 100%
+						border-radius 50%
+						background #f0f2f5
+
+					.circle-progress
+						position absolute
+						width 100%
+						height 100%
+						border-radius 50%
+						transform rotate(-90deg)
+
+					.circle-inner
+						position absolute
+						width 52px
+						height 52px
+						border-radius 50%
+						background white
+
+					.status-text
+						font-size 24rpx
+						font-weight 600
+						position relative
+						z-index 10
+
 		.gun-info
 			flex 1
 			
@@ -609,6 +839,7 @@
 		gap 16rpx
 		margin-bottom 24rpx
 		flex-wrap wrap
+		flex-shrink 0
 		
 		.filter-chip
 			padding 12rpx 20rpx
@@ -631,17 +862,20 @@
 </style>
 
 <script setup>
-    import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue'
+    import { ref, computed, onMounted, watch } from 'vue'
     import { onLoad, onShow, onHide, onUnload } from '@dcloudio/uni-app'
 	import navbar from '../../components/navbar/index.vue'
 	import request from '../../components/js/request.js'
-	import { 
-		formatPrice, 
-		formatTime, 
-		isCurrentPeriod, 
-		getStatusText, 
-		getServiceIcon, 
-		filterGunsByStatus
+	import {
+		formatPrice,
+		formatTime,
+		isCurrentPeriod,
+		getStatusText,
+		getServiceIcon,
+		filterGunsByStatus,
+		getStationStatusText,
+		getStationStatusColor,
+		isStationAvailable
 	} from '../../components/js/stationUtils.js'
 
 	// 圆环进度与颜色
@@ -668,7 +902,7 @@
 		}
 		return map[status] || '#FAAD14'
 	}
-	
+
 	// 响应式数据
 	const stationInfo = ref({
 		stationName: '',
@@ -676,18 +910,54 @@
 		distance: 0,
 		tags: [],
 		parkingInfo: '',
-		services: []
+		services: [],
+		stationStatus: 0,
+		lat: 0,
+		lng: 0
 	})
-	
+
+    const stationStatusText = computed(() => {
+		const status = stationInfo.value.stationStatus
+		if (status === undefined || status === null || status === '') {
+			return ''
+		}
+		return getStationStatusText(status)
+	})
+
+	const stationStatusTheme = computed(() => {
+		const theme = getStationStatusColor(stationInfo.value.stationStatus)
+		return {
+			bg: theme.bg,
+			text: theme.text,
+			border: theme.border || 'transparent',
+			dot: theme.dot || theme.text,
+			shadow: theme.shadow || 'none'
+		}
+	})
+
+	const stationStatusStyle = computed(() => {
+		const theme = stationStatusTheme.value
+		return {
+			background: theme.bg,
+			color: theme.text,
+			borderColor: theme.border,
+			boxShadow: theme.shadow
+		}
+	})
+
+	const showStationStatusChip = computed(() => {
+		return !!stationStatusText.value && !isStationAvailable(stationInfo.value.stationStatus)
+	})
+
     const chargingGuns = ref([])
     const pricePeriods = ref([])
+    const stationManagers = ref([])
     const showPriceDetail = ref(false)
     const showAllGuns = ref(false)
-    const activeTab = ref(0)
     const gunStatusFilter = ref('all')
     const refreshTimer = ref(null)
     const currentPlotId = ref(null)
-    const priceTabsVisible = ref(false)
+	const activePriceTab = ref('')
 
     const startAutoRefresh = () => {
         stopAutoRefresh()
@@ -705,27 +975,6 @@
         }
     }
 
-    const onPricePopupOpened = () => {
-        // 渲染完成后再挂载 Tabs，避免初始化时下划线计算容器尺寸为 0
-        nextTick(() => {
-            priceTabsVisible.value = true
-        })
-    }
-
-    const onPricePopupClosed = () => {
-        priceTabsVisible.value = false
-    }
-
-    // 兜底：监听弹窗显隐，确保在某些端 opened/closed 不触发时也能正常显示
-    watch(showPriceDetail, (val) => {
-        if (val) {
-            nextTick(() => {
-                priceTabsVisible.value = true
-            })
-        } else {
-            priceTabsVisible.value = false
-        }
-    })
 	
 	// 计算属性
 	const megawattPrices = computed(() => {
@@ -769,6 +1018,30 @@
 				return formattedPeriod
 			})
 	})
+
+	const priceTabItems = computed(() => {
+		const tabs = []
+		if (megawattPrices.value.length > 0) {
+			tabs.push({
+				key: 'megawatt',
+				label: '兆瓦价格',
+				list: megawattPrices.value
+			})
+		}
+		if (fastChargingPrices.value.length > 0) {
+			tabs.push({
+				key: 'fast',
+				label: '超充价格',
+				list: fastChargingPrices.value
+			})
+		}
+		return tabs
+	})
+
+	const activePriceList = computed(() => {
+		const currentTab = priceTabItems.value.find(tab => tab.key === activePriceTab.value)
+		return currentTab ? currentTab.list : []
+	})
 	
 	const currentPeriod = computed(() => {
 		const now = new Date()
@@ -811,11 +1084,34 @@
 	const filteredGuns = computed(() => {
 		return filterGunsByStatus(chargingGuns.value, gunStatusFilter.value)
 	})
-	
+
+	watch(priceTabItems, (tabs) => {
+		if (tabs.length === 0) {
+			activePriceTab.value = ''
+			return
+		}
+		if (!tabs.some(tab => tab.key === activePriceTab.value)) {
+			activePriceTab.value = tabs[0].key
+		}
+	}, { immediate: true })
+
+	watch(showPriceDetail, (visible) => {
+		if (!visible) return
+		const tabs = priceTabItems.value
+		if (tabs.length > 0) {
+			activePriceTab.value = tabs[0].key
+		}
+	})
+
+	const handlePriceTabChange = (key) => {
+		if (activePriceTab.value === key) return
+		activePriceTab.value = key
+	}
+
 	const navigateToStation = () => {
 		uni.openLocation({
-			latitude: stationInfo.value.lat || 39.9045035,
-			longitude: stationInfo.value.lng || 116.408788,
+			latitude: stationInfo.value.latitude,
+			longitude: stationInfo.value.longitude,
 			name: stationInfo.value.stationName,
 			address: stationInfo.value.address || ''
 		})
@@ -830,6 +1126,13 @@
 			}
 		})
 	}
+
+	const makePhoneCall = (phoneNumber) => {
+		if (!phoneNumber) return
+		uni.makePhoneCall({
+			phoneNumber: phoneNumber
+		})
+	}
 	
 	const loadStationDetail = (plotId) => {
 		// 先获取用户位置
@@ -839,7 +1142,7 @@
 				request({
 					url: 'charging/stationDetail',
 					method: 'GET',
-					data: { 
+					data: {
 						plotId,
 						lat: locationRes.latitude,
 						lng: locationRes.longitude
@@ -852,11 +1155,27 @@
 							distance: data.distance,
 							tags: data.tags || [],
 							parkingInfo: data.parkingInfo,
-							services: data.services || []
+							services: data.services || [],
+							stationStatus: data.stationStatus ?? data.status ?? 0,
+							lat: locationRes.latitude,
+							lng: locationRes.longitude
 						}
-						
+
 						chargingGuns.value = data.chargingGuns || []
 						pricePeriods.value = data.pricePeriods || []
+
+						// 解析persons字段
+						if (data.persons) {
+							try {
+								const personsData = typeof data.persons === 'string' ? JSON.parse(data.persons) : data.persons
+								stationManagers.value = Array.isArray(personsData) ? personsData : []
+							} catch (e) {
+								console.error('解析persons字段失败:', e)
+								stationManagers.value = []
+							}
+						} else {
+							stationManagers.value = []
+						}
 					}
 				})
 			},
@@ -865,7 +1184,7 @@
 				request({
 					url: 'charging/stationDetail',
 					method: 'GET',
-					data: { 
+					data: {
 						plotId,
 						lat: 39.9045035,
 						lng: 116.408788
@@ -878,11 +1197,27 @@
 							distance: data.distance,
 							tags: data.tags || [],
 							parkingInfo: data.parkingInfo,
-							services: data.services || []
+							services: data.services || [],
+							stationStatus: data.stationStatus ?? data.status ?? 0,
+							lat: 39.9045035,
+							lng: 116.408788
 						}
-						
+
 						chargingGuns.value = data.chargingGuns || []
 						pricePeriods.value = data.pricePeriods || []
+
+						// 解析persons字段
+						if (data.persons) {
+							try {
+								const personsData = typeof data.persons === 'string' ? JSON.parse(data.persons) : data.persons
+								stationManagers.value = Array.isArray(personsData) ? personsData : []
+							} catch (e) {
+								console.error('解析persons字段失败:', e)
+								stationManagers.value = []
+							}
+						} else {
+							stationManagers.value = []
+						}
 					}
 				})
 			}
